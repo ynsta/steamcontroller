@@ -37,14 +37,14 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
 
 ## TODO
 
- 1. Finish to guess each bytes/bits roles in the usb message (almost finished),
+ 1. Finish to guess each bytes/bits roles in the usb message (*Done*),
  2. Understand how to configure haptic feed backs,
  3. Understand how to enable gyroscopes,
  4. Redirect inputs to userland events via uinput (*Done*):
    - Create a C library that permit to create, a uinput device and send events
      (python-uinput might be a candidate but I prefer to stick to MIT/BSD projects)
    - Create a python binding to this library.
- 5. Create a simple xbox event mapper. (*Mostly Done*)
+ 5. Create a simple xbox event mapper. (*Done* but to be improved)
  6. Create a configurable event mapper:
    - Create an event mapper that reads steam vdf files and maps usb inputs to uinput events.
    - Create fallback mappings for unsupported config options.

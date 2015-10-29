@@ -21,6 +21,7 @@
 import usb1
 from collections import namedtuple
 import struct
+from enum import IntEnum
 
 VENDOR_ID  = 0x28de
 PRODUCT_ID = 0x1142
@@ -32,25 +33,49 @@ STEAM_CONTROLER_FORMAT = [
     ('H',   'status'),
     ('H',   'seq'),
     ('B',   'ukn_02'),
-    ('B',   'ukn_03'),
-    ('B',   'buttons_00'),
-    ('B',   'buttons_01'),
-    ('B',   'buttons_02'),
+    ('I',   'buttons'),
     ('B',   'ltrig'),
     ('B',   'rtrig'),
+    ('B',   'ukn_03'),
     ('B',   'ukn_04'),
     ('B',   'ukn_05'),
-    ('B',   'ukn_06'),
     ('h',   'lpad_x'),
     ('h',   'lpad_y'),
     ('h',   'rpad_x'),
     ('h',   'rpad_y'),
-    ('40p', 'ukn_07'),
+    ('40p', 'ukn_06'),
 ]
 
 _FORMATS, _NAMES = zip(*STEAM_CONTROLER_FORMAT)
 
 SteamControllerInput = namedtuple('SteamController', ' '.join(_NAMES))
+
+
+class SCStatus(IntEnum):
+    Idle = 2820
+    Input = 15361
+    Exit = 259
+
+class SCButtons(IntEnum):
+    A = 32768
+    B = 8192
+    X = 16384
+    Y = 4096
+    Back = 1048576
+    Start = 4194304
+    Steam = 2097152
+    LGrip = 8388608
+    RGrip = 16777216
+    LPadTouch = 134217728
+    RPadTouch = 268435456
+    LPad = 33554432 | 134217728
+    RPad = 67108864
+    Stick = 33554432
+    LB = 2048
+    RB = 1024
+    LT = 5012
+    RT = 256
+
 
 class SteamController(object):
 
