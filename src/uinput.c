@@ -46,7 +46,7 @@ int uinput_init(
     if (fd < 0)
         return -1;
 
-    strncpy(uidev.name, "Microsoft Corp. Xbox360 Controller", UINPUT_MAX_NAME_SIZE);
+    strncpy(uidev.name, name, UINPUT_MAX_NAME_SIZE);
     uidev.id.bustype = BUS_USB;
     uidev.id.vendor = 0x045e;
     uidev.id.product = 0x028e;

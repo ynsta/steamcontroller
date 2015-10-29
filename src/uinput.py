@@ -85,7 +85,7 @@ class Xbox360(UInput):
     def __init__(self):
         super(Xbox360, self).__init__(vendor=0x045e,
                                       product=0x028e,
-                                      name=b"Microsoft Corp. Xbox360 Controller",
+                                      name=b"Microsoft X-Box 360 pad",
                                       keys=[Keys.BTN_START,
                                             Keys.BTN_MODE,
                                             Keys.BTN_SELECT,
