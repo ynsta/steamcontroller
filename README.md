@@ -1,11 +1,11 @@
 # Standalone Steam Controller Portable Driver
 
-This project is a driver for steam controller to be used where steam client can't be installed.
+This project is a standalone userland driver for the steam controller to be used where steam client can't be installed.
 
 The Initial target is GNU/Linux if some developpers are insterred to add support
 for Windows any contribution is welcomed.
 
-For the moment only the usb message dumper works.
+For the moment only the usb message dumper works, the simple xbox360 emulator is almost finished.
 
 This project is licenced under MIT Licence.
 
@@ -19,7 +19,7 @@ This project is licenced under MIT Licence.
    - Install python libusb1 `sudo pip2 install libusb1`
  4. sudo python setup.py install
  5. Install udev rules (if not already done for steam) in `/etc/udev/rules.d/99-steam-controller.rules`:
-```
+    ```
 # replace game group by a valid group on your system
 # Steam controller keyboard/mouse mode
 SUBSYSTEM=="usb", ATTRS{idVendor}=="28de", GROUP="games", MODE="0660"
