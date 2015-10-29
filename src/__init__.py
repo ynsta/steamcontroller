@@ -68,7 +68,7 @@ class SCButtons(IntEnum):
     RGrip = 16777216
     LPadTouch = 134217728
     RPadTouch = 268435456
-    LPad = 33554432 | 134217728
+    LPad = 33554432
     RPad = 67108864
     Stick = 33554432
     LB = 2048

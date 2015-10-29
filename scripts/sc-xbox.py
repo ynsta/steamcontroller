@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-"""Steam Controller XBOX Driver"""
+"""Steam Controller XBOX360 Gamepad Emulator"""
 
 import sys
 from steamcontroller import \
@@ -33,6 +33,7 @@ from steamcontroller import \
 import steamcontroller.uinput
 from steamcontroller.uinput import Keys
 from steamcontroller.uinput import Axes
+from steamcontroller.daemon import Daemon
 
 prev_buttons = 0
 
@@ -56,12 +57,16 @@ button_map = {
 def lpad_func(x, btn, threshold, evstick, evtouch, clicked, invert):
     global prev_buttons
 
-    removed = prev_buttons ^ btn
+    rmv = prev_buttons ^ btn
+
+    events = []
 
     if btn & SCButtons.LPadTouch != SCButtons.LPadTouch:
-        return (evstick, x if not invert else -x)
+        events.append((evstick, x if not invert else -x))
 
-    if btn & (SCButtons.LPad if clicked else SCButtons.LPadTouch):
+    if (clicked and (btn & (SCButtons.LPad | SCButtons.LPadTouch)) == (SCButtons.LPad | SCButtons.LPadTouch) or
+        not clicked and (btn & SCButtons.LPadTouch == SCButtons.LPadTouch)):
+
         if x >= 0:
             if x >= threshold:
                 x = 32767
@@ -72,23 +77,22 @@ def lpad_func(x, btn, threshold, evstick, evtouch, clicked, invert):
                 x = -32767
             else:
                 x = 0
-        return (evtouch, x if not invert else -x)
+        events.append((evtouch, x if not invert else -x))
 
-    if removed & SCButtons.LPadTouch != SCButtons.LPadTouch:
-        return (evstick,  0)
+    if ((clicked and rmv & SCButtons.LPad == SCButtons.LPad) or
+        (not clicked and rmv & SCButtons.LPadTouch == SCButtons.LPadTouch)):
+        events.append((evtouch, 0))
 
-    if removed & (SCButtons.LPad if clicked else SCButtons.LPadTouch):
-        return (evtouch, 0)
 
-    return (None, None)
+    return events
 
 axis_map = {
-    'ltrig'  : lambda x, btn: (Axes.ABS_Z,  int(-32767 + ((x*2.0*32767.0)/255.))),
-    'rtrig'  : lambda x, btn: (Axes.ABS_RZ, int(-32767 + ((x*2.0*32767.0)/255.))),
-    'lpad_x' : lambda x, btn: lpad_func(x, btn, 16384, Axes.ABS_X, Axes.ABS_HAT0X, True, False),
-    'lpad_y' : lambda x, btn: lpad_func(x, btn, 16384, Axes.ABS_Y, Axes.ABS_HAT0Y, True, True),
-    'rpad_x' : lambda x, btn: (Axes.ABS_RX, x),
-    'rpad_y' : lambda x, btn: (Axes.ABS_RY, -x),
+    'ltrig'  : lambda x, btn: [(Axes.ABS_Z,  int(-32767 + ((x*2.0*32767.0)/255.)))],
+    'rtrig'  : lambda x, btn: [(Axes.ABS_RZ, int(-32767 + ((x*2.0*32767.0)/255.)))],
+    'lpad_x' : lambda x, btn: lpad_func(x, btn, 15000, Axes.ABS_X, Axes.ABS_HAT0X, True, False),
+    'lpad_y' : lambda x, btn: lpad_func(x, btn, 15000, Axes.ABS_Y, Axes.ABS_HAT0Y, True, True),
+    'rpad_x' : lambda x, btn: [(Axes.ABS_RX, x)],
+    'rpad_y' : lambda x, btn: [(Axes.ABS_RY, -x)],
 }
 
 
@@ -113,27 +117,42 @@ def scInput2Uinput(sci, xb):
             xb.keyEvent(ev, 0)
 
     for name, func in axis_map.items():
-        ev, val = func(sci._asdict()[name], sci.buttons)
-        if ev != None:
-            xb.axisEvent(ev, val)
+        for ev, val in func(sci._asdict()[name], sci.buttons):
+            if ev != None:
+                xb.axisEvent(ev, val)
 
     xb.synEvent()
     prev_buttons = sci.buttons
 
-def _main():
 
-
-    try:
-        xb = steamcontroller.uinput.Xbox360()
-        sc = SteamController(callback=scInput2Uinput, callback_args=[xb, ])
-        sc.run()
-    except KeyboardInterrupt:
-        pass
-    except Exception as e:
-        sys.stderr.write(str(e) + '\n')
-
-    print("Bye")
-
+class SCDaemon(Daemon):
+    def run(self):
+        while True:
+            try:
+                xb = steamcontroller.uinput.Xbox360()
+                sc = SteamController(callback=scInput2Uinput, callback_args=[xb, ])
+                sc.run()
+            except KeyboardInterrupt:
+                return
+            except:
+                pass
 
 if __name__ == '__main__':
+    import argparse
+
+    def _main():
+        parser = argparse.ArgumentParser(description=__doc__)
+        parser.add_argument('command', type=str, choices=['start', 'stop', 'restart', 'debug'])
+        args = parser.parse_args()
+        daemon = SCDaemon('/tmp/steamcontroller.pid')
+
+        if 'start' == args.command:
+            daemon.start()
+        elif 'stop' == args.command:
+            daemon.stop()
+        elif 'restart' == args.command:
+            daemon.restart()
+        elif 'debug' == args.command:
+            daemon.run()
+
     _main()

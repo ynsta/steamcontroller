@@ -33,7 +33,7 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
 ## Usage
 
  1. Exit Steam.
- 2. run `sc-dump.py` for the dumper or `sc-xbox.py` for the simple xbox360 emulator.
+ 2. run `sc-dump.py` for the dumper or `sc-xbox.py start` for the simple xbox360 emulator.
 
 ## TODO
 
