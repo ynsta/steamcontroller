@@ -6,8 +6,7 @@ where steam client can't be installed.
 The Initial target is GNU/Linux if some developpers are insterred to add support
 for Windows any contribution is welcomed.
 
-For the moment only the usb message dumper works, the simple xbox360 emulator is
-almost finished.
+For the moment only an xbox360 emulator is working without haptic feedback control.
 
 This project is licenced under MIT Licence.
 
@@ -39,11 +38,11 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
 
 ## TODO
 
- 1. Finish to guess each bytes/bits roles in the usb message (*Done*),
- 2. Understand how to configure haptic feed backs (*Not Started*),
- 3. Understand how to enable gyroscopes (*Not Started*),
- 4. Redirect inputs to userland events via uinput (*Done*):
- 5. Create a simple xbox event mapper. (*Done* but to be improved)
+ 1. Finish to guess each bytes/bits roles in the usb message (*Done*).
+ 2. Understand how to configure haptic feed backs (*Not Started*).
+ 3. Understand how to enable gyroscopes (*Not Started*).
+ 4. Redirect inputs to userland events via uinput (*Done*).
+ 5. Create a simple xbox event mapper (*Done* but to be improved).
  6. Create a configurable event mapper:
    - Create an event mapper that reads steam vdf files and maps usb inputs to uinput events.
    - Create fallback mappings for unsupported config options.
