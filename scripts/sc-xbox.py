@@ -79,12 +79,12 @@ def lpad_func(x, btn, threshold, evstick, evtouch, clicked, invert):
                 x = 0
         events.append((evtouch, x if not invert else -x))
 
-    if ((clicked and rmv & SCButtons.LPad == SCButtons.LPad) or
+    elif ((clicked and rmv & SCButtons.LPad == SCButtons.LPad) or
         (not clicked and rmv & SCButtons.LPadTouch == SCButtons.LPadTouch)):
         events.append((evtouch, 0))
 
-
     return events
+
 
 axis_map = {
     'ltrig'  : lambda x, btn: [(Axes.ABS_Z,  int(-32767 + ((x*2.0*32767.0)/255.)))],
@@ -95,35 +95,55 @@ axis_map = {
     'rpad_y' : lambda x, btn: [(Axes.ABS_RY, -x)],
 }
 
+prev_key_events = set()
+prev_abs_events = set()
 
 def scInput2Uinput(sci, xb):
 
     global prev_buttons
+    global prev_key_events
+    global prev_abs_events
 
     if sci.status != SCStatus.Input:
         return
 
     removed = prev_buttons ^ sci.buttons
 
+    key_events = []
+    abs_events = []
+
     for btn, ev in button_map.items():
 
         if btn == SCButtons.Stick and sci.buttons & SCButtons.LPadTouch:
-            xb.keyEvent(ev, 0)
-            continue
-
-        if sci.buttons & btn:
-            xb.keyEvent(ev, 1)
-        if removed & btn:
-            xb.keyEvent(ev, 0)
+            key_events.append((ev, 0))
+        else:
+            if sci.buttons & btn:
+                key_events.append((ev, 1))
+            elif removed & btn:
+                key_events.append((ev, 0))
 
     for name, func in axis_map.items():
         for ev, val in func(sci._asdict()[name], sci.buttons):
             if ev != None:
-                xb.axisEvent(ev, val)
+                abs_events.append((ev, val))
 
-    xb.synEvent()
+    new = False
+    for ev in key_events:
+        if ev not in prev_key_events:
+            xb.keyEvent(*ev)
+            new = True
+
+    for ev in abs_events:
+        if ev not in prev_abs_events:
+            xb.axisEvent(*ev)
+
+            new = True
+    if new:
+        xb.synEvent()
+
+    prev_key_events = set(key_events)
+    prev_abs_events = set(abs_events)
     prev_buttons = sci.buttons
-
 
 class SCDaemon(Daemon):
     def run(self):
