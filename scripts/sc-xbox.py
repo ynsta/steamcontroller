@@ -45,7 +45,7 @@ button_map = {
     SCButtons.Back   : Keys.BTN_SELECT,
     SCButtons.Start  : Keys.BTN_START,
     SCButtons.Steam  : Keys.BTN_MODE,
-    SCButtons.Stick  : Keys.BTN_THUMBL,
+    SCButtons.LPad  : Keys.BTN_THUMBL,
     SCButtons.RPad   : Keys.BTN_THUMBR,
     SCButtons.LGrip  : Keys.BTN_A,
     SCButtons.RGrip  : Keys.BTN_B,
@@ -112,7 +112,7 @@ def scInput2Uinput(sci, xb):
 
     for btn, ev in button_map.items():
 
-        if btn == SCButtons.Stick and sci.buttons & SCButtons.LPadTouch:
+        if btn == SCButtons.LPad and sci.buttons & SCButtons.LPadTouch:
             key_events.append((ev, 0))
         else:
             if sci.buttons & btn:
