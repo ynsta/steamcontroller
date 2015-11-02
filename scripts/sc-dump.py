@@ -25,7 +25,7 @@
 """Steam Controller USB Dumper"""
 
 import sys
-from steamcontroller import SteamController, SteamControllerInput
+from steamcontroller import SteamController
 
 def dump(sci):
     print(sci)

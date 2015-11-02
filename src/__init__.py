@@ -134,7 +134,8 @@ class SteamController(object):
     def _processReceivedData(self, transfer):
         """Private USB async Rx function"""
 
-        if transfer.getStatus() != usb1.TRANSFER_COMPLETED or transfer.getActualLength() != 64:
+        if (transfer.getStatus() != usb1.TRANSFER_COMPLETED or
+            transfer.getActualLength() != 64):
             return
 
         data = transfer.getBuffer()

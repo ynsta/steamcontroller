@@ -24,10 +24,8 @@
 
 """Steam Controller XBOX360 Gamepad Emulator"""
 
-import sys
 from steamcontroller import \
     SteamController, \
-    SteamControllerInput, \
     SCStatus, \
     SCButtons
 import steamcontroller.uinput
