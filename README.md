@@ -39,11 +39,44 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
 ## TODO
 
  1. Finish to guess each bytes/bits roles in the usb message (*Done*).
- 2. Understand how to configure haptic feed backs (*Not Started*).
- 3. Understand how to enable gyroscopes (*Not Started*).
+ 2. Understand how to configure haptic feed backs (*In progress*).
+    - Understand the format of control messages used
+ 3. Understand how to enable gyroscopes (TBD).
  4. Redirect inputs to userland events via uinput (*Done*).
  5. Create a simple xbox event mapper (*Done* but to be improved).
- 6. Create a configurable event mapper:
+ 6. Create a configurable event mapper (TBD):
    - Create an event mapper that reads steam vdf files and maps usb inputs to uinput events.
    - Create fallback mappings for unsupported config options.
    - Get all possible configurations of steam config file.
+
+
+## Control Message Capture
+
+ 1. `sudo modprobe usbmon`
+ 2. `lsusb -d 28de:1142` and look at bus and device numbers (B & D)
+ 3. `sudo cat /sys/kernel/debug/usb/usbmon/Bu | grep Co:B:D:0` B=3 and D=003 on my setup.
+
+
+### Disable auto feedback on rpad:
+
+ - `81000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000`
+ - `87153284 03180000 31020008 07000707 00300000 2f010000 00000000 00000000`
+
+### Enable autofeedback on rpad
+
+ - `81000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000`
+ - `87153284 03180000 31020008 07000707 00301400 2f010000 00000000 00000000`
+
+### RPAD
+
+ - `8f0700c8 00000001 00000000 00000000 00000000 00000000 00000000 00000000`
+
+### LPAD
+
+ - `8f070115 02000001 00000000 00000000 00000000 00000000 00000000 00000000`
+
+
+### BIP (Controler identification)
+
+ - `8f07005e 015e01f4 01000000 00000000 00000000 00000000 00000000 00000000`
+ - `8f070126 022602f4 01000000 00000000 00000000 00000000 00000000 00000000`

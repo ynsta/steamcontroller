@@ -45,7 +45,7 @@ button_map = {
     SCButtons.Back   : Keys.BTN_SELECT,
     SCButtons.Start  : Keys.BTN_START,
     SCButtons.Steam  : Keys.BTN_MODE,
-    SCButtons.LPad  : Keys.BTN_THUMBL,
+    SCButtons.LPad   : Keys.BTN_THUMBL,
     SCButtons.RPad   : Keys.BTN_THUMBR,
     SCButtons.LGrip  : Keys.BTN_A,
     SCButtons.RGrip  : Keys.BTN_B,
@@ -60,7 +60,7 @@ def lpad_func(x, btn, threshold, evstick, evtouch, clicked, invert):
     events = []
 
     if btn & SCButtons.LPadTouch != SCButtons.LPadTouch:
-        events.append((evstick, x if not invert else -x))
+        events.append((evstick, x if not invert else -x, False))
 
     if (clicked and (btn & (SCButtons.LPad | SCButtons.LPadTouch)) == (SCButtons.LPad | SCButtons.LPadTouch) or
         not clicked and (btn & SCButtons.LPadTouch == SCButtons.LPadTouch)):
@@ -75,28 +75,28 @@ def lpad_func(x, btn, threshold, evstick, evtouch, clicked, invert):
                 x = -32767
             else:
                 x = 0
-        events.append((evtouch, x if not invert else -x))
+        events.append((evtouch, x if not invert else -x, x != 0))
 
     elif ((clicked and rmv & SCButtons.LPad == SCButtons.LPad) or
         (not clicked and rmv & SCButtons.LPadTouch == SCButtons.LPadTouch)):
-        events.append((evtouch, 0))
+        events.append((evtouch, 0, False))
 
     return events
 
 
 axis_map = {
-    'ltrig'  : lambda x, btn: [(Axes.ABS_Z,  int(-32767 + ((x*2.0*32767.0)/255.)))],
-    'rtrig'  : lambda x, btn: [(Axes.ABS_RZ, int(-32767 + ((x*2.0*32767.0)/255.)))],
-    'lpad_x' : lambda x, btn: lpad_func(x, btn, 15000, Axes.ABS_X, Axes.ABS_HAT0X, True, False),
-    'lpad_y' : lambda x, btn: lpad_func(x, btn, 15000, Axes.ABS_Y, Axes.ABS_HAT0Y, True, True),
-    'rpad_x' : lambda x, btn: [(Axes.ABS_RX, x)],
-    'rpad_y' : lambda x, btn: [(Axes.ABS_RY, -x)],
+    'ltrig'  : lambda x, btn: [(Axes.ABS_Z,  int(-32767 + ((x*2.0*32767.0)/255.)), False)],
+    'rtrig'  : lambda x, btn: [(Axes.ABS_RZ, int(-32767 + ((x*2.0*32767.0)/255.)), False)],
+    'lpad_x' : lambda x, btn: lpad_func(x, btn, 15000, Axes.ABS_X, Axes.ABS_HAT0X, False, False),
+    'lpad_y' : lambda x, btn: lpad_func(x, btn, 15000, Axes.ABS_Y, Axes.ABS_HAT0Y, False, True),
+    'rpad_x' : lambda x, btn: [(Axes.ABS_RX, x, False)],
+    'rpad_y' : lambda x, btn: [(Axes.ABS_RY, -x, False)],
 }
 
 prev_key_events = set()
 prev_abs_events = set()
 
-def scInput2Uinput(sci, xb):
+def scInput2Uinput(sc, sci, xb):
 
     global prev_buttons
     global prev_key_events
@@ -121,9 +121,11 @@ def scInput2Uinput(sci, xb):
                 key_events.append((ev, 0))
 
     for name, func in axis_map.items():
-        for ev, val in func(sci._asdict()[name], sci.buttons):
+        for ev, val, feedback in func(sci._asdict()[name], sci.buttons):
             if ev != None:
-                abs_events.append((ev, val))
+                abs_events.append((ev, val, name if feedback else None))
+
+
 
     new = False
     for ev in key_events:
@@ -133,8 +135,8 @@ def scInput2Uinput(sci, xb):
 
     for ev in abs_events:
         if ev not in prev_abs_events:
-            xb.axisEvent(*ev)
-
+            xb.axisEvent(*ev[:2])
+            sc.addFeedback(ev[2])
             new = True
     if new:
         xb.synEvent()
@@ -171,6 +173,8 @@ if __name__ == '__main__':
         elif 'restart' == args.command:
             daemon.restart()
         elif 'debug' == args.command:
-            daemon.run()
+            xb = steamcontroller.uinput.Xbox360()
+            sc = SteamController(callback=scInput2Uinput, callback_args=[xb, ])
+            sc.run()
 
     _main()

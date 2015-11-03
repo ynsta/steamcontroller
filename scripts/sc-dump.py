@@ -27,7 +27,7 @@
 import sys
 from steamcontroller import SteamController
 
-def dump(sci):
+def dump(sc, sci):
     print(sci)
 
 def _main():

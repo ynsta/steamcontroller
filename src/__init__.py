@@ -91,7 +91,7 @@ class SteamController(object):
         self._handle = None
         self._cb = callback
         self._cb_args = callback_args
-
+        self._cmsg = []
         self._ctx = usb1.USBContext()
         self._handle = self._ctx.openByVendorIDAndProductID(
             VENDOR_ID, PRODUCT_ID,
@@ -124,10 +124,44 @@ class SteamController(object):
         transfer.submit()
         self._transfer_list.append(transfer)
 
+        # Disable Haptic auto feedback
+
+        self._ctx.handleEvents()
+        self._sendControl(struct.pack('>' + 'I' * 1,
+                                      0x81000000))
+        self._ctx.handleEvents()
+        self._sendControl(struct.pack('>' + 'I' * 6,
+                                      0x87153284,
+                                      0x03180000,
+                                      0x31020008,
+                                      0x07000707,
+                                      0x00300000,
+                                      0x2f010000))
+        self._ctx.handleEvents()
+
 
     def __del__(self):
         if self._handle:
             self._handle.close()
+
+    def _sendControl(self, data, timeout=0):
+
+        zeros = b'\x00' * (64 - len(data))
+
+        self._handle.controlWrite(request_type=0x21,
+                                  request=0x09,
+                                  value=0x0300,
+                                  index=0x0001,
+                                  data=data + zeros,
+                                  timeout=timeout)
+
+    def addFeedback(self, name):
+        if not name:
+            return
+        elif name[:2] == 'rp':
+            self._cmsg.insert(0, struct.pack('>' + 'I' * 2, 0x8f0700ff, 0x03000001))
+        elif name[:2] == 'lp':
+            self._cmsg.insert(0, struct.pack('>' + 'I' * 2, 0x8f0701ff, 0x03000001))
 
 
     def _processReceivedData(self, transfer):
@@ -141,9 +175,9 @@ class SteamController(object):
         tup = SteamControllerInput._make(struct.unpack('<' + ''.join(_FORMATS), data))
 
         if isinstance(self._cb_args, (list, tuple)):
-            self._cb(tup, *self._cb_args)
+            self._cb(self, tup, *self._cb_args)
         else:
-            self._cb(tup)
+            self._cb(self, tup)
 
         transfer.submit()
 
@@ -153,5 +187,15 @@ class SteamController(object):
             try:
                 while any(x.isSubmitted() for x in self._transfer_list):
                     self._ctx.handleEvents()
+                    if len(self._cmsg) > 0:
+                        cmsg = self._cmsg.pop()
+                        self._sendControl(cmsg)
+
             except usb1.USBErrorInterrupted:
                 pass
+
+
+    def handleEvents(self):
+        """Fucntion to run in order to process usb events"""
+        if self._handle and self._ctx:
+                self._ctx.handleEvents()
