@@ -38,9 +38,9 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
 
 ## TODO
 
- 1. Finish to guess each bytes/bits roles in the usb message (*Done*).
+ 1. Finish to guess each bytes/bits roles in the usb message (*Done* Except Gyroscope).
  2. Understand how to configure haptic feed backs (*In progress*).
-    - Understand the format of control messages used
+    - Understand the format of control messages used (cf _Control Message Capture_ below)
  3. Understand how to enable gyroscopes (TBD).
  4. Redirect inputs to userland events via uinput (*Done*).
  5. Create a simple xbox event mapper (*Done* but to be improved).
@@ -76,7 +76,7 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
  - `8f070115 02000001 00000000 00000000 00000000 00000000 00000000 00000000`
 
 
-### BIP (Controler identification)
+### BIP (Controller identification)
 
  - `8f07005e 015e01f4 01000000 00000000 00000000 00000000 00000000 00000000`
  - `8f070126 022602f4 01000000 00000000 00000000 00000000 00000000 00000000`
