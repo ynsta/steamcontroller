@@ -1,14 +1,12 @@
-# Standalone Steam Controller Portable Driver
+# Standalone Steam Controller Driver
 
-This project is a standalone userland driver for the steam controller to be used
-where steam client can't be installed.
+This project is a standalone userland driver for the steam controller to be used where steam client can't be installed.
 
 For the moment only the xbox360 gamepad emulator is working.
 
 The final purpose is to have support for custom mapping created with a stand-alone tool or imported from steam vdf files.
 
-The Initial target is GNU/Linux, but if some developpers are insterred to add support
-for Windows for input generation any contribution is welcomed.
+The initial target is *GNU/Linux*, but I'll welcome any contributor that want to port input generation for other OS (OSX, Windows, *BSD, Android/Linux, ...)
 
 This project is licenced under MIT Licence.
 
@@ -40,7 +38,8 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
 
 ## TODO
 
- 1. Finish to guess each bytes/bits roles in the usb message (*Done* Except Gyroscope).
+ 1. Finish to guess each bytes/bits roles in the usb message (Mostly *Done*).
+    - Verify that Gyroscope data 4 to 7 are a quaternion as suspected
  2. Understand how to configure haptic feed backs (*In progress*).
     - Understand the format of control messages used (cf _Control Message Capture_ below)
  3. Understand how to enable gyroscopes (*Done*).
@@ -52,13 +51,11 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
    - Get all possible configurations of steam config file.
  7. Create a haptic feedback Manager (TBD)
 
-
 ## Control Message Capture
 
  1. `sudo modprobe usbmon`
  2. `lsusb -d 28de:1142` and look at bus and device numbers (B & D)
  3. `sudo cat /sys/kernel/debug/usb/usbmon/Bu | grep Co:B:D:0` B=3 and D=003 on my setup.
-
 
 ### Disable auto feedback on rpad:
 
