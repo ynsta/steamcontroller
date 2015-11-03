@@ -6,7 +6,9 @@ where steam client can't be installed.
 The Initial target is GNU/Linux if some developpers are insterred to add support
 for Windows any contribution is welcomed.
 
-For the moment only an xbox360 emulator is working without haptic feedback control.
+For the moment only the xbox360 gamepad emulator is working.
+
+The final purpose is to have support for custom mapping created with a stand-alone tool or imported from steam vdf files.
 
 This project is licenced under MIT Licence.
 
