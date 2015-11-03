@@ -28,35 +28,35 @@ PRODUCT_ID = 0x1142
 ENDPOINT   = 2
 
 STEAM_CONTROLER_FORMAT = [
-    ('B',   'ukn_00'),
-    ('B',   'ukn_01'),
+    ('x',   'ukn_00'),
+    ('x',   'ukn_01'),
     ('H',   'status'),
     ('H',   'seq'),
-    ('B',   'ukn_02'),
+    ('x',   'ukn_02'),
     ('I',   'buttons'),
     ('B',   'ltrig'),
     ('B',   'rtrig'),
-    ('B',   'ukn_03'),
-    ('B',   'ukn_04'),
-    ('B',   'ukn_05'),
+    ('x',   'ukn_03'),
+    ('x',   'ukn_04'),
+    ('x',   'ukn_05'),
     ('h',   'lpad_x'),
     ('h',   'lpad_y'),
     ('h',   'rpad_x'),
     ('h',   'rpad_y'),
-    ('10p', 'ukn_06'),
-    ('h',   'imu_01'),
-    ('h',   'imu_02'),
-    ('h',   'imu_03'),
-    ('h',   'imu_04'),
-    ('h',   'imu_05'),
-    ('h',   'imu_06'),
-    ('h',   'imu_07'),
-    ('16p', 'ukn_07'),
+    ('10x', 'ukn_06'),
+    ('h',   'gpitch'),
+    ('h',   'groll'),
+    ('h',   'gyaw'),
+    ('h',   'q1'),
+    ('h',   'q2'),
+    ('h',   'q3'),
+    ('h',   'q4'),
+    ('16x', 'ukn_07'),
 ]
 
 _FORMATS, _NAMES = zip(*STEAM_CONTROLER_FORMAT)
 
-SteamControllerInput = namedtuple('SteamController', ' '.join(_NAMES))
+SteamControllerInput = namedtuple('SteamController', ' '.join([x for x in _NAMES if not x.startswith('ukn_')]))
 
 
 class SCStatus(IntEnum):
