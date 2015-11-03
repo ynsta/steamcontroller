@@ -3,12 +3,12 @@
 This project is a standalone userland driver for the steam controller to be used
 where steam client can't be installed.
 
-The Initial target is GNU/Linux if some developpers are insterred to add support
-for Windows any contribution is welcomed.
-
 For the moment only the xbox360 gamepad emulator is working.
 
 The final purpose is to have support for custom mapping created with a stand-alone tool or imported from steam vdf files.
+
+The Initial target is GNU/Linux, but if some developpers are insterred to add support
+for Windows for input generation any contribution is welcomed.
 
 This project is licenced under MIT Licence.
 
@@ -50,6 +50,7 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
    - Create an event mapper that reads steam vdf files and maps usb inputs to uinput events.
    - Create fallback mappings for unsupported config options.
    - Get all possible configurations of steam config file.
+ 7. Create a haptic feedback Manager (TBD)
 
 
 ## Control Message Capture
