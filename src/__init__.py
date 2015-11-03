@@ -43,7 +43,15 @@ STEAM_CONTROLER_FORMAT = [
     ('h',   'lpad_y'),
     ('h',   'rpad_x'),
     ('h',   'rpad_y'),
-    ('40p', 'ukn_06'),
+    ('10p', 'ukn_06'),
+    ('h',   'imu_01'),
+    ('h',   'imu_02'),
+    ('h',   'imu_03'),
+    ('h',   'imu_04'),
+    ('h',   'imu_05'),
+    ('h',   'imu_06'),
+    ('h',   'imu_07'),
+    ('16p', 'ukn_07'),
 ]
 
 _FORMATS, _NAMES = zip(*STEAM_CONTROLER_FORMAT)

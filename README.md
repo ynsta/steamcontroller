@@ -41,7 +41,7 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
  1. Finish to guess each bytes/bits roles in the usb message (*Done* Except Gyroscope).
  2. Understand how to configure haptic feed backs (*In progress*).
     - Understand the format of control messages used (cf _Control Message Capture_ below)
- 3. Understand how to enable gyroscopes (TBD).
+ 3. Understand how to enable gyroscopes (*Done*).
  4. Redirect inputs to userland events via uinput (*Done*).
  5. Create a simple xbox event mapper (*Done* but to be improved).
  6. Create a configurable event mapper (TBD):
@@ -60,12 +60,14 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
 ### Disable auto feedback on rpad:
 
  - `81000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000`
- - `87153284 03180000 31020008 07000707 00300000 2f010000 00000000 00000000`
 
-### Enable autofeedback on rpad
+### Enable Gyro
 
- - `81000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000`
  - `87153284 03180000 31020008 07000707 00301400 2f010000 00000000 00000000`
+
+### Disable Gyro
+
+ - `87153284 03180000 31020008 07000707 00300000 2f010000 00000000 00000000`
 
 ### RPAD
 
@@ -75,8 +77,7 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
 
  - `8f070115 02000001 00000000 00000000 00000000 00000000 00000000 00000000`
 
-
-### BIP (Controller identification)
+### Sound (Controller identification)
 
  - `8f07005e 015e01f4 01000000 00000000 00000000 00000000 00000000 00000000`
  - `8f070126 022602f4 01000000 00000000 00000000 00000000 00000000 00000000`
