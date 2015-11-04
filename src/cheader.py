@@ -55,6 +55,8 @@ OPERATORS = {
 
 def eval_expr(expr):
 
+    """ Eval and expression inside a #define using a suppart of python grammar """
+
     def _eval(node):
         if isinstance(node, ast.Num):
             return node.n
@@ -72,6 +74,8 @@ def eval_expr(expr):
 
 
 def defines(base, include):
+
+    """ Extract #define from base/include following #includes """
 
     parsed = set()
     fname = os.path.normpath(os.path.abspath(os.path.join(base, include)))
