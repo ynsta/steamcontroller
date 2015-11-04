@@ -22,11 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-"""Steam Controller imu data plot"""
+"""Steam Controller gyro data plot"""
 
-import sys
 from steamcontroller import SteamController
-from PySide import QtGui, QtCore
+from PySide import QtGui
 import pyqtgraph as pg
 import time
 import struct
