@@ -206,4 +206,4 @@ class SteamController(object):
     def handleEvents(self):
         """Fucntion to run in order to process usb events"""
         if self._handle and self._ctx:
-                self._ctx.handleEvents()
+            self._ctx.handleEvents()
