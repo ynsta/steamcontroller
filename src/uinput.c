@@ -31,9 +31,16 @@
 #include <unistd.h>
 
 int uinput_init(
-    int key_len, int * key,
-    int abs_len, int * abs,
-    int vendor, int product,
+    int key_len,
+    int * key,
+    int abs_len,
+    int * abs,
+    int * abs_min,
+    int * abs_max,
+    int * abs_fuzz,
+    int * abs_flat,
+    int vendor,
+    int product,
     char * name)
 {
     struct uinput_user_dev uidev;
@@ -76,9 +83,10 @@ int uinput_init(
             close(fd);
             return -5;
         }
-        uidev.absmin[abs[i]] = -32767;
-        uidev.absmax[abs[i]] = 32767;
-        uidev.absfuzz[abs[i]] = 0;
+        uidev.absmin[abs[i]] = abs_min[i];
+        uidev.absmax[abs[i]] = abs_max[i];
+        uidev.absfuzz[abs[i]] = abs_fuzz[i];
+        uidev.absflat[abs[i]] = abs_flat[i];
     }
 
     if (write(fd, &uidev, sizeof(uidev)) < 0) {

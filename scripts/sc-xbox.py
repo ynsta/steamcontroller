@@ -67,12 +67,12 @@ def lpad_func(x, btn, threshold, evstick, evtouch, clicked, invert):
 
         if x >= 0:
             if x >= threshold:
-                x = 32767
+                x = 1
             else:
                 x = 0
         else:
             if x <= -threshold:
-                x = -32767
+                x = -1
             else:
                 x = 0
         events.append((evtouch, x if not invert else -x, x != 0))
@@ -85,8 +85,8 @@ def lpad_func(x, btn, threshold, evstick, evtouch, clicked, invert):
 
 
 axis_map = {
-    'ltrig'  : lambda x, btn: [(Axes.ABS_Z,  int(-32767 + ((x*2.0*32767.0)/255.)), False)],
-    'rtrig'  : lambda x, btn: [(Axes.ABS_RZ, int(-32767 + ((x*2.0*32767.0)/255.)), False)],
+    'ltrig'  : lambda x, btn: [(Axes.ABS_Z,  x, False)],
+    'rtrig'  : lambda x, btn: [(Axes.ABS_RZ, x, False)],
     'lpad_x' : lambda x, btn: lpad_func(x, btn, 15000, Axes.ABS_X, Axes.ABS_HAT0X, False, False),
     'lpad_y' : lambda x, btn: lpad_func(x, btn, 15000, Axes.ABS_Y, Axes.ABS_HAT0Y, False, True),
     'rpad_x' : lambda x, btn: [(Axes.ABS_RX, x, False)],

@@ -42,8 +42,8 @@ class UInput(object):
 
     def __init__(self, vendor, product, name, keys, axes):
 
-        self._keys = set(keys)
-        self._axes = set(axes)
+        self._k = keys
+        self._a, self._amin, self._amax, self._afuzz, self._aflat = zip(*axes)
 
         lib = os.path.abspath(
             os.path.normpath(
@@ -53,11 +53,20 @@ class UInput(object):
                     'libuinput' + get_config_var('SO'))))
         self._lib = ctypes.CDLL(lib)
 
-        _k = (ctypes.c_int * len(keys))(*keys)
-        _a = (ctypes.c_int * len(axes))(*axes)
+        ck = (ctypes.c_int * len(self._k))(*self._k)
+        ca     = (ctypes.c_int * len(self._a))(*self._a)
+        camin  = (ctypes.c_int * len(self._amin ))(*self._amin )
+        camax  = (ctypes.c_int * len(self._amax ))(*self._amax )
+        cafuzz = (ctypes.c_int * len(self._afuzz))(*self._afuzz)
+        caflat = (ctypes.c_int * len(self._aflat))(*self._aflat)
+
         _name = ctypes.c_char_p(name)
-        self._fd = self._lib.uinput_init(ctypes.c_int(len(keys)), _k,
-                                         ctypes.c_int(len(axes)), _a,
+        self._fd = self._lib.uinput_init(ctypes.c_int(len(self._k)), ck,
+                                         ctypes.c_int(len(self._a)), ca,
+                                         camin,
+                                         camax,
+                                         cafuzz,
+                                         caflat,
                                          ctypes.c_int(vendor),
                                          ctypes.c_int(product),
                                          _name)
@@ -97,11 +106,11 @@ class Xbox360(UInput):
                                             Keys.BTN_TR,
                                             Keys.BTN_THUMBL,
                                             Keys.BTN_THUMBR],
-                                      axes=[Axes.ABS_X,
-                                            Axes.ABS_Y,
-                                            Axes.ABS_RX,
-                                            Axes.ABS_RY,
-                                            Axes.ABS_Z,
-                                            Axes.ABS_RZ,
-                                            Axes.ABS_HAT0X,
-                                            Axes.ABS_HAT0Y])
+                                      axes=[(Axes.ABS_X, -32768, 32767, 16, 128),
+                                            (Axes.ABS_Y, -32768, 32767, 16, 128),
+                                            (Axes.ABS_RX, -32768, 32767, 16, 128),
+                                            (Axes.ABS_RY, -32768, 32767, 16, 128),
+                                            (Axes.ABS_Z, 0, 255, 0, 0),
+                                            (Axes.ABS_RZ, 0, 255, 0, 0),
+                                            (Axes.ABS_HAT0X, -1, 1, 0, 0),
+                                            (Axes.ABS_HAT0Y, -1, 1, 0, 0)])
