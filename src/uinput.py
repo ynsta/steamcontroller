@@ -29,6 +29,7 @@ from steamcontroller.cheader import defines
 
 from distutils.sysconfig import get_config_var
 
+# Get All defines from linux headers
 _def = defines('/usr/include', 'linux/uinput.h')
 
 # Keys enum contains all keys and button from linux/uinput.h (KEY_* BTN_*)
