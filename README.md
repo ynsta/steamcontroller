@@ -2,7 +2,11 @@
 
 This project is a standalone userland driver for the steam controller to be used where steam client can't be installed.
 
-For the moment only the xbox360 gamepad emulator is working.
+For the moment only the xbox360 gamepad emulator is working, tested with:
+ - Kodi,
+ - BloodBowl2 with wine,
+ - KDE Input Device settings,
+ - evtest.
 
 The final purpose is to have support for custom mapping created with a stand-alone tool or imported from steam vdf files.
 
@@ -50,6 +54,7 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
    - Create fallback mappings for unsupported config options.
    - Get all possible configurations of steam config file.
  7. Create a haptic feedback Manager (TBD)
+ 8. Measure latencies.
 
 ## Control Message Capture
 
