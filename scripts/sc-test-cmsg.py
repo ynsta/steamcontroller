@@ -26,10 +26,9 @@
 
 import sys
 import struct
-import time
 from steamcontroller import SteamController
 
-def dump(sc, sci):
+def dump(_, sci):
     print(sci)
 
 def _main():
