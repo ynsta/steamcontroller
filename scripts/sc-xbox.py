@@ -28,12 +28,14 @@ from steamcontroller import \
     SteamController, \
     SCStatus, \
     SCButtons
+
 import steamcontroller.uinput
+import steamcontroller.tools
+
 from steamcontroller.uinput import Keys
 from steamcontroller.uinput import Axes
 from steamcontroller.daemon import Daemon
-
-prev_buttons = 0
+from steamcontroller.tools  import static_vars
 
 button_map = {
     SCButtons.A      : Keys.BTN_A,
@@ -51,11 +53,13 @@ button_map = {
     SCButtons.RGrip  : Keys.BTN_B,
 }
 
+LPAD_OUT_COUNT_FILTER = 4
 
+@static_vars(count_filter=0, prev_btn=0)
 def lpad_func(x, btn, threshold, evstick, evtouch, clicked, invert):
-    global prev_buttons
 
-    rmv = prev_buttons ^ btn
+    rmv = lpad_func.prev_btn ^ btn
+    lpad_func.prev_btn = btn
 
     events = []
 
@@ -65,21 +69,23 @@ def lpad_func(x, btn, threshold, evstick, evtouch, clicked, invert):
     if (clicked and (btn & (SCButtons.LPad | SCButtons.LPadTouch)) == (SCButtons.LPad | SCButtons.LPadTouch) or
         not clicked and (btn & SCButtons.LPadTouch == SCButtons.LPadTouch)):
 
-        if x >= 0:
-            if x >= threshold:
-                x = 1
-            else:
-                x = 0
+        if x >= -threshold and x <= threshold:
+            # dead zone
+            lpad_func.count_filter -= 1
+            if lpad_func.count_filter <= 0:
+                events.append((evtouch, 0, False))
         else:
-            if x <= -threshold:
-                x = -1
+            lpad_func.count_filter = LPAD_OUT_COUNT_FILTER
+            if invert:
+                events.append((evtouch, 1 if x > 0 else -1, True))
             else:
-                x = 0
-        events.append((evtouch, x if not invert else -x, x != 0))
+                events.append((evtouch, 1 if x < 0 else -1, True))
 
     elif ((clicked and rmv & SCButtons.LPad == SCButtons.LPad) or
         (not clicked and rmv & SCButtons.LPadTouch == SCButtons.LPadTouch)):
-        events.append((evtouch, 0, False))
+        lpad_func.count_filter -= 1
+        if lpad_func.count_filter <= 0:
+            events.append((evtouch, 0, False))
 
     return events
 
@@ -93,19 +99,13 @@ axis_map = {
     'rpad_y' : lambda x, btn: [(Axes.ABS_RY, -x, False)],
 }
 
-prev_key_events = set()
-prev_abs_events = set()
-
+@static_vars(prev_buttons=0, prev_key_events=set(), prev_abs_events=set())
 def scInput2Uinput(sc, sci, xb):
-
-    global prev_buttons
-    global prev_key_events
-    global prev_abs_events
 
     if sci.status != SCStatus.Input:
         return
 
-    removed = prev_buttons ^ sci.buttons
+    removed = scInput2Uinput.prev_buttons ^ sci.buttons
 
     key_events = []
     abs_events = []
@@ -129,21 +129,21 @@ def scInput2Uinput(sc, sci, xb):
 
     new = False
     for ev in key_events:
-        if ev not in prev_key_events:
+        if ev not in scInput2Uinput.prev_key_events:
             xb.keyEvent(*ev)
             new = True
 
     for ev in abs_events:
-        if ev not in prev_abs_events:
+        if ev not in scInput2Uinput.prev_abs_events:
             xb.axisEvent(*ev[:2])
             sc.addFeedback(ev[2])
             new = True
     if new:
         xb.synEvent()
 
-    prev_key_events = set(key_events)
-    prev_abs_events = set(abs_events)
-    prev_buttons = sci.buttons
+    scInput2Uinput.prev_key_events = set(key_events)
+    scInput2Uinput.prev_abs_events = set(abs_events)
+    scInput2Uinput.prev_buttons = sci.buttons
 
 class SCDaemon(Daemon):
     def run(self):
