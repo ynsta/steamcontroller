@@ -55,8 +55,8 @@ int uinput_init(
 
     strncpy(uidev.name, name, UINPUT_MAX_NAME_SIZE);
     uidev.id.bustype = BUS_USB;
-    uidev.id.vendor = 0x045e;
-    uidev.id.product = 0x028e;
+    uidev.id.vendor = vendor;
+    uidev.id.product = product;
     uidev.id.version = 1;
 
     if (key_len > 0 && ioctl(fd, UI_SET_EVBIT, EV_KEY) < 0) {
