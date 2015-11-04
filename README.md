@@ -12,7 +12,7 @@ The final purpose is to have support for custom mapping created with a stand-alo
 
 The initial target is *GNU/Linux*, but I'll welcome any contributor that want to port input generation for other OS (OSX, Windows, *BSD, Android/Linux, ...)
 
-This project is licenced under MIT Licence.
+This project is licensed under MIT.
 
 ## Installation
 
