@@ -53,7 +53,7 @@ button_map = {
     SCButtons.RGrip  : Keys.BTN_B,
 }
 
-LPAD_OUT_COUNT_FILTER = 4
+LPAD_OUT_COUNT_FILTER = 2
 
 @static_vars(count_filter=0, prev_btn=0)
 def lpad_func(x, btn, threshold, evstick, evtouch, clicked, invert):
@@ -75,14 +75,16 @@ def lpad_func(x, btn, threshold, evstick, evtouch, clicked, invert):
             if lpad_func.count_filter <= 0:
                 events.append((evtouch, 0, False))
         else:
-            lpad_func.count_filter = LPAD_OUT_COUNT_FILTER
             if invert:
-                events.append((evtouch, 1 if x > 0 else -1, True))
+                events.append((evtouch, 1 if x > 0 else -1, lpad_func.count_filter <= 0))
             else:
-                events.append((evtouch, 1 if x < 0 else -1, True))
+                events.append((evtouch, 1 if x < 0 else -1, lpad_func.count_filter <= 0))
+            lpad_func.count_filter = LPAD_OUT_COUNT_FILTER
 
-    elif ((clicked and rmv & SCButtons.LPad == SCButtons.LPad) or
-        (not clicked and rmv & SCButtons.LPadTouch == SCButtons.LPadTouch)):
+    if clicked and rmv & SCButtons.LPad == SCButtons.LPad:
+        events.append((evtouch, 0, False))
+
+    if not clicked and btn & SCButtons.LPadTouch != SCButtons.LPadTouch:
         lpad_func.count_filter -= 1
         if lpad_func.count_filter <= 0:
             events.append((evtouch, 0, False))
