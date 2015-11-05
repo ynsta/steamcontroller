@@ -101,8 +101,8 @@ def lpad_func(idx, x, btn, threshold, evstick, evtouch, clicked, invert):
 axis_map = {
     'ltrig'  : lambda x, btn: [(Axes.ABS_Z,  x, False)],
     'rtrig'  : lambda x, btn: [(Axes.ABS_RZ, x, False)],
-    'lpad_x' : lambda x, btn: lpad_func(0, x, btn, 15000, Axes.ABS_X, Axes.ABS_HAT0X, False, False),
-    'lpad_y' : lambda x, btn: lpad_func(1, x, btn, 15000, Axes.ABS_Y, Axes.ABS_HAT0Y, False, True),
+    'lpad_x' : lambda x, btn: lpad_func(0, x, btn, 20000, Axes.ABS_X, Axes.ABS_HAT0X, False, False),
+    'lpad_y' : lambda x, btn: lpad_func(1, x, btn, 20000, Axes.ABS_Y, Axes.ABS_HAT0Y, False, True),
     'rpad_x' : lambda x, btn: [(Axes.ABS_RX, x, False)],
     'rpad_y' : lambda x, btn: [(Axes.ABS_RY, -x, False)],
 }
