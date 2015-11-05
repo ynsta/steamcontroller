@@ -53,15 +53,17 @@ button_map = {
     SCButtons.RGrip  : Keys.BTN_B,
 }
 
-LPAD_OUT_COUNT_FILTER = 2
+LPAD_OUT_FILTER = 4
+LPAD_FB_FILTER = 20
 
-@static_vars(count_filter=0, prev_btn=0)
-def lpad_func(x, btn, threshold, evstick, evtouch, clicked, invert):
+@static_vars(out_flt=[0, 0], fb_flt=0, prev_btn=0)
+def lpad_func(idx, x, btn, threshold, evstick, evtouch, clicked, invert):
 
     rmv = lpad_func.prev_btn ^ btn
     lpad_func.prev_btn = btn
 
     events = []
+    lpad_func.fb_flt -=1;
 
     if btn & SCButtons.LPadTouch != SCButtons.LPadTouch:
         events.append((evstick, x if not invert else -x, False))
@@ -71,22 +73,26 @@ def lpad_func(x, btn, threshold, evstick, evtouch, clicked, invert):
 
         if x >= -threshold and x <= threshold:
             # dead zone
-            lpad_func.count_filter -= 1
-            if lpad_func.count_filter <= 0:
+            lpad_func.out_flt[idx] -= 1
+            if lpad_func.out_flt[idx] <= 0:
                 events.append((evtouch, 0, False))
         else:
+
+            feedback = (lpad_func.fb_flt <= 0 and lpad_func.out_flt[idx] <= 0)
             if invert:
-                events.append((evtouch, 1 if x > 0 else -1, lpad_func.count_filter <= 0))
+                events.append((evtouch, 1 if x > 0 else -1, feedback))
             else:
-                events.append((evtouch, 1 if x < 0 else -1, lpad_func.count_filter <= 0))
-            lpad_func.count_filter = LPAD_OUT_COUNT_FILTER
+                events.append((evtouch, 1 if x < 0 else -1, feedback))
+            if feedback:
+                lpad_func.fb_flt = LPAD_FB_FILTER;
+            lpad_func.out_flt[idx] = LPAD_OUT_FILTER
 
     if clicked and rmv & SCButtons.LPad == SCButtons.LPad:
         events.append((evtouch, 0, False))
 
     if not clicked and btn & SCButtons.LPadTouch != SCButtons.LPadTouch:
-        lpad_func.count_filter -= 1
-        if lpad_func.count_filter <= 0:
+        lpad_func.out_flt[idx] -= 1
+        if lpad_func.out_flt[idx] <= 0:
             events.append((evtouch, 0, False))
 
     return events
@@ -95,8 +101,8 @@ def lpad_func(x, btn, threshold, evstick, evtouch, clicked, invert):
 axis_map = {
     'ltrig'  : lambda x, btn: [(Axes.ABS_Z,  x, False)],
     'rtrig'  : lambda x, btn: [(Axes.ABS_RZ, x, False)],
-    'lpad_x' : lambda x, btn: lpad_func(x, btn, 15000, Axes.ABS_X, Axes.ABS_HAT0X, False, False),
-    'lpad_y' : lambda x, btn: lpad_func(x, btn, 15000, Axes.ABS_Y, Axes.ABS_HAT0Y, False, True),
+    'lpad_x' : lambda x, btn: lpad_func(0, x, btn, 15000, Axes.ABS_X, Axes.ABS_HAT0X, False, False),
+    'lpad_y' : lambda x, btn: lpad_func(1, x, btn, 15000, Axes.ABS_Y, Axes.ABS_HAT0Y, False, True),
     'rpad_x' : lambda x, btn: [(Axes.ABS_RX, x, False)],
     'rpad_y' : lambda x, btn: [(Axes.ABS_RY, -x, False)],
 }
