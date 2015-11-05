@@ -53,7 +53,7 @@ button_map = {
     SCButtons.RGrip  : Keys.BTN_B,
 }
 
-LPAD_OUT_FILTER = 4
+LPAD_OUT_FILTER = 6
 LPAD_FB_FILTER = 20
 
 @static_vars(out_flt=[0, 0], fb_flt=0, prev_btn=0)
@@ -80,9 +80,9 @@ def lpad_func(idx, x, btn, threshold, evstick, evtouch, clicked, invert):
 
             feedback = (lpad_func.fb_flt <= 0 and lpad_func.out_flt[idx] <= 0)
             if invert:
-                events.append((evtouch, 1 if x > 0 else -1, feedback))
-            else:
                 events.append((evtouch, 1 if x < 0 else -1, feedback))
+            else:
+                events.append((evtouch, 1 if x > 0 else -1, feedback))
             if feedback:
                 lpad_func.fb_flt = LPAD_FB_FILTER;
             lpad_func.out_flt[idx] = LPAD_OUT_FILTER
