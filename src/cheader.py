@@ -90,7 +90,7 @@ def defines(base, include):
     out = OrderedDict()
 
     def parse_c_comments(lexer, tok, ntok):
-        if tok != '/' or ntok == '*':
+        if tok != '/' or ntok != '*':
             return False
         quotes = lexer.quotes
         lexer.quotes = ''
@@ -105,7 +105,7 @@ def defines(base, include):
         return True
 
     def parse_cpp_comments(lexer, tok, ntok):
-        if tok != '/' or ntok == '/':
+        if tok != '/' or ntok != '/':
             return False
         quotes = lexer.quotes
         lexer.quotes = ''
