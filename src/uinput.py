@@ -176,7 +176,7 @@ class UInput(object):
 
         self._lib = None
         self._k = keys
-        if not axes or len(axis) == 0:
+        if not axes or len(axes) == 0:
             self._a, self._amin, self._amax, self._afuzz, self._aflat = [[]] * 5
         else:
             self._a, self._amin, self._amax, self._afuzz, self._aflat = zip(*axes)
