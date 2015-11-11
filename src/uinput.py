@@ -288,6 +288,9 @@ class UInput(object):
 
 
 class Xbox360(UInput):
+    """
+    Xbox360 uinput class, create a Xbox360 gamepad device
+    """
 
     def __init__(self):
         super(Xbox360, self).__init__(vendor=0x045e,
