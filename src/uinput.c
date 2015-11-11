@@ -31,17 +31,20 @@
 #include <unistd.h>
 
 int uinput_init(
-    int key_len,
-    int * key,
-    int abs_len,
-    int * abs,
-    int * abs_min,
-    int * abs_max,
-    int * abs_fuzz,
-    int * abs_flat,
-    int vendor,
-    int product,
-    char * name)
+    int     key_len,
+    __u16 * key,
+    int     abs_len,
+    __u16 * abs,
+    __s32 * abs_min,
+    __s32 * abs_max,
+    __s32 * abs_fuzz,
+    __s32 * abs_flat,
+    int     rel_len,
+    __u16 * rel,
+    int     keyboard,
+    __u16   vendor,
+    __u16   product,
+    char *  name)
 {
     struct uinput_user_dev uidev;
     int fd;
@@ -59,6 +62,7 @@ int uinput_init(
     uidev.id.product = product;
     uidev.id.version = 1;
 
+    /* Key Event initialisation */
     if (key_len > 0 && ioctl(fd, UI_SET_EVBIT, EV_KEY) < 0) {
         close(fd);
         return -2;
@@ -67,14 +71,14 @@ int uinput_init(
     for (i = 0; i < key_len; i++) {
         if (ioctl(fd, UI_SET_KEYBIT, key[i]) < 0) {
             close(fd);
-            return -4;
+            return -3;
         }
     }
 
-
+    /* Absolute Event initialisation */
     if (abs_len > 0 && ioctl(fd, UI_SET_EVBIT, EV_ABS) < 0) {
         close(fd);
-        return -3;;
+        return -4;;
     }
 
     for (i = 0; i < abs_len; i++) {
@@ -89,20 +93,51 @@ int uinput_init(
         uidev.absflat[abs[i]] = abs_flat[i];
     }
 
-    if (write(fd, &uidev, sizeof(uidev)) < 0) {
+    /* Relative Event initialisation */
+    if (rel_len > 0 && ioctl(fd, UI_SET_EVBIT, EV_REL) < 0) {
         close(fd);
         return -6;
     }
 
+    for (i = 0; i < rel_len; i++) {
+        if (ioctl(fd, UI_SET_RELBIT, rel[i]) < 0) {
+            close(fd);
+            return -7;
+        }
+    }
+
+    if (keyboard) {
+        if (ioctl(fd, UI_SET_EVBIT, EV_MSC) < 0) {
+            close(fd);
+            return -8;
+        }
+        if (ioctl(fd, UI_SET_MSCBIT, MSC_SCAN) < 0) {
+            close(fd);
+            return -9;
+        }
+        if (ioctl(fd, UI_SET_EVBIT,  EV_REP) < 0) {
+            close(fd);
+            return -10;
+        }
+    }
+
+    /* submit the uidev */
+    if (write(fd, &uidev, sizeof(uidev)) < 0) {
+        close(fd);
+        return -11;
+    }
+
+    /* create the device */
     if (ioctl(fd, UI_DEV_CREATE) < 0) {
         close(fd);
-        return -7;
+        return -12;
     }
+
     return fd;
 }
 
 
-void uinput_key(int fd, int key, int val)
+void uinput_key(int fd, __u16 key, __s32 val)
 {
     struct input_event ev;
 
@@ -113,7 +148,7 @@ void uinput_key(int fd, int key, int val)
     write(fd, &ev, sizeof(ev));
 }
 
-void uinput_abs(int fd, int abs, int val)
+void uinput_abs(int fd, __u16 abs, __s32 val)
 {
     struct input_event ev;
 
@@ -121,6 +156,42 @@ void uinput_abs(int fd, int abs, int val)
     ev.type = EV_ABS;
     ev.code = abs;
     ev.value = val;
+    write(fd, &ev, sizeof(ev));
+}
+
+void uinput_rel(int fd, __u16 rel, __s32 val)
+{
+    struct input_event ev;
+
+    memset(&ev, 0, sizeof(ev));
+    ev.type = EV_REL;
+    ev.code = rel;
+    ev.value = val;
+    write(fd, &ev, sizeof(ev));
+}
+
+void uinput_scan(int fd, __s32 val)
+{
+    struct input_event ev;
+
+    memset(&ev, 0, sizeof(ev));
+    ev.type = EV_MSC;
+    ev.code = MSC_SCAN;
+    ev.value = val;
+    write(fd, &ev, sizeof(ev));
+}
+
+void uinput_set_delay_period(int fd, __s32 delay, __s32 period)
+{
+    struct input_event ev;
+
+    memset(&ev, 0, sizeof(ev));
+    ev.type = EV_REP;
+    ev.code = REP_DELAY;
+    ev.value = delay;
+    write(fd, &ev, sizeof(ev));
+    ev.code = REP_PERIOD;
+    ev.value = period;
     write(fd, &ev, sizeof(ev));
 }
 
