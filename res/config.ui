@@ -1,0 +1,728 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>830</width>
+    <height>683</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">/* -*- css -*- */
+QWidget {
+	color: #dddddd;
+	background-color: #4f585d;
+	selection-background-color:#42abdd;
+	selection-color: black;
+	background-clip: border;
+	border-image: none;
+	outline: 0;
+	font-family: &quot;Droid Sans&quot;, Arial;
+}
+QWidget:disabled {
+	color: #404550;
+	background-color: #4f585d;
+}
+QLineEdit {
+	color: #dddddd;
+	background-color: #1f2833;
+	padding: 2px;
+	border-style: solid;
+	border: 1px solid #404550;
+	border-radius: 2px;
+	font-family: &quot;Droid Sans Mono&quot;, Consolas, Monospace;
+}
+QComboBox:editable {
+	color: #000000;
+	background-color: #e5e5f0;
+}
+QTextEdit {
+	color: #dddddd;
+	background-color: #1f2833;
+	border: 1px solid #404550;
+}
+QPlainTextEdit {
+	color: #dddddd;
+	background-color: #1f2833;
+	border-radius: 2px;
+	border: 1px solid #404550;
+}
+QGroupBox {
+	border:1px solid #404550;
+	border-radius: 2px;
+	margin-top: 2ex;
+}
+QGroupBox::title {
+	subcontrol-origin: margin;
+	subcontrol-position: top center;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+QPushButton {
+	border:1px solid #aaaaaa;
+	border-radius: 2px;
+	background: transparent;
+	padding: 2px;
+}
+QPushButton:hover {
+	border: 1px solid #cccccc;
+}
+QPushButton:pressed {
+	border: 1px solid #42abdd;
+}
+QPushButton:focus {
+	border: 1px solid #42abdd;
+}
+QToolButton {
+	border:1px solid #aaaaaa;
+	border-radius: 2px;
+	background: transparent;
+	padding: 2px;
+}
+QToolButton:hover {
+	border: 1px solid #cccccc;
+}
+QToolButton:pressed {
+	border: 1px solid #42abdd;
+}
+QToolButton:focus {
+	border: 1px solid #42abdd;
+}
+QProgressBar:horizontal {
+	border: 1px solid #404550;
+	text-align: center;
+	padding: 1px;
+	background: #1f2833;
+	height: 1.1em;
+}
+QProgressBar::chunk:horizontal {
+	background-color: #42abdd;
+}
+QScrollBar:vertical {
+	border: 1px solid #404550;
+	border-radius: 2px;
+	background: #1f2833;
+	width: 10px;
+	margin: 0;
+}
+QScrollBar::handle:vertical {
+	border: none;
+	border-radius: 2px;
+	background: #42abdd;
+	min-height: 20px;
+}
+QScrollBar::add-line:vertical {
+	border: none;
+	background: none;
+	height: 0;
+	subcontrol-position: bottom;
+	subcontrol-origin: margin;
+}
+QScrollBar::sub-line:vertical {
+	border: none;
+	background: none;
+	height: 0;
+	subcontrol-position: top;
+	subcontrol-origin: margin;
+}
+QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+	border: none;
+	width: 0;
+	height: 0;
+	background: none;
+}
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+	background: none;
+}
+QScrollBar:horizontal {
+	border: 1px solid #404550;
+	border-radius: 2px;
+	background: #1f2833;
+	height: 10px;
+	margin: 0;
+}
+QScrollBar::handle:horizontal {
+	border: none;
+	border-radius: 2px;
+	background: #42abdd;
+	min-width: 20px;
+}
+QScrollBar::add-line:horizontal {
+	border: none;
+	background: none;
+	width: 0;
+	subcontrol-position: right;
+	subcontrol-origin: margin;
+}
+QScrollBar::sub-line:horizontal {
+	border: none;
+	background: none;
+	width: 0;
+	subcontrol-position: left;
+	subcontrol-origin: margin;
+}
+QScrollBar::left-arrow:horizontal, QScrollBar::right-arrow:horizontal {
+	border: none;
+	width: 0;
+	height: 0;
+	background: none;
+}
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+	background: none;
+}
+QTabWidget:focus, QCheckBox:focus, QRadioButton:focus {
+	border: none;
+}
+QTabWidget::pane {
+	border: 1px solid #404550;
+}
+QTabBar::tab:top {
+	border: 1px solid #404550;
+	margin: 0;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 3px;
+	padding-bottom: 2px;
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+}
+QTabBar::tab:bottom {
+	border: 1px solid #404550;
+	margin: 0;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 3px;
+	padding-bottom: 2px;
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+}
+QTabBar::tab:top:last, QTabBar::tab:bottom:last {
+}
+QTabBar::tab:top:first:!selected, QTabBar::tab:bottom:first:!selected {
+}
+QTabBar::tab:top:!selected {
+	color: #cccccc;
+	background-color: #41484d;
+}
+QTabBar::tab:top:selected {
+	border: 1px solid #42abdd;
+	color: #ffffff;
+}
+QTabBar::tab:bottom:!selected {
+	color: #cccccc;
+	background-color: #41484d;
+}
+QTabBar::tab:bottom:selected {
+	border: 1px solid #42abdd;
+	color: #ffffff;
+}
+QTabBar::tab:left {
+	border: 1px solid #404550;
+	margin: 0;
+	padding-left: 3px;
+	padding-right: 2px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	border-top-right-radius: 2px;
+	border-bottom-right-radius: 2px;
+}
+QTabBar::tab:right {
+	border: 1px solid #404550;
+	margin: 0;
+	padding-left: 3px;
+	padding-right: 2px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	border-top-left-radius: 2px;
+	border-bottom-left-radius: 2px;
+}
+QTabBar::tab:left:!selected {
+	color: #cccccc;
+	background-color: #41484d;
+}
+QTabBar::tab:left:selected {
+	border: 1px solid #42abdd;
+	color: #ffffff;
+}
+QTabBar::tab:right:!selected {
+	color: #cccccc;
+	background-color: #41484d;
+}
+QTabBar::tab:right:selected {
+	border: 1px solid #42abdd;
+	color: #ffffff;
+}
+QCheckBox {
+	outline: none;
+	border: none;
+}
+QCheckBox::indicator {
+	background-color: #1f2833;
+	border-style: solid;
+	border: 2px solid #1f2833;
+	border-radius: 2px;
+	width: 10px;
+	height: 10px;
+}
+QCheckBox::indicator:pressed {
+	border: 2px solid #1f2833;
+	background-color: #42abdd;
+}
+QCheckBox::indicator:checked {
+	border: 2px solid #1f2833;
+	background-color: #42abdd;
+}
+QCheckBox::indicator:focus {
+	border: 2px solid #c0c5d0;
+}
+QToolTip {
+	color: #dddddd;
+	background-color: #1f2833;
+	border-radius: 2px;
+	border: 1px solid #42abdd;
+}
+
+QComboBox[editable=&quot;false&quot;] {
+	border:1px solid #aaaaaa;
+	border-radius: 2px;
+	padding-left: 2px;
+	padding-right: 22px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+QComboBox[editable=&quot;false&quot;]:hover {
+	border:1px solid #cccccc;
+}
+QComboBox[editable=&quot;false&quot;]:on {
+	border:1px solid #42abdd;
+}
+QComboBox[editable=&quot;false&quot;]::drop-down {
+	subcontrol-origin: padding;
+	subcontrol-position: top right;
+	width: 13px;
+	border-left-style: solid;
+	border-left-color: #aaaaaa;
+	border-left-width: 1px;
+}
+QComboBox[editable=&quot;false&quot;]::drop-down:hover {
+	border-left-color: #cccccc;
+}
+QComboBox[editable=&quot;false&quot;]::drop-down:on {
+	border-left-color: #42abdd;
+}
+QComboBox[editable=&quot;false&quot;]::down-arrow {
+	subcontrol-origin: content;
+	subcontrol-position: center;
+	position: relative;
+	image: url(res/down-gray.svg);
+	width: 10px;
+	height: 10px;	
+}
+
+QComboBox[editable=&quot;false&quot;]::down-arrow:on {
+	position: relative;
+	image: url(res/down-blue.svg);
+}
+QListView {
+	border:1px solid #42abdd;
+}
+</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout_5">
+   <item>
+    <spacer name="horizontalSpacer_18">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>98</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_6">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <spacer name="verticalSpacer_9">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>73</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBox_16"/>
+         </item>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>72</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBox_10"/>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBox_9"/>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBox_15"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QWidget" name="widget_2" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>400</width>
+           <height>225</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QWidget{ 
+	background: url(res/sc-back.svg);
+	background-position: center center;
+	background-repeat: no-repeat;
+} 
+</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <spacer name="verticalSpacer_10">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>73</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBox_6"/>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>72</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBox_8">
+           <item>
+            <property name="text">
+             <string>test</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>test</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBox_7"/>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBox_17"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <spacer name="verticalSpacer_6">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>36</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <spacer name="verticalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton">
+           <property name="text">
+            <string>PushButton</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>60</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBox_18"/>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBox_19"/>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_8">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>60</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QComboBox" name="comboBox_5">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboBox_12">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QWidget" name="widget_3" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>400</width>
+             <height>225</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QWidget{ 
+	background: url(res/sc-front.svg);
+	background-position: center center;
+	background-repeat: no-repeat;
+} 
+</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <spacer name="horizontalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Expanding</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>110</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton_3">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>PushButton</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_5">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Expanding</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>109</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
+          <spacer name="verticalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_2">
+           <property name="text">
+            <string>PushButton</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_7">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>60</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBox_4"/>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBox_11"/>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBox_13"/>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBox_14"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="horizontalSpacer_19">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>98</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
