@@ -40,7 +40,7 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
  1. Exit Steam.
  2. run `sc-xbox.py start` for the simple xbox360 emulator
  3. run `sc-xbox.py stop` to stop the driver
- 
+
 Other test tools are installed:
  - `sc-dump.py` : Dump raw message from the controller.
  - `sc-gyro-plot.py` : Plot curves from gyro data (require pyqtgraph and pyside installed).
@@ -49,7 +49,7 @@ Other test tools are installed:
  - `json2vdf.py` : Convert back JSON to VDF file.
 
 
-## TODO
+## TODO / Status
 
  1. Finish to guess each bytes/bits roles in the usb message (Mostly *Done*).
     - Verify that Gyroscope data 4 to 7 are a quaternion as suspected
@@ -57,6 +57,9 @@ Other test tools are installed:
     - Understand the format of control messages used (cf _Control Message Capture_ below)
  3. Understand how to enable gyroscopes (*Done*).
  4. Redirect inputs to userland events via uinput (*Done*).
+    - Xbox360 uintput device (*Done*)
+    - Keyboard uintput device (*Done*)
+    - Mouse uintput device with trackball model (*Done*)
  5. Create a simple xbox event mapper (*Done* but to be improved).
  6. Create a configurable event mapper (TBD):
    - Create an event mapper that reads steam vdf files and maps usb inputs to uinput events.
