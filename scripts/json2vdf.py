@@ -37,16 +37,16 @@ def json2vdf(stream):
 
     def _json2vdf(data, indent):
         out = ''
-        for k, v in data:
-            if isinstance(v, list):
+        for k, val in data:
+            if isinstance(val, list):
                 if indent:
                     out += '\n'
                 out += _istr(indent, '"{}"\n'.format(k))
                 out += _istr(indent, '{\n')
-                out += _json2vdf(v, indent + 1)
+                out += _json2vdf(val, indent + 1)
                 out += _istr(indent, '}\n')
             else:
-                out += _istr(indent,'"{}" "{}"\n'.format(k, v))
+                out += _istr(indent, '"{}" "{}"\n'.format(k, val))
         return out
 
     return  _json2vdf(data, 0)

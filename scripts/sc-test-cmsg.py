@@ -37,7 +37,7 @@ def _main():
         sc = SteamController(callback=dump)
         for line in sys.stdin:
             sc.handleEvents()
-            words = [int('0x'+x,16) for x in  line.split()]
+            words = [int('0x' + x, 16) for x in  line.split()]
             sc._sendControl(struct.pack('>' + 'I' * len(words), *words))
         sc.run()
 

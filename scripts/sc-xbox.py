@@ -63,7 +63,7 @@ def lpad_func(idx, x, btn, threshold, evstick, evtouch, clicked, invert):
     lpad_func.prev_btn = btn
 
     events = []
-    lpad_func.fb_flt -=1;
+    lpad_func.fb_flt -= 1
 
     if btn & SCButtons.LPadTouch != SCButtons.LPadTouch:
         events.append((evstick, x if not invert else -x, False))
@@ -84,7 +84,7 @@ def lpad_func(idx, x, btn, threshold, evstick, evtouch, clicked, invert):
             else:
                 events.append((evtouch, 1 if x > 0 else -1, feedback))
             if feedback:
-                lpad_func.fb_flt = LPAD_FB_FILTER;
+                lpad_func.fb_flt = LPAD_FB_FILTER
             lpad_func.out_flt[idx] = LPAD_OUT_FILTER
 
     if clicked and rmv & SCButtons.LPad == SCButtons.LPad:

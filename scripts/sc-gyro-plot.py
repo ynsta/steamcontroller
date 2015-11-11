@@ -37,7 +37,7 @@ def _main():
     app = QtGui.QApplication([])
 
     win = pg.GraphicsWindow(title="Steam Controller")
-    win.resize(1000,600)
+    win.resize(1000, 600)
     win.nextRow()
 
     p1 = win.addPlot(name="plot1", title='Pitch')
@@ -57,22 +57,22 @@ def _main():
 
     p1.addLegend()
     p1.showGrid(x=True, y=True, alpha=0.5)
-    p1.setYRange(-8000,8000)
+    p1.setYRange(-8000, 8000)
 
     p2.addLegend()
     p2.showGrid(x=True, y=True, alpha=0.5)
-    p2.setYRange(-8000,8000)
+    p2.setYRange(-8000, 8000)
 
     p3.addLegend()
     p3.showGrid(x=True, y=True, alpha=0.5)
-    p3.setYRange(-8000,8000)
+    p3.setYRange(-8000, 8000)
 
     p4.addLegend()
     p4.showGrid(x=True, y=True, alpha=0.5)
-    p4.setYRange(-32767,32767)
+    p4.setYRange(-32767, 32767)
 
 
-    imu   = {
+    imu = {
         'gpitch' : [],
         'groll'  : [],
         'gyaw'   : [],
@@ -98,7 +98,7 @@ def _main():
             return
         cur = time.time()
         times.append(cur)
-        times = [ x for x in times if cur - x <= 10.0]
+        times = [x for x in times if cur - x <= 10.0]
 
         for name in imu.keys():
             imu[name].append(sci._asdict()[name])

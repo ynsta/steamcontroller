@@ -25,7 +25,8 @@
 import os
 import ctypes
 import time
-from math import pi, copysign, sqrt, pow
+from math import pi, copysign, sqrt
+from math import pow as mpow
 from enum import IntEnum
 from steamcontroller.cheader import defines
 
@@ -35,16 +36,16 @@ from distutils.sysconfig import get_config_var
 _def = defines('/usr/include', 'linux/uinput.h')
 
 # Keys enum contains all keys and button from linux/uinput.h (KEY_* BTN_*)
-Keys = IntEnum('Keys', { i: _def[i] for i in _def.keys() if (i.startswith('KEY_') or
-                                                             i.startswith('BTN_')) })
+Keys = IntEnum('Keys', {i: _def[i] for i in _def.keys() if (i.startswith('KEY_') or
+                                                            i.startswith('BTN_'))})
 # Keys enum contains all keys and button from linux/uinput.h (KEY_* BTN_*)
-KeysOnly = IntEnum('KeysOnly', { i: _def[i] for i in _def.keys() if (i.startswith('KEY_')) })
+KeysOnly = IntEnum('KeysOnly', {i: _def[i] for i in _def.keys() if i.startswith('KEY_')})
 
 # Axes enum contains all axes from linux/uinput.h (ABS_*)
-Axes = IntEnum('Axes', { i: _def[i] for i in _def.keys() if (i.startswith('ABS_')) })
+Axes = IntEnum('Axes', {i: _def[i] for i in _def.keys() if i.startswith('ABS_')})
 
 # Rels enum contains all rels from linux/uinput.h (REL_*)
-Rels = IntEnum('Rels', { i: _def[i] for i in _def.keys() if (i.startswith('REL_')) })
+Rels = IntEnum('Rels', {i: _def[i] for i in _def.keys() if i.startswith('REL_')})
 
 
 # Scan codes for each keys (taken from a logitech keyboard)
@@ -343,6 +344,8 @@ class Mouse(UInput):
                                           Rels.REL_HWHEEL])
         self._dx = 0.0
         self._dy = 0.0
+        self._xvel = 0.0
+        self._yvel = 0.0
         self._lastTime = time.time()
         self.updateParams()
 
@@ -439,7 +442,7 @@ class Mouse(UInput):
             self._dx -= int(self._dx)
             self._dy -= int(self._dy)
 
-        return sqrt(pow(dx, 2) + pow(dy, 2))
+        return sqrt(mpow(dx, 2) + mpow(dy, 2))
 
 
 class Keyboard(UInput):
@@ -465,7 +468,7 @@ class Keyboard(UInput):
         self._dx = 0.0
         self._pressed = set()
 
-    def pressEvent(self, keys=[]):
+    def pressEvent(self, keys):
         """
         Generate key press event with corresponding scan codes.
         Events are generated only for new keys.
@@ -481,12 +484,14 @@ class Keyboard(UInput):
             self.synEvent()
             self._pressed |= set(new)
 
-    def releaseEvent(self, keys=[]):
+    def releaseEvent(self, keys=None):
         """
         Generate key release event with corresponding scan codes.
         Events are generated only for keys that was pressed
 
-        @param list of Keys keys        keys to release
+
+        @param list of Keys keys        keys to release, give None or empty list
+                                        to release all
         """
         if keys and len(keys):
             rem = [k for k in keys if k in self._pressed]
