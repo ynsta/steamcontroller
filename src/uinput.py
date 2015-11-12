@@ -33,7 +33,10 @@ from steamcontroller.cheader import defines
 from distutils.sysconfig import get_config_var
 
 # Get All defines from linux headers
-_def = defines('/usr/include', 'linux/uinput.h')
+if os.path.exists('/usr/include/linux/input-event-codes.h'):
+  _def = defines('/usr/include', 'linux/input-event-codes.h')
+else:
+  _def = defines('/usr/include', 'linux/uinput.h')
 
 # Keys enum contains all keys and button from linux/uinput.h (KEY_* BTN_*)
 Keys = IntEnum('Keys', {i: _def[i] for i in _def.keys() if (i.startswith('KEY_') or
