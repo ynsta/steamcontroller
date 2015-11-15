@@ -58,6 +58,7 @@ _FORMATS, _NAMES = zip(*STEAM_CONTROLER_FORMAT)
 
 SteamControllerInput = namedtuple('SteamController', ' '.join([x for x in _NAMES if not x.startswith('ukn_')]))
 
+SCI_NULL = SteamControllerInput._make(struct.unpack('<' + ''.join(_FORMATS), b'\x00' * 64))
 
 class SCStatus(IntEnum):
     Idle  = 2820

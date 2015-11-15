@@ -157,11 +157,9 @@ class SCDaemon(Daemon):
     def run(self):
         while True:
             try:
-                xb = steamcontroller.uinput.Xbox360()
+                xb = steamcontroller.uinput.Gamepad()
                 sc = SteamController(callback=scInput2Uinput, callback_args=[xb, ])
                 sc.run()
-            except KeyboardInterrupt:
-                return
             except:
                 pass
 
@@ -181,8 +179,10 @@ if __name__ == '__main__':
         elif 'restart' == args.command:
             daemon.restart()
         elif 'debug' == args.command:
-            xb = steamcontroller.uinput.Xbox360()
-            sc = SteamController(callback=scInput2Uinput, callback_args=[xb, ])
-            sc.run()
-
+            try:
+                xb = steamcontroller.uinput.Gamepad()
+                sc = SteamController(callback=scInput2Uinput, callback_args=[xb, ])
+                sc.run()
+            except KeyboardInterrupt:
+                return
     _main()
