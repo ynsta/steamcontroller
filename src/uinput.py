@@ -503,19 +503,25 @@ class Mouse(UInput):
                 self._xvel = 0.0
                 self._yvel = 0.0
 
-
             self._xvel_dq.append(dx * self._radscale / dt)
             self._yvel_dq.append(dy * self._radscale / dt)
 
         else:
             # Free movement update velocity and compute movement
-
             self._xvel_dq.clear()
             self._yvel_dq.clear()
 
+            _hyp = sqrt(mpow(self._xvel, 2) + mpow(self._yvel, 2))
+            if _hyp != 0.0:
+                _ax = self._a * (abs(self._xvel) / _hyp)
+                _ay = self._a * (abs(self._yvel) / _hyp)
+            else:
+                _ax = self._a
+                _ay = self._a
+
             # Cap friction desceleration
-            _dvx = min(abs(self._xvel), self._a * dt)
-            _dvy = min(abs(self._yvel), self._a * dt)
+            _dvx = min(abs(self._xvel), _ax * dt)
+            _dvy = min(abs(self._yvel), _ay * dt)
 
             # compute new velocity
             _xvel = self._xvel - copysign(_dvx, self._xvel)
@@ -576,8 +582,8 @@ class Mouse(UInput):
                 self._scr_xvel = sum(self._scr_xvel_dq) / len(self._scr_xvel_dq)
                 self._scr_yvel = sum(self._scr_yvel_dq) / len(self._scr_yvel_dq)
             except ZeroDivisionError:
-                self._xvel = 0.0
-                self._yvel = 0.0
+                self._scr_xvel = 0.0
+                self._scr_yvel = 0.0
 
             self._scr_xvel_dq.append(dx * self._scr_radscale / dt)
             self._scr_yvel_dq.append(dy * self._scr_radscale / dt)
@@ -588,9 +594,17 @@ class Mouse(UInput):
             self._scr_xvel_dq.clear()
             self._scr_yvel_dq.clear()
 
+            _hyp = sqrt(mpow(self._scr_xvel, 2) + mpow(self._scr_yvel, 2))
+            if _hyp != 0.0:
+                _ax = self._scr_a * (abs(self._scr_xvel) / _hyp)
+                _ay = self._scr_a * (abs(self._scr_yvel) / _hyp)
+            else:
+                _ax = self._scr_a
+                _ay = self._scr_a
+
             # Cap friction desceleration
-            _dvx = min(abs(self._scr_xvel), self._scr_a * dt)
-            _dvy = min(abs(self._scr_yvel), self._scr_a * dt)
+            _dvx = min(abs(self._scr_xvel), _ax * dt)
+            _dvy = min(abs(self._scr_yvel), _ay * dt)
 
             # compute new velocity
             _xvel = self._scr_xvel - copysign(_dvx, self._scr_xvel)
