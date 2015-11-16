@@ -2,11 +2,9 @@
 
 This project is a standalone userland driver for the steam controller to be used where steam client can't be installed.
 
-For the moment only the xbox360 gamepad emulator is working, tested with:
- - Kodi,
- - BloodBowl2 with wine,
- - KDE Input Device settings,
- - evtest.
+Two modes are already working:
+ - xbox360: gamepad emulator with some haptic feedback
+ - desktop: mouse, keyboard mode without haptic feedback
 
 The final purpose is to have support for custom mapping created with a stand-alone tool or imported from steam vdf files.
 
@@ -17,11 +15,11 @@ This project is licensed under MIT.
 ## Installation
 
  1. Get code on github `git clone https://github.com/ynsta/steamcontroller.git`
- 2. for python 2.7+ (you might have to use pip2 for python2.7 or pip3 for python3):
+`2. for python 3.4+
    - Install python libusb1 `sudo pip install libusb1`
-   - Install python enum backport `sudo pip install enum34`
- 3. for python 3.4+
+ 3. for python 2.7+ (you might have to use pip2 for python2.7 or pip3 for python3):
    - Install python libusb1 `sudo pip install libusb1`
+   - Install python enum backport `sudo pip install enum34
  4. sudo python setup.py install
  5. Install udev rules (if not already done for steam) in `/etc/udev/rules.d/99-steam-controller.rules`:
     ```
@@ -41,8 +39,9 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
  2. run `sc-xbox.py start` for the simple xbox360 emulator
  3. run `sc-xbox.py stop` to stop the driver
 
+Replace `xbox` by `desktop` for the desktop keyboard/mouse mode.
+
 Other test tools are installed:
- - `sc-desktop.py` : A desktop mode great for kodi navigation.
  - `sc-dump.py` : Dump raw message from the controller.
  - `sc-gyro-plot.py` : Plot curves from gyro data (require pyqtgraph and pyside installed).
  - `sc-test-cmsg.py` : Permit to send control message to the contoller. For example `echo 8f07005e 015e01f4 01000000 | sc-test-cmsg.py` will make the controller beep.
