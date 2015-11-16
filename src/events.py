@@ -318,32 +318,32 @@ class EventMapper(object):
                 rmode, rev = self._stick_evts[3]
 
                 # top
-                if self._stick_tys is None and y > 0 and y > min(y_p + 600, 32200):
-                    self._stick_tys = max(0, min(y - 600, 32000))
+                if self._stick_tys is None and y > 0 and y > min(y_p + 2000, 32000):
+                    self._stick_tys = max(0, min(y - 2000, 31000))
                     _keypressed(tmode, tev)
                 elif self._stick_tys is not None and y <= self._stick_tys:
                     self._stick_tys = None
                     _keyreleased(tmode, tev)
 
                 # left
-                if self._stick_lxs is None and x < 0 and x < max(x_p - 600, -32200):
-                    self._stick_lxs = min(0, max(x + 600, -32000))
+                if self._stick_lxs is None and x < 0 and x < max(x_p - 2000, -32000):
+                    self._stick_lxs = min(0, max(x + 2000, -31000))
                     _keypressed(lmode, lev)
                 elif self._stick_lxs is not None and x >= self._stick_lxs:
                     self._stick_lxs = None
                     _keyreleased(lmode, lev)
 
                 # bottom
-                if self._stick_bys is None and y < 0 and y < max(y_p - 600, -32200):
-                    self._stick_bys = min(0, max(y + 600, -32000))
+                if self._stick_bys is None and y < 0 and y < max(y_p - 2000, -32000):
+                    self._stick_bys = min(0, max(y + 2000, -31000))
                     _keypressed(bmode, bev)
                 elif self._stick_bys is not None and y >= self._stick_bys:
                     self._stick_bys = None
                     _keyreleased(bmode, bev)
 
                 # right
-                if self._stick_rxs is None and x > 0 and x > min(x_p + 600, 32200):
-                    self._stick_rxs = max(0, min(x - 600, 32000))
+                if self._stick_rxs is None and x > 0 and x > min(x_p + 2000, 32000):
+                    self._stick_rxs = max(0, min(x - 2000, 31000))
                     _keypressed(rmode, rev)
                 elif self._stick_rxs is not None and x <= self._stick_rxs:
                     self._stick_rxs = None
