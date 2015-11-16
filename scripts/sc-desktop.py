@@ -57,6 +57,10 @@ def evminit():
 
     evm.setButtonAction(SCButtons.LGRIP, Keys.KEY_BACK)
     evm.setButtonAction(SCButtons.RGRIP, Keys.KEY_FORWARD)
+
+    evm.setButtonAction(SCButtons.LPAD, Keys.BTN_MIDDLE)
+    evm.setButtonAction(SCButtons.RPAD, Keys.KEY_SPACE)
+
     return evm
 
 class SCDaemon(Daemon):
