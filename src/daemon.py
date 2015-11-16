@@ -8,6 +8,7 @@ import os
 import time
 import atexit
 import signal
+import syslog
 
 class Daemon(object):
     """A generic daemon class.
@@ -48,22 +49,23 @@ class Daemon(object):
         # redirect standard file descriptors
         sys.stdout.flush()
         sys.stderr.flush()
-        si = open(os.devnull, 'r')
-        so = open(os.devnull, 'a+')
-        se = open(os.devnull, 'a+')
+        stdi = open(os.devnull, 'r')
+        stdo = open(os.devnull, 'a+')
+        stde = open(os.devnull, 'a+')
 
-        os.dup2(si.fileno(), sys.stdin.fileno())
-        os.dup2(so.fileno(), sys.stdout.fileno())
-        os.dup2(se.fileno(), sys.stderr.fileno())
+        os.dup2(stdi.fileno(), sys.stdin.fileno())
+        os.dup2(stdo.fileno(), sys.stdout.fileno())
+        os.dup2(stde.fileno(), sys.stderr.fileno())
 
         # write pidfile
         atexit.register(self.delpid)
 
         pid = str(os.getpid())
-        with open(self.pidfile, 'w+') as f:
-            f.write(pid + '\n')
+        with open(self.pidfile, 'w+') as fd:
+            fd.write(pid + '\n')
 
     def delpid(self):
+        """Delete pid file"""
         os.remove(self.pidfile)
 
     def start(self):
@@ -71,9 +73,9 @@ class Daemon(object):
 
         # Check for a pidfile to see if the daemon already runs
         try:
-            with open(self.pidfile, 'r') as pf:
+            with open(self.pidfile, 'r') as pidf:
 
-                pid = int(pf.read().strip())
+                pid = int(pidf.read().strip())
         except IOError:
             pid = None
 
@@ -85,15 +87,21 @@ class Daemon(object):
 
         # Start the daemon
         self.daemonize()
-        self.run()
+        syslog.syslog(syslog.LOG_INFO, '{}: started'.format(os.path.basename(sys.argv[0])))
+        while True:
+            try:
+                self.run()
+            except Exception as e: # pylint: disable=W0703
+                syslog.syslog(syslog.LOG_ERR, '{}: {!s}'.format(os.path.basename(sys.argv[0]), e))
+            time.sleep(2)
 
     def stop(self):
         """Stop the daemon."""
 
         # Get the pid from the pidfile
         try:
-            with open(self.pidfile, 'r') as pf:
-                pid = int(pf.read().strip())
+            with open(self.pidfile, 'r') as pidf:
+                pid = int(pidf.read().strip())
         except IOError:
             pid = None
 
@@ -105,7 +113,7 @@ class Daemon(object):
 
         # Try killing the daemon process
         try:
-            while 1:
+            while True:
                 os.kill(pid, signal.SIGTERM)
                 time.sleep(0.1)
         except OSError as err:
@@ -116,6 +124,7 @@ class Daemon(object):
             else:
                 print(str(err.args))
                 sys.exit(1)
+        syslog.syslog(syslog.LOG_INFO, '{}: stopped'.format(os.path.basename(sys.argv[0])))
 
     def restart(self):
         """Restart the daemon."""

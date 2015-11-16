@@ -44,13 +44,13 @@ button_map = {
     SCButtons.Y      : Keys.BTN_Y,
     SCButtons.LB     : Keys.BTN_TL,
     SCButtons.RB     : Keys.BTN_TR,
-    SCButtons.Back   : Keys.BTN_SELECT,
-    SCButtons.Start  : Keys.BTN_START,
-    SCButtons.Steam  : Keys.BTN_MODE,
-    SCButtons.LPad   : Keys.BTN_THUMBL,
-    SCButtons.RPad   : Keys.BTN_THUMBR,
-    SCButtons.LGrip  : Keys.BTN_A,
-    SCButtons.RGrip  : Keys.BTN_B,
+    SCButtons.BACK   : Keys.BTN_SELECT,
+    SCButtons.START  : Keys.BTN_START,
+    SCButtons.STEAM  : Keys.BTN_MODE,
+    SCButtons.LPAD   : Keys.BTN_THUMBL,
+    SCButtons.RPAD   : Keys.BTN_THUMBR,
+    SCButtons.LGRIP  : Keys.BTN_A,
+    SCButtons.RGRIP  : Keys.BTN_B,
 }
 
 LPAD_OUT_FILTER = 6
@@ -65,11 +65,11 @@ def lpad_func(idx, x, btn, threshold, evstick, evtouch, clicked, invert):
     events = []
     lpad_func.fb_flt -= 1
 
-    if btn & SCButtons.LPadTouch != SCButtons.LPadTouch:
+    if btn & SCButtons.LPADTOUCH != SCButtons.LPADTOUCH:
         events.append((evstick, x if not invert else -x, False))
 
-    if (clicked and (btn & (SCButtons.LPad | SCButtons.LPadTouch)) == (SCButtons.LPad | SCButtons.LPadTouch) or
-        not clicked and (btn & SCButtons.LPadTouch == SCButtons.LPadTouch)):
+    if (clicked and (btn & (SCButtons.LPAD | SCButtons.LPADTOUCH)) == (SCButtons.LPAD | SCButtons.LPADTOUCH) or
+        not clicked and (btn & SCButtons.LPADTOUCH == SCButtons.LPADTOUCH)):
 
         if x >= -threshold and x <= threshold:
             # dead zone
@@ -87,10 +87,10 @@ def lpad_func(idx, x, btn, threshold, evstick, evtouch, clicked, invert):
                 lpad_func.fb_flt = LPAD_FB_FILTER
             lpad_func.out_flt[idx] = LPAD_OUT_FILTER
 
-    if clicked and rmv & SCButtons.LPad == SCButtons.LPad:
+    if clicked and rmv & SCButtons.LPAD == SCButtons.LPAD:
         events.append((evtouch, 0, False))
 
-    if not clicked and btn & SCButtons.LPadTouch != SCButtons.LPadTouch:
+    if not clicked and btn & SCButtons.LPADTOUCH != SCButtons.LPADTOUCH:
         lpad_func.out_flt[idx] -= 1
         if lpad_func.out_flt[idx] <= 0:
             events.append((evtouch, 0, False))
@@ -110,7 +110,7 @@ axis_map = {
 @static_vars(prev_buttons=0, prev_key_events=set(), prev_abs_events=set())
 def scInput2Uinput(sc, sci, xb):
 
-    if sci.status != SCStatus.Input:
+    if sci.status != SCStatus.INPUT:
         return
 
     removed = scInput2Uinput.prev_buttons ^ sci.buttons
@@ -120,7 +120,7 @@ def scInput2Uinput(sc, sci, xb):
 
     for btn, ev in button_map.items():
 
-        if btn == SCButtons.LPad and sci.buttons & SCButtons.LPadTouch:
+        if btn == SCButtons.LPAD and sci.buttons & SCButtons.LPADTOUCH:
             key_events.append((ev, 0))
         else:
             if sci.buttons & btn:
@@ -155,13 +155,9 @@ def scInput2Uinput(sc, sci, xb):
 
 class SCDaemon(Daemon):
     def run(self):
-        while True:
-            try:
-                xb = steamcontroller.uinput.Gamepad()
-                sc = SteamController(callback=scInput2Uinput, callback_args=[xb, ])
-                sc.run()
-            except:
-                pass
+        xb = steamcontroller.uinput.Gamepad()
+        sc = SteamController(callback=scInput2Uinput, callback_args=[xb, ])
+        sc.run()
 
 if __name__ == '__main__':
     import argparse
