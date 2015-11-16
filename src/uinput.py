@@ -30,7 +30,7 @@ from math import pow as mpow
 from enum import IntEnum
 from steamcontroller.cheader import defines
 
-from distutils.sysconfig import get_config_var
+from steamcontroller.tools import get_so_extension
 
 from collections import deque
 
@@ -200,7 +200,7 @@ class UInput(object):
                 os.path.join(
                     os.path.dirname(__file__),
                     '..',
-                    'libuinput' + get_config_var('SO'))))
+                    'libuinput' + get_so_extension())))
         self._lib = ctypes.CDLL(lib)
 
         c_k        = (ctypes.c_uint16 * len(self._k))(*self._k)
