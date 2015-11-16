@@ -42,6 +42,7 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
  3. run `sc-xbox.py stop` to stop the driver
 
 Other test tools are installed:
+ - `sc-desktop.py` : A desktop mode great for kodi navigation.
  - `sc-dump.py` : Dump raw message from the controller.
  - `sc-gyro-plot.py` : Plot curves from gyro data (require pyqtgraph and pyside installed).
  - `sc-test-cmsg.py` : Permit to send control message to the contoller. For example `echo 8f07005e 015e01f4 01000000 | sc-test-cmsg.py` will make the controller beep.
@@ -61,7 +62,7 @@ Other test tools are installed:
     - Keyboard uintput device (*Done*)
     - Mouse uintput device with trackball model (*Done*)
  5. Create a simple xbox event mapper (*Done* but to be improved).
- 6. Create a configurable event mapper (TBD):
+ 6. Create a configurable event mapper (Work in Progress):
    - Create an event mapper that reads steam vdf files and maps usb inputs to uinput events.
    - Create fallback mappings for unsupported config options.
    - Get all possible configurations of steam config file.
