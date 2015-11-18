@@ -20,18 +20,22 @@ This project is licensed under MIT.
    * for python 2.7+ (you might have to use pip2 for python2.7 or pip3 for python3):
      - Install python libusb1 `sudo pip install libusb1`
      - Install python enum backport `sudo pip install enum34`
+
  2. Get the project [tarbal](https://github.com/ynsta/steamcontroller/archive/master.tar.gz) or clone it from github:
-    ```
+    ```shell
+# Get from tarbal:
 wget https://github.com/ynsta/steamcontroller/archive/master.tar.gz
 tar xf master.tar.gz
 cd steamcontroller-master
-# or
+# or clone it:
 git clone https://github.com/ynsta/steamcontroller.git
 cd steamcontroller
 ```
+
  3. Install python modules and scripts with `sudo python setup.py install`
+
  4. Install udev rules (if not already done for steam) in `/etc/udev/rules.d/99-steam-controller.rules`:
-    ```
+    ```shell
 # replace game group by a valid group on your system
 # Steam controller keyboard/mouse mode
 SUBSYSTEM=="usb", ATTRS{idVendor}=="28de", GROUP="games", MODE="0660"
@@ -39,8 +43,8 @@ SUBSYSTEM=="usb", ATTRS{idVendor}=="28de", GROUP="games", MODE="0660"
 # Steam controller gamepad mode
 KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
 ```
- 5. Reload udev `sudo udevadm control --reload`
 
+ 5. Reload udev `sudo udevadm control --reload`
 
 ## Usage
 
@@ -53,7 +57,8 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
 Other test tools are installed:
  - `sc-dump.py` : Dump raw message from the controller.
  - `sc-gyro-plot.py` : Plot curves from gyro data (require pyqtgraph and pyside installed).
- - `sc-test-cmsg.py` : Permit to send control message to the contoller. For example `echo 8f07005e 015e01f4 01000000 | sc-test-cmsg.py` will make the controller beep.
+ - `sc-test-cmsg.py` : Permit to send control message to the contoller. For example:  
+   `echo 8f07005e 015e01f4 01000000 | sc-test-cmsg.py` will make the controller beep.
  - `vdf2json.py` : Convert Steam VDF file to JSON.
  - `json2vdf.py` : Convert back JSON to VDF file.
 
@@ -64,16 +69,16 @@ Other test tools are installed:
     - Verify that Gyroscope data 4 to 7 are a quaternion as suspected
  2. Understand how to configure haptic feed backs (**Done**).
  3. Understand how to enable gyroscopes (**Done**).
- 4. Redirect inputs to userland events via uinput (*Done*).
+ 4. Redirect inputs to userland events via uinput (**Done**).
     - Xbox360 uintput device (**Done**)
     - Keyboard uintput device (**Done**)
     - Mouse uintput device with trackball model (**Done**)
  5. Create a simple xbox event mapper (**Done**)
- 6. Create a configurable event mapper (*Work in Progress*):
+ 6. Create a configurable event mapper (**Work in Progress**):
    - Create an event mapper that reads steam vdf files and maps usb inputs to uinput events.
    - Create fallback mappings for unsupported config options.
    - Get all possible configurations of steam config file.
- 7. Create a haptic feedback Manager (*Work in Progress*)
+ 7. Create a haptic feedback Manager (**Work in Progress**)
  8. Measure latencies.
 
 ## Control Messages Capture
