@@ -14,14 +14,15 @@ This project is licensed under MIT.
 
 ## Installation
 
- 1. Get code on github `git clone https://github.com/ynsta/steamcontroller.git`
-`2. for python 3.4+
-   - Install python libusb1 `sudo pip install libusb1`
- 3. for python 2.7+ (you might have to use pip2 for python2.7 or pip3 for python3):
-   - Install python libusb1 `sudo pip install libusb1`
-   - Install python enum backport `sudo pip install enum34
- 4. sudo python setup.py install
- 5. Install udev rules (if not already done for steam) in `/etc/udev/rules.d/99-steam-controller.rules`:
+ 1. Get the project [tarbal](https://github.com/ynsta/steamcontroller/archive/master.tar.gz) or clone it github `git clone https://github.com/ynsta/steamcontroller.git`
+ 2. Install dependencies
+   * for python 3.4+:
+     - Install python libusb1 `sudo pip install libusb1`
+   * for python 2.7+ (you might have to use pip2 for python2.7 or pip3 for python3):
+     - Install python libusb1 `sudo pip install libusb1`
+     - Install python enum backport `sudo pip install enum34`
+ 3. sudo python setup.py install
+ 4. Install udev rules (if not already done for steam) in `/etc/udev/rules.d/99-steam-controller.rules`:
     ```
 # replace game group by a valid group on your system
 # Steam controller keyboard/mouse mode
