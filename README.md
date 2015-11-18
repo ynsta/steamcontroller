@@ -14,14 +14,22 @@ This project is licensed under MIT.
 
 ## Installation
 
- 1. Get the project [tarbal](https://github.com/ynsta/steamcontroller/archive/master.tar.gz) or clone it github `git clone https://github.com/ynsta/steamcontroller.git`
- 2. Install dependencies
+ 1. Install dependencies
    * for python 3.4+:
      - Install python libusb1 `sudo pip install libusb1`
    * for python 2.7+ (you might have to use pip2 for python2.7 or pip3 for python3):
      - Install python libusb1 `sudo pip install libusb1`
      - Install python enum backport `sudo pip install enum34`
- 3. sudo python setup.py install
+ 2. Get the project [tarbal](https://github.com/ynsta/steamcontroller/archive/master.tar.gz) or clone it from github:
+    ```
+wget https://github.com/ynsta/steamcontroller/archive/master.tar.gz
+tar xf master.tar.gz
+cd steamcontroller-master
+# or
+git clone https://github.com/ynsta/steamcontroller.git
+cd steamcontroller
+```
+ 3. Install python modules and scripts with `sudo python setup.py install`
  4. Install udev rules (if not already done for steam) in `/etc/udev/rules.d/99-steam-controller.rules`:
     ```
 # replace game group by a valid group on your system
@@ -31,16 +39,16 @@ SUBSYSTEM=="usb", ATTRS{idVendor}=="28de", GROUP="games", MODE="0660"
 # Steam controller gamepad mode
 KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
 ```
- 6. Reload udev `sudo udevadm control --reload`
+ 5. Reload udev `sudo udevadm control --reload`
 
 
 ## Usage
 
  1. Exit Steam.
- 2. run `sc-xbox.py start` for the simple xbox360 emulator
- 3. run `sc-xbox.py stop` to stop the driver
-
-Replace `xbox` by `desktop` for the desktop keyboard/mouse mode.
+ 2. Start:
+   * `sc-xbox.py start` for the simple xbox360 emulator.
+   * `sc-desktop.py start` for the desktop keyboard/mouse mode. 
+ 3. Stop: `sc-xbox.py stop` or `sc-xbox.py stop`
 
 Other test tools are installed:
  - `sc-dump.py` : Dump raw message from the controller.
@@ -52,23 +60,23 @@ Other test tools are installed:
 
 ## TODO / Status
 
- 1. Finish to guess each bytes/bits roles in the usb message (Mostly *Done*).
+ 1. Finish to guess each bytes/bits roles in the usb message (Mostly **Done**).
     - Verify that Gyroscope data 4 to 7 are a quaternion as suspected
- 2. Understand how to configure haptic feed backs (*Done*).
- 3. Understand how to enable gyroscopes (*Done*).
+ 2. Understand how to configure haptic feed backs (**Done**).
+ 3. Understand how to enable gyroscopes (**Done**).
  4. Redirect inputs to userland events via uinput (*Done*).
-    - Xbox360 uintput device (*Done*)
-    - Keyboard uintput device (*Done*)
-    - Mouse uintput device with trackball model (*Done*)
- 5. Create a simple xbox event mapper (*Done*)
- 6. Create a configurable event mapper (Work in Progress):
+    - Xbox360 uintput device (**Done**)
+    - Keyboard uintput device (**Done**)
+    - Mouse uintput device with trackball model (**Done**)
+ 5. Create a simple xbox event mapper (**Done**)
+ 6. Create a configurable event mapper (*Work in Progress*):
    - Create an event mapper that reads steam vdf files and maps usb inputs to uinput events.
    - Create fallback mappings for unsupported config options.
    - Get all possible configurations of steam config file.
- 7. Create a haptic feedback Manager (TBD)
+ 7. Create a haptic feedback Manager (*Work in Progress*)
  8. Measure latencies.
 
-## Control Message Capture
+## Control Messages Capture
 
  1. `sudo modprobe usbmon`
  2. `lsusb -d 28de:1142` and look at bus and device numbers (B & D)
@@ -85,6 +93,8 @@ Other test tools are installed:
 ### Disable Gyro
 
  - `87153284 03180000 31020008 07000707 00300000 2f010000 00000000 00000000`
+
+## Control Messages formats
 
 ### Haptic feedback format:
 
