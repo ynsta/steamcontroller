@@ -53,9 +53,8 @@
 <a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
 
 <ol>
-<li>Get the project <a href="https://github.com/ynsta/steamcontroller/archive/master.tar.gz">tarbal</a> or clone it github <code>git clone https://github.com/ynsta/steamcontroller.git</code>
-</li>
-<li>Install dependencies
+<li>
+<p>Install dependencies</p>
 
 <ul>
 <li>for python 3.4+:
@@ -76,20 +75,29 @@
 </li>
 </ul>
 </li>
-<li>sudo python setup.py install</li>
+<li>
+<p>Get the project <a href="https://github.com/ynsta/steamcontroller/archive/master.tar.gz">tarbal</a> or clone it from github:</p>
+
+<div class="highlight highlight-source-shell"><pre><span class="pl-c"># Get from tarbal:</span>
+wget https://github.com/ynsta/steamcontroller/archive/master.tar.gz
+tar xf master.tar.gz
+<span class="pl-c1">cd</span> steamcontroller-master
+<span class="pl-c"># or clone it:</span>
+git clone https://github.com/ynsta/steamcontroller.git
+<span class="pl-c1">cd</span> steamcontroller</pre></div>
+</li>
+<li><p>Install python modules and scripts with <code>sudo python setup.py install</code></p></li>
 <li>
 <p>Install udev rules (if not already done for steam) in <code>/etc/udev/rules.d/99-steam-controller.rules</code>:</p>
 
-<pre><code># replace game group by a valid group on your system
-# Steam controller keyboard/mouse mode
-SUBSYSTEM=="usb", ATTRS{idVendor}=="28de", GROUP="games", MODE="0660"
+<div class="highlight highlight-source-shell"><pre><span class="pl-c"># replace game group by a valid group on your system</span>
+<span class="pl-c"># Steam controller keyboard/mouse mode</span>
+SUBSYSTEM==<span class="pl-s"><span class="pl-pds">"</span>usb<span class="pl-pds">"</span></span>, ATTRS{idVendor}==<span class="pl-s"><span class="pl-pds">"</span>28de<span class="pl-pds">"</span></span>, GROUP=<span class="pl-s"><span class="pl-pds">"</span>games<span class="pl-pds">"</span></span>, MODE=<span class="pl-s"><span class="pl-pds">"</span>0660<span class="pl-pds">"</span></span>
 
-# Steam controller gamepad mode
-KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
-</code></pre>
+<span class="pl-c"># Steam controller gamepad mode</span>
+KERNEL==<span class="pl-s"><span class="pl-pds">"</span>uinput<span class="pl-pds">"</span></span>, MODE=<span class="pl-s"><span class="pl-pds">"</span>0660<span class="pl-pds">"</span></span>, GROUP=<span class="pl-s"><span class="pl-pds">"</span>games<span class="pl-pds">"</span></span>, OPTIONS+=<span class="pl-s"><span class="pl-pds">"</span>static_node=uinput<span class="pl-pds">"</span></span></pre></div>
 </li>
-<li>Reload udev <code>sudo udevadm control --reload</code>
-</li>
+<li><p>Reload udev <code>sudo udevadm control --reload</code></p></li>
 </ol>
 
 <h2>
@@ -97,11 +105,18 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
 
 <ol>
 <li>Exit Steam.</li>
-<li>run <code>sc-xbox.py start</code> for the simple xbox360 emulator</li>
-<li>run <code>sc-xbox.py stop</code> to stop the driver</li>
-</ol>
+<li>Start:
 
-<p>Replace <code>xbox</code> by <code>desktop</code> for the desktop keyboard/mouse mode.</p>
+<ul>
+<li>
+<code>sc-xbox.py start</code> for the simple xbox360 emulator.</li>
+<li>
+<code>sc-desktop.py start</code> for the desktop keyboard/mouse mode.</li>
+</ul>
+</li>
+<li>Stop: <code>sc-xbox.py stop</code> or <code>sc-xbox.py stop</code>
+</li>
+</ol>
 
 <p>Other test tools are installed:</p>
 
@@ -111,7 +126,8 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
 <li>
 <code>sc-gyro-plot.py</code> : Plot curves from gyro data (require pyqtgraph and pyside installed).</li>
 <li>
-<code>sc-test-cmsg.py</code> : Permit to send control message to the contoller. For example <code>echo 8f07005e 015e01f4 01000000 | sc-test-cmsg.py</code> will make the controller beep.</li>
+<code>sc-test-cmsg.py</code> : Permit to send control message to the contoller. For example:<br>
+<code>echo 8f07005e 015e01f4 01000000 | sc-test-cmsg.py</code> will make the controller beep.</li>
 <li>
 <code>vdf2json.py</code> : Convert Steam VDF file to JSON.</li>
 <li>
@@ -122,24 +138,24 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
 <a id="todo--status" class="anchor" href="#todo--status" aria-hidden="true"><span class="octicon octicon-link"></span></a>TODO / Status</h2>
 
 <ol>
-<li>Finish to guess each bytes/bits roles in the usb message (Mostly <em>Done</em>).
+<li>Finish to guess each bytes/bits roles in the usb message (Mostly <strong>Done</strong>).
 
 <ul>
 <li>Verify that Gyroscope data 4 to 7 are a quaternion as suspected</li>
 </ul>
 </li>
-<li>Understand how to configure haptic feed backs (<em>Done</em>).</li>
-<li>Understand how to enable gyroscopes (<em>Done</em>).</li>
-<li>Redirect inputs to userland events via uinput (<em>Done</em>).
+<li>Understand how to configure haptic feed backs (<strong>Done</strong>).</li>
+<li>Understand how to enable gyroscopes (<strong>Done</strong>).</li>
+<li>Redirect inputs to userland events via uinput (<strong>Done</strong>).
 
 <ul>
-<li>Xbox360 uintput device (<em>Done</em>)</li>
-<li>Keyboard uintput device (<em>Done</em>)</li>
-<li>Mouse uintput device with trackball model (<em>Done</em>)</li>
+<li>Xbox360 uintput device (<strong>Done</strong>)</li>
+<li>Keyboard uintput device (<strong>Done</strong>)</li>
+<li>Mouse uintput device with trackball model (<strong>Done</strong>)</li>
 </ul>
 </li>
-<li>Create a simple xbox event mapper (<em>Done</em>)</li>
-<li>Create a configurable event mapper (Work in Progress):
+<li>Create a simple xbox event mapper (<strong>Done</strong>)</li>
+<li>Create a configurable event mapper (<strong>Work in Progress</strong>):
 
 <ul>
 <li>Create an event mapper that reads steam vdf files and maps usb inputs to uinput events.</li>
@@ -147,12 +163,12 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
 <li>Get all possible configurations of steam config file.</li>
 </ul>
 </li>
-<li>Create a haptic feedback Manager (TBD)</li>
+<li>Create a haptic feedback Manager (<strong>Work in Progress</strong>)</li>
 <li>Measure latencies.</li>
 </ol>
 
 <h2>
-<a id="control-message-capture" class="anchor" href="#control-message-capture" aria-hidden="true"><span class="octicon octicon-link"></span></a>Control Message Capture</h2>
+<a id="control-messages-capture" class="anchor" href="#control-messages-capture" aria-hidden="true"><span class="octicon octicon-link"></span></a>Control Messages Capture</h2>
 
 <ol>
 <li><code>sudo modprobe usbmon</code></li>
@@ -182,6 +198,9 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
 <ul>
 <li><code>87153284 03180000 31020008 07000707 00300000 2f010000 00000000 00000000</code></li>
 </ul>
+
+<h2>
+<a id="control-messages-formats" class="anchor" href="#control-messages-formats" aria-hidden="true"><span class="octicon octicon-link"></span></a>Control Messages formats</h2>
 
 <h3>
 <a id="haptic-feedback-format" class="anchor" href="#haptic-feedback-format" aria-hidden="true"><span class="octicon octicon-link"></span></a>Haptic feedback format:</h3>
