@@ -26,7 +26,6 @@ import os
 import ctypes
 import time
 from math import pi, copysign, sqrt
-from math import pow as mpow
 from enum import IntEnum
 from steamcontroller.cheader import defines
 
@@ -347,9 +346,9 @@ class Mouse(UInput):
     updateParams permit to upgrade ball model and move scale
     """
 
-    DEFAULT_FRICTION = 8.0
-    DEFAULT_XSCALE = 0.005
-    DEFAULT_YSCALE = 0.005
+    DEFAULT_FRICTION = 10.0
+    DEFAULT_XSCALE = 0.007
+    DEFAULT_YSCALE = 0.007
 
     DEFAULT_MEAN_LEN = 10
 
@@ -510,7 +509,7 @@ class Mouse(UInput):
             self._xvel_dq.clear()
             self._yvel_dq.clear()
 
-            _hyp = sqrt(mpow(self._xvel, 2) + mpow(self._yvel, 2))
+            _hyp = sqrt((self._xvel**2) + (self._yvel**2))
             if _hyp != 0.0:
                 _ax = self._a * (abs(self._xvel) / _hyp)
                 _ay = self._a * (abs(self._yvel) / _hyp)
@@ -538,7 +537,7 @@ class Mouse(UInput):
 
             _genevt()
 
-        return sqrt(mpow(dx, 2) + mpow(dy, 2))
+        return sqrt((dx**2) + (dy**2))
 
     def scrollEvent(self, dx=0, dy=0, free=False):
         """
@@ -568,13 +567,14 @@ class Mouse(UInput):
                 _syn = True
             if _syn:
                 self.synEvent()
+            return _syn
 
         if not free:
             # Compute mouse mouvement from interger part of d * scale
             self._scr_dx += dx * self._scr_xscale
             self._scr_dy += dy * self._scr_yscale
 
-            _genevt()
+            _nev = _genevt()
 
             # Compute instant velocity
             try:
@@ -593,7 +593,7 @@ class Mouse(UInput):
             self._scr_xvel_dq.clear()
             self._scr_yvel_dq.clear()
 
-            _hyp = sqrt(mpow(self._scr_xvel, 2) + mpow(self._scr_yvel, 2))
+            _hyp = sqrt((self._scr_xvel**2) + (self._scr_yvel**2))
             if _hyp != 0.0:
                 _ax = self._scr_a * (abs(self._scr_xvel) / _hyp)
                 _ay = self._scr_a * (abs(self._scr_yvel) / _hyp)
@@ -619,9 +619,9 @@ class Mouse(UInput):
             self._scr_dx += dx * self._scr_xscale
             self._scr_dy += dy * self._scr_yscale
 
-            _genevt()
+            _nev = _genevt()
 
-        return sqrt(mpow(dx, 2) + mpow(dy, 2))
+        return _nev
 
 
 class Keyboard(UInput):

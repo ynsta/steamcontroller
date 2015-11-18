@@ -27,6 +27,8 @@ events
 
 """
 
+from math import sqrt
+
 from enum import IntEnum
 
 from steamcontroller import \
@@ -40,8 +42,8 @@ from collections import deque
 
 class Pos(IntEnum):
     """Specify witch pad or trig is used"""
-    LEFT = 0
-    RIGHT = 1
+    RIGHT = 0
+    LEFT = 1
 
 class Modes(IntEnum):
     """Different kinds of uinput event type"""
@@ -98,10 +100,11 @@ class EventMapper(object):
 
         self._sci_prev = SCI_NULL
 
-        self._xdq = [deque(maxlen=6), deque(maxlen=6)]
-        self._ydq = [deque(maxlen=6), deque(maxlen=6)]
+        self._xdq = [deque(maxlen=8), deque(maxlen=8)]
+        self._ydq = [deque(maxlen=8), deque(maxlen=8)]
 
         self._onkeys = set()
+        self._onabs = {}
 
         self._stick_tys = None
         self._stick_lxs = None
@@ -109,6 +112,9 @@ class EventMapper(object):
         self._stick_rxs = None
 
         self._trig_s = [None, None]
+
+        self._moved = [0, 0]
+
 
     def process(self, sc, sci):
         """
@@ -133,6 +139,24 @@ class EventMapper(object):
 
         syn = set()
 
+        def _abspressed(ev, val):
+            if ev not in self._onabs or self._onabs[ev] != val:
+                self._uip[Modes.GAMEPAD].axisEvent(ev, val)
+                syn.add(Modes.GAMEPAD)
+                self._onabs[ev] = val
+                return True
+            else:
+                return False
+
+        def _absreleased(ev):
+            if ev not in self._onabs or self._onabs[ev] == 0:
+                return False
+            else:
+                self._uip[Modes.GAMEPAD].axisEvent(ev, 0)
+                syn.add(Modes.GAMEPAD)
+                self._onabs[ev] = 0
+                return True
+
         def _keypressed(mode, ev):
             """Private function used to generate different kind of key press"""
             if mode == Modes.GAMEPAD or mode == Modes.MOUSE:
@@ -141,8 +165,11 @@ class EventMapper(object):
                     syn.add(mode)
             elif mode == Modes.KEYBOARD:
                 _pressed.append(ev)
-            self._onkeys.add(ev)
-
+            if ev in self._onkeys:
+                return False
+            else:
+                self._onkeys.add(ev)
+                return True
 
         def _keyreleased(mode, ev):
             """Private function used to generate different kind of key release"""
@@ -153,6 +180,9 @@ class EventMapper(object):
                     syn.add(mode)
                 elif mode == Modes.KEYBOARD:
                     _released.append(ev)
+                return True
+            else:
+                return False
 
         # Manage buttons
         for btn, (mode, ev) in self._btn_map.items():
@@ -210,17 +240,33 @@ class EventMapper(object):
                         _dx = xm - xm_p
                         _dy = ym - ym_p
 
-
                 if self._pad_modes[pos] == PadModes.MOUSE:
-                    self._uip[Modes.MOUSE].moveEvent(_dx, -_dy, _free)
+                    self._moved[pos] += int(self._uip[Modes.MOUSE].moveEvent(_dx, -_dy, _free))
+                    # FIXME: make haptic configurable
+                    if self._moved[pos] >= 4000:
+                        if not _free:
+                            sc.addFeedback(pos, amplitude=100)
+                        self._moved[pos] %= 4000
                 else:
-                    self._uip[Modes.MOUSE].scrollEvent(_dx, _dy, _free)
+                    if self._uip[Modes.MOUSE].scrollEvent(_dx, _dy, _free):
+                        # FIXME: make haptic configurable
+                        if not _free:
+                            sc.addFeedback(pos, amplitude=256)
+
 
             # Axis mode
             elif self._pad_modes[pos] == PadModes.AXIS:
                 revert = self._pad_revs[pos]
                 (xmode, xev), (ymode, yev) = self._pad_evts[pos]
                 if xmode is not None:
+
+                    # FIXME: make haptic configurable
+                    if sci.buttons & touch == touch:
+                        self._moved[pos] += sqrt((xm - xm_p)**2 + (ym - ym_p)**2)
+                        if self._moved[pos] >= 4000:
+                            sc.addFeedback(pos, amplitude=100)
+                            self._moved[pos] %= 4000
+
                     if x != x_p:
                         self._uip[xmode].axisEvent(xev, x)
                         syn.add(xmode)
@@ -239,38 +285,68 @@ class EventMapper(object):
                     on_test = click | touch
                     off_test = click
 
+                haptic = False
+
                 if sci.buttons & on_test == on_test:
                     dzone = self._pad_dzones[pos]
 
-                    tmode, tev = self._pad_evts[pos][0]
-                    lmode, lev = self._pad_evts[pos][1]
-                    bmode, bev = self._pad_evts[pos][2]
-                    rmode, rev = self._pad_evts[pos][3]
+                    if len(self._pad_evts[pos]) == 4:
+                        # key or buttons
+                        tmode, tev = self._pad_evts[pos][0]
+                        lmode, lev = self._pad_evts[pos][1]
+                        bmode, bev = self._pad_evts[pos][2]
+                        rmode, rev = self._pad_evts[pos][3]
 
-                    if ym > dzone: # TOP
-                        _keypressed(tmode, tev)
-                    else:
-                        _keyreleased(tmode, tev)
+                        if ym > dzone: # TOP
+                            haptic |= _keypressed(tmode, tev)
+                        else:
+                            haptic |= _keyreleased(tmode, tev)
 
-                    if xm < -dzone: # LEFT
-                        _keypressed(lmode, lev)
-                    else:
-                        _keyreleased(lmode, lev)
+                        if xm < -dzone: # LEFT
+                            haptic |= _keypressed(lmode, lev)
+                        else:
+                            haptic |= _keyreleased(lmode, lev)
 
-                    if ym < -dzone: # BOTTOM
-                        _keypressed(bmode, bev)
-                    else:
-                        _keyreleased(bmode, bev)
+                        if ym < -dzone: # BOTTOM
+                            haptic |= _keypressed(bmode, bev)
+                        else:
+                            haptic |= _keyreleased(bmode, bev)
 
-                    if xm > dzone: # RIGHT
-                        _keypressed(rmode, rev)
-                    else:
-                        _keyreleased(rmode, rev)
+                        if xm > dzone: # RIGHT
+                            haptic |= _keypressed(rmode, rev)
+                        else:
+                            haptic |= _keyreleased(rmode, rev)
+
+                    elif len(self._pad_evts[pos]) == 2:
+                        _, xev = self._pad_evts[pos][0]
+                        _, yev = self._pad_evts[pos][1]
+                        rev = self._pad_revs[pos]
+
+                        if ym > dzone:    # TOP
+                            haptic |= _abspressed(yev, -1 if rev else 1)
+                        elif ym < -dzone: # BOTTOM
+                            haptic |= _abspressed(yev, 1 if rev else -1)
+                        else:
+                            haptic |= _absreleased(yev)
+
+                        if xm < -dzone:  # LEFT
+                            haptic |= _abspressed(xev, -1)
+                        elif xm > dzone: # RIGHT
+                            haptic |= _abspressed(xev, 1)
+                        else:
+                            haptic |= _absreleased(xev)
 
                 if (sci.buttons & off_test != off_test and
                     sci_p.buttons & on_test == on_test):
-                    for mode, ev in self._pad_evts[pos]:
-                        _keyreleased(mode, ev)
+                    if len(self._pad_evts[pos]) == 4:
+                        for mode, ev in self._pad_evts[pos]:
+                            haptic |= _keyreleased(mode, ev)
+                    elif len(self._pad_evts[pos]) == 2:
+                        for _, ev in self._pad_evts[pos]:
+                            haptic |= _absreleased(ev)
+
+                if haptic and self._pad_modes[pos] == PadModes.BUTTONTOUCH:
+                    sc.addFeedback(pos, amplitude=300)
 
             if sci.buttons & touch != touch:
                 xm_p, ym_p, xm, ym = 0, 0, 0, 0
@@ -396,6 +472,36 @@ class EventMapper(object):
             else:
                 self._btn_map[SCButtons.RPAD] = (None, 0)
 
+    def setPadAxesAsButtons(self, pos, abs_events, deadzone=0.6, clicked=False, revert=True):
+        """
+        Set pad as buttons
+
+        @param Pos pos          designate left or right pad
+        @param list key_events  list of axes events for the pad buttons (X, Y)
+        @param fload deadzone   portion of the pad in the center dead zone from 0.0 to 1.0
+        @param bool clicked     action on touch or on click event
+        @param bool revert      revert axes
+        """
+
+        assert len(abs_events) == 2
+        assert deadzone >= 0.0 and deadzone < 1.0
+
+        self._pad_modes[pos] = PadModes.BUTTONCLICK if clicked else PadModes.BUTTONTOUCH
+
+        self._pad_evts[pos] = []
+        for ev in abs_events:
+            self._pad_evts[pos].append((Modes.GAMEPAD, ev))
+
+        self._pad_revs[pos] = revert
+        self._pad_dzones[pos] = 32768 * deadzone
+
+        if clicked:
+            if pos == Pos.LEFT:
+                self._btn_map[SCButtons.LPAD] = (None, 0)
+            else:
+                self._btn_map[SCButtons.RPAD] = (None, 0)
+
+
     def setPadMouse(self, pos,
                     trackball=True,
                     friction=sui.Mouse.DEFAULT_FRICTION,
@@ -417,7 +523,7 @@ class EventMapper(object):
         self._uip[Modes.MOUSE].updateScrollParams(friction=friction, xscale=xscale, yscale=yscale)
         self._pad_modes[pos] = PadModes.MOUSESCROLL
 
-    def setPadAxes(self, pos, abs_x_event, abs_y_event, revert):
+    def setPadAxes(self, pos, abs_x_event, abs_y_event, revert=True):
         self._pad_modes[pos] = PadModes.AXIS
         self._pad_evts[pos] = [(Modes.GAMEPAD, abs_x_event),
                                (Modes.GAMEPAD, abs_y_event)]
@@ -434,7 +540,7 @@ class EventMapper(object):
         self._trig_modes[pos] = TrigModes.AXIS
         self._trig_evts[pos] = (Modes.GAMEPAD, abs_event)
 
-    def setStickAxes(self, abs_x_event, abs_y_event, revert):
+    def setStickAxes(self, abs_x_event, abs_y_event, revert=True):
         self._stick_mode = StickModes.AXIS
         self._stick_evts = [(Modes.GAMEPAD, abs_x_event),
                             (Modes.GAMEPAD, abs_y_event)]
