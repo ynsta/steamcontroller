@@ -84,6 +84,10 @@ class SCButtons(IntEnum):
     LT        = 0b00000000000000000000001000000000
     RT        = 0b00000000000000000000000100000000
 
+class HapticPos(IntEnum):
+    """Specify witch pad or trig is used"""
+    RIGHT = 0
+    LEFT = 1
 
 class SteamController(object):
 
@@ -164,14 +168,16 @@ class SteamController(object):
                                   data=data + zeros,
                                   timeout=timeout)
 
-    def addFeedback(self, name):
-        if not name:
-            return
-        elif name[:2] == 'rp':
-            self._cmsg.insert(0, struct.pack('>' + 'I' * 2, 0x8f0700ff, 0x03000001))
-        elif name[:2] == 'lp':
-            self._cmsg.insert(0, struct.pack('>' + 'I' * 2, 0x8f0701ff, 0x03000001))
+    def addFeedback(self, position, amplitude=128, period=0, count=1):
+        """
+        Add haptic feedback to be send on next usb tick
 
+        @param int position     haptic to use 1 for left 0 for right
+        @param int amplitude    signal amplitude from 0 to 65535
+        @param int period       signal period from 0 to 65535
+        @param int count        number of period to play
+        """
+        self._cmsg.insert(0, struct.pack('<BBBHHH', 0x8f, 0x07, position, amplitude, period, count))
 
     def _processReceivedData(self, transfer):
         """Private USB async Rx function"""
