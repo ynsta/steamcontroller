@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Steamcontroller  : Standalone Steam Controller Driver">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Steamcontroller </title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/ynsta/steamcontroller">View on GitHub</a>
+
+          <h1 id="project_title">Steamcontroller </h1>
+          <h2 id="project_tagline">Standalone Steam Controller Driver</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/ynsta/steamcontroller/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/ynsta/steamcontroller/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a id="standalone-steam-controller-driver" class="anchor" href="#standalone-steam-controller-driver" aria-hidden="true"><span class="octicon octicon-link"></span></a>Standalone Steam Controller Driver</h1>
+
+<p>This project is a standalone userland driver for the steam controller to be used where steam client can't be installed.</p>
+
+<p>Two modes are already working with haptic feedback:</p>
+
+<ul>
+<li>xbox360: gamepad emulator</li>
+<li>desktop: mouse, keyboard mode</li>
+</ul>
+
+<p>The final purpose is to have support for custom mapping created with a stand-alone tool or imported from steam vdf files.</p>
+
+<p>The initial target is <em>GNU/Linux</em>, but I'll welcome any contributor that want to port input generation for other OS (OSX, Windows, *BSD, Android/Linux, ...)</p>
+
+<p>This project is licensed under MIT.</p>
+
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<ol>
+<li>Get code on github <code>git clone https://github.com/ynsta/steamcontroller.git</code>
+`2. for python 3.4+
+
+<ul>
+<li>Install python libusb1 <code>sudo pip install libusb1</code>
+</li>
+</ul>
+</li>
+<li>for python 2.7+ (you might have to use pip2 for python2.7 or pip3 for python3):
+
+<ul>
+<li>Install python libusb1 <code>sudo pip install libusb1</code>
+</li>
+<li>Install python enum backport `sudo pip install enum34</li>
+</ul>
+</li>
+<li>sudo python setup.py install</li>
+<li>
+<p>Install udev rules (if not already done for steam) in <code>/etc/udev/rules.d/99-steam-controller.rules</code>:</p>
+
+<pre><code># replace game group by a valid group on your system
+# Steam controller keyboard/mouse mode
+SUBSYSTEM=="usb", ATTRS{idVendor}=="28de", GROUP="games", MODE="0660"
+
+# Steam controller gamepad mode
+KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
+</code></pre>
+</li>
+<li>Reload udev <code>sudo udevadm control --reload</code>
+</li>
+</ol>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<ol>
+<li>Exit Steam.</li>
+<li>run <code>sc-xbox.py start</code> for the simple xbox360 emulator</li>
+<li>run <code>sc-xbox.py stop</code> to stop the driver</li>
+</ol>
+
+<p>Replace <code>xbox</code> by <code>desktop</code> for the desktop keyboard/mouse mode.</p>
+
+<p>Other test tools are installed:</p>
+
+<ul>
+<li>
+<code>sc-dump.py</code> : Dump raw message from the controller.</li>
+<li>
+<code>sc-gyro-plot.py</code> : Plot curves from gyro data (require pyqtgraph and pyside installed).</li>
+<li>
+<code>sc-test-cmsg.py</code> : Permit to send control message to the contoller. For example <code>echo 8f07005e 015e01f4 01000000 | sc-test-cmsg.py</code> will make the controller beep.</li>
+<li>
+<code>vdf2json.py</code> : Convert Steam VDF file to JSON.</li>
+<li>
+<code>json2vdf.py</code> : Convert back JSON to VDF file.</li>
+</ul>
+
+<h2>
+<a id="todo--status" class="anchor" href="#todo--status" aria-hidden="true"><span class="octicon octicon-link"></span></a>TODO / Status</h2>
+
+<ol>
+<li>Finish to guess each bytes/bits roles in the usb message (Mostly <em>Done</em>).
+
+<ul>
+<li>Verify that Gyroscope data 4 to 7 are a quaternion as suspected</li>
+</ul>
+</li>
+<li>Understand how to configure haptic feed backs (<em>Done</em>).</li>
+<li>Understand how to enable gyroscopes (<em>Done</em>).</li>
+<li>Redirect inputs to userland events via uinput (<em>Done</em>).
+
+<ul>
+<li>Xbox360 uintput device (<em>Done</em>)</li>
+<li>Keyboard uintput device (<em>Done</em>)</li>
+<li>Mouse uintput device with trackball model (<em>Done</em>)</li>
+</ul>
+</li>
+<li>Create a simple xbox event mapper (<em>Done</em>)</li>
+<li>Create a configurable event mapper (Work in Progress):
+
+<ul>
+<li>Create an event mapper that reads steam vdf files and maps usb inputs to uinput events.</li>
+<li>Create fallback mappings for unsupported config options.</li>
+<li>Get all possible configurations of steam config file.</li>
+</ul>
+</li>
+<li>Create a haptic feedback Manager (TBD)</li>
+<li>Measure latencies.</li>
+</ol>
+
+<h2>
+<a id="control-message-capture" class="anchor" href="#control-message-capture" aria-hidden="true"><span class="octicon octicon-link"></span></a>Control Message Capture</h2>
+
+<ol>
+<li><code>sudo modprobe usbmon</code></li>
+<li>
+<code>lsusb -d 28de:1142</code> and look at bus and device numbers (B &amp; D)</li>
+<li>
+<code>sudo cat /sys/kernel/debug/usb/usbmon/Bu | grep Co:B:D:0</code> B=3 and D=003 on my setup.</li>
+</ol>
+
+<h3>
+<a id="disable-auto-feedback-on-rpad" class="anchor" href="#disable-auto-feedback-on-rpad" aria-hidden="true"><span class="octicon octicon-link"></span></a>Disable auto feedback on rpad:</h3>
+
+<ul>
+<li><code>81000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000</code></li>
+</ul>
+
+<h3>
+<a id="enable-gyro" class="anchor" href="#enable-gyro" aria-hidden="true"><span class="octicon octicon-link"></span></a>Enable Gyro</h3>
+
+<ul>
+<li><code>87153284 03180000 31020008 07000707 00301400 2f010000 00000000 00000000</code></li>
+</ul>
+
+<h3>
+<a id="disable-gyro" class="anchor" href="#disable-gyro" aria-hidden="true"><span class="octicon octicon-link"></span></a>Disable Gyro</h3>
+
+<ul>
+<li><code>87153284 03180000 31020008 07000707 00300000 2f010000 00000000 00000000</code></li>
+</ul>
+
+<h3>
+<a id="haptic-feedback-format" class="anchor" href="#haptic-feedback-format" aria-hidden="true"><span class="octicon octicon-link"></span></a>Haptic feedback format:</h3>
+
+<ul>
+<li>u8  : <code>8f</code>
+</li>
+<li>u8  : <code>07</code>
+</li>
+<li>u8  : <code>00</code> for Right <code>01</code> for Left</li>
+<li>u16 : Amplitude</li>
+<li>u16 : Period</li>
+<li>u16 : count</li>
+<li>pads the end with <code>00</code>
+</li>
+</ul>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Steamcontroller  maintained by <a href="https://github.com/ynsta">ynsta</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
