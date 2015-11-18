@@ -2,9 +2,9 @@
 
 This project is a standalone userland driver for the steam controller to be used where steam client can't be installed.
 
-Two modes are already working:
- - xbox360: gamepad emulator with some haptic feedback
- - desktop: mouse, keyboard mode without haptic feedback
+Two modes are already working with haptic feedback:
+ - xbox360: gamepad emulator
+ - desktop: mouse, keyboard mode
 
 The final purpose is to have support for custom mapping created with a stand-alone tool or imported from steam vdf files.
 
@@ -53,14 +53,13 @@ Other test tools are installed:
 
  1. Finish to guess each bytes/bits roles in the usb message (Mostly *Done*).
     - Verify that Gyroscope data 4 to 7 are a quaternion as suspected
- 2. Understand how to configure haptic feed backs (*In progress*).
-    - Understand the format of control messages used (cf _Control Message Capture_ below)
+ 2. Understand how to configure haptic feed backs (*Done*).
  3. Understand how to enable gyroscopes (*Done*).
  4. Redirect inputs to userland events via uinput (*Done*).
     - Xbox360 uintput device (*Done*)
     - Keyboard uintput device (*Done*)
     - Mouse uintput device with trackball model (*Done*)
- 5. Create a simple xbox event mapper (*Done* but to be improved).
+ 5. Create a simple xbox event mapper (*Done*)
  6. Create a configurable event mapper (Work in Progress):
    - Create an event mapper that reads steam vdf files and maps usb inputs to uinput events.
    - Create fallback mappings for unsupported config options.
@@ -86,15 +85,12 @@ Other test tools are installed:
 
  - `87153284 03180000 31020008 07000707 00300000 2f010000 00000000 00000000`
 
-### RPAD
+### Haptic feedback format:
 
- - `8f0700c8 00000001 00000000 00000000 00000000 00000000 00000000 00000000`
-
-### LPAD
-
- - `8f070115 02000001 00000000 00000000 00000000 00000000 00000000 00000000`
-
-### Beep (Controller identification)
-
- - `8f07005e 015e01f4 01000000 00000000 00000000 00000000 00000000 00000000`
- - `8f070126 022602f4 01000000 00000000 00000000 00000000 00000000 00000000`
+ - u8  : `8f`
+ - u8  : `07`
+ - u8  : `00` for Right `01` for Left
+ - u16 : Amplitude
+ - u16 : Period
+ - u16 : count
+ - pads the end with `00`
