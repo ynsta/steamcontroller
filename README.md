@@ -47,7 +47,7 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
  1. Exit Steam.
  2. Start:
    * `sc-xbox.py start` for the simple xbox360 emulator.
-   * `sc-desktop.py start` for the desktop keyboard/mouse mode. 
+   * `sc-desktop.py start` for the desktop keyboard/mouse mode.
  3. Stop: `sc-xbox.py stop` or `sc-xbox.py stop`
 
 Other test tools are installed:
