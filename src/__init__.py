@@ -23,9 +23,17 @@ from collections import namedtuple
 import struct
 from enum import IntEnum
 
+from threading import Timer
+import time
+
 VENDOR_ID = 0x28de
-PRODUCT_ID = 0x1142
-ENDPOINT = 2
+PRODUCT_ID = [0x1102, 0x1142]
+ENDPOINT = [3, 2]
+CONTROLIDX = [2, 1]
+
+HPERIOD  = 0.02
+LPERIOD  = 0.5
+DURATION = 1.0
 
 STEAM_CONTROLER_FORMAT = [
     ('x',   'ukn_00'),
@@ -106,14 +114,24 @@ class SteamController(object):
         self._cb_args = callback_args
         self._cmsg = []
         self._ctx = usb1.USBContext()
-        self._handle = self._ctx.openByVendorIDAndProductID(
-            VENDOR_ID, PRODUCT_ID,
-            skip_on_error=True,
-        )
+
+
+        for i in range(len(PRODUCT_ID)):
+            pid = PRODUCT_ID[i]
+            endpoint = ENDPOINT[i]
+            ccidx = CONTROLIDX[i]
+
+            self._handle = self._ctx.openByVendorIDAndProductID(
+                VENDOR_ID, pid,
+                skip_on_error=True,
+            )
+            if self._handle is not None:
+                break
 
         if self._handle is None:
             raise ValueError('SteamControler Device not found')
 
+        self._ccidx = ccidx
         dev = self._handle.getDevice()
         cfg = dev[0]
 
@@ -130,12 +148,18 @@ class SteamController(object):
         self._transfer_list = []
         transfer = self._handle.getTransfer()
         transfer.setInterrupt(
-            usb1.ENDPOINT_IN | ENDPOINT,
+            usb1.ENDPOINT_IN | endpoint,
             64,
             callback=self._processReceivedData,
         )
         transfer.submit()
         self._transfer_list.append(transfer)
+
+        self._period = LPERIOD
+        self._timer = Timer(LPERIOD, self._callbackTimer)
+        self._timer.start()
+        self._tup = None
+        self._lastusb = time.time()
 
         # Disable Haptic auto feedback
 
@@ -164,7 +188,7 @@ class SteamController(object):
         self._handle.controlWrite(request_type=0x21,
                                   request=0x09,
                                   value=0x0300,
-                                  index=0x0001,
+                                  index=self._ccidx,
                                   data=data + zeros,
                                   timeout=timeout)
 
@@ -187,14 +211,49 @@ class SteamController(object):
             return
 
         data = transfer.getBuffer()
-        tup = SteamControllerInput._make(struct.unpack('<' + ''.join(_FORMATS), data))
-
-        if isinstance(self._cb_args, (list, tuple)):
-            self._cb(self, tup, *self._cb_args)
-        else:
-            self._cb(self, tup)
+        self._tup = SteamControllerInput._make(struct.unpack('<' + ''.join(_FORMATS), data))
+        self._callback()
 
         transfer.submit()
+
+    def _callback(self):
+
+        if self._tup is None or self._tup.status != SCStatus.INPUT:
+            return
+
+        self._lastusb = time.time()
+
+        if isinstance(self._cb_args, (list, tuple)):
+            self._cb(self, self._tup, *self._cb_args)
+        else:
+            self._cb(self, self._tup)
+
+
+
+        self._period = HPERIOD
+
+    def _callbackTimer(self):
+
+        d = time.time() - self._lastusb
+        self._timer.cancel()
+
+        if d > DURATION:
+            self._period = LPERIOD
+
+        self._timer = Timer(self._period, self._callbackTimer)
+        self._timer.start()
+
+        if self._tup is None:
+            return
+
+        if d < HPERIOD:
+            return
+
+        if isinstance(self._cb_args, (list, tuple)):
+            self._cb(self, self._tup, *self._cb_args)
+        else:
+            self._cb(self, self._tup)
+
 
     def run(self):
         """Fucntion to run in order to process usb events"""
