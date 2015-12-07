@@ -50,6 +50,7 @@ class Modes(IntEnum):
     GAMEPAD = 0
     KEYBOARD = 1
     MOUSE = 2
+    CALLBACK = 3
 
 class PadModes(IntEnum):
     """Different possible pads modes"""
@@ -165,6 +166,8 @@ class EventMapper(object):
                     syn.add(mode)
             elif mode == Modes.KEYBOARD:
                 _pressed.append(ev)
+            elif mode == Modes.CALLBACK:
+                ev(self, True)
             if ev in self._onkeys:
                 return False
             else:
@@ -180,6 +183,8 @@ class EventMapper(object):
                     syn.add(mode)
                 elif mode == Modes.KEYBOARD:
                     _released.append(ev)
+                elif mode == Modes.CALLBACK:
+                    ev(self, False)
                 return True
             else:
                 return False
@@ -441,6 +446,9 @@ class EventMapper(object):
             if self._uip[mode].keyManaged(key_event):
                 self._btn_map[btn] = (mode, key_event)
                 return
+
+    def setButtonCallback(self, btn, callback):
+        self._btn_map[btn] = (Modes.CALLBACK, callback)
 
     def setPadButtons(self, pos, key_events, deadzone=0.6, clicked=False):
         """

@@ -29,7 +29,7 @@ from math import pi, copysign, sqrt
 from enum import IntEnum
 from steamcontroller.cheader import defines
 
-from steamcontroller.tools import get_so_extension
+from steamcontroller.tools import get_so_extensions
 
 from collections import deque
 
@@ -193,12 +193,29 @@ class UInput(object):
 
         self._r = rels
 
-        lib = os.path.abspath(
-            os.path.normpath(
-                os.path.join(
-                    os.path.dirname(__file__),
-                    '..',
-                    'libuinput' + get_so_extension())))
+        possible_paths = []
+        for extension in get_so_extensions():
+            possible_paths.append(
+                os.path.abspath(
+                    os.path.normpath(
+                        os.path.join(
+                            os.path.dirname(__file__),
+                            '..',
+                            'libuinput' + extension
+                        )
+                    )
+                )
+            )
+        lib = None
+        for path in possible_paths:
+            if os.path.exists(path):
+                lib = path
+                break
+        if not lib:
+            raise OSError('Cant find linuinput. searched at:\n {}'.format(
+                '\n'.join(possible_paths)
+            )
+        )
         self._lib = ctypes.CDLL(lib)
 
         c_k        = (ctypes.c_uint16 * len(self._k))(*self._k)
