@@ -30,6 +30,13 @@ from steamcontroller.uinput import Keys
 
 from steamcontroller.daemon import Daemon
 
+def test_callback(evm, button_pressed):
+    # Example function for a callback.
+    status = 'pressed' if button_pressed else 'released'
+    print 'Steam Button was {}'.format(status)
+    print 'Current Button bindings: {}'.format(evm._btn_map)
+
+
 def evminit():
     evm = EventMapper()
     evm.setPadMouse(Pos.RIGHT)
@@ -45,7 +52,7 @@ def evminit():
     evm.setButtonAction(SCButtons.LB, Keys.KEY_VOLUMEDOWN)
     evm.setButtonAction(SCButtons.RB, Keys.KEY_VOLUMEUP)
 
-    evm.setButtonAction(SCButtons.STEAM, Keys.KEY_HOMEPAGE)
+    evm.setButtonCallback(SCButtons.STEAM, test_callback)
 
     evm.setButtonAction(SCButtons.A, Keys.KEY_ENTER)
     evm.setButtonAction(SCButtons.B, Keys.KEY_BACKSPACE)

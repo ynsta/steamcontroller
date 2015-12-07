@@ -36,8 +36,8 @@ def static_vars(**kwargs):
         return func
     return decorate
 
-def get_so_extension():
+def get_so_extensions():
     """Return so file extenstion compatible with python and pypy"""
     for ext, _, typ in imp.get_suffixes():
         if typ == imp.C_EXTENSION:
-            return ext
+            yield ext
