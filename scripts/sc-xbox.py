@@ -39,7 +39,7 @@ def evminit():
     evm = EventMapper()
 
     evm.setStickAxes(Axes.ABS_X, Axes.ABS_Y)
-    evm.setPadAxes(Pos.RIGHT, Axes.ABS_X, Axes.ABS_Y)
+    evm.setPadAxes(Pos.RIGHT, Axes.ABS_RX, Axes.ABS_RY)
     evm.setPadAxesAsButtons(Pos.LEFT, [Axes.ABS_HAT0X,
                                        Axes.ABS_HAT0Y])
 
