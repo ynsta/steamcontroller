@@ -362,8 +362,8 @@ class Mouse(UInput):
     """
 
     DEFAULT_FRICTION = 10.0
-    DEFAULT_XSCALE = 0.007
-    DEFAULT_YSCALE = 0.007
+    DEFAULT_XSCALE = 0.006
+    DEFAULT_YSCALE = 0.006
 
     DEFAULT_MEAN_LEN = 10
 
@@ -520,6 +520,8 @@ class Mouse(UInput):
             self._yvel_dq.append(dy * self._radscale / dt)
 
         else:
+
+
             # Free movement update velocity and compute movement
             self._xvel_dq.clear()
             self._yvel_dq.clear()
