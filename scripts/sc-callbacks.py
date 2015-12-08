@@ -55,8 +55,8 @@ def evminit():
     evm.setButtonCallback(SCButtons.RGRIP, button_pressed_callback)
     evm.setButtonCallback(SCButtons.START, button_pressed_callback)
     evm.setButtonCallback(SCButtons.BACK, button_pressed_callback)
-    evm.setPadButtonCallback(SCButtons.LPAD, touchpad_click_callback)
-    evm.setPadButtonCallback(SCButtons.RPAD, touchpad_click_callback)
+    evm.setPadButtonCallback(Pos.LEFT, touchpad_click_callback)
+    evm.setPadButtonCallback(Pos.RIGHT, touchpad_click_callback)
     return evm
 
 

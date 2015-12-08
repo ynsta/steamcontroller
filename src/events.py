@@ -50,6 +50,7 @@ class Modes(IntEnum):
     GAMEPAD = 0
     KEYBOARD = 1
     MOUSE = 2
+    CALLBACK = 3
 
 class PadModes(IntEnum):
     """Different possible pads modes"""
@@ -189,13 +190,16 @@ class EventMapper(object):
 
             if mode is None:
                 continue
-
             if btn & btn_add:
-                _keypressed(mode, ev)
+                if mode is Modes.CALLBACK:
+                    ev(self, btn, True)
+                else:
+                    _keypressed(mode, ev)
             elif btn & btn_rem:
-                _keyreleased(mode, ev)
-
-
+                if mode is Modes.CALLBACK:
+                    ev(self, btn, False)
+                else:
+                    _keyreleased(mode, ev)
         # Manage pads
         for pos in [Pos.LEFT, Pos.RIGHT]:
 
@@ -442,6 +446,19 @@ class EventMapper(object):
                 self._btn_map[btn] = (mode, key_event)
                 return
 
+    def setButtonCallback(self, btn, callback):
+        """
+        set callback function to be executed when button is clicked
+        callback is called with parameters self(EventMapper), btn
+        and pushed (boollean True -> Button pressed, False -> Button released)
+        
+        @param btn              Button
+        @param callback         Callback function
+        """
+        
+        self._btn_map[btn] = (Modes.CALLBACK, callback)
+
+
     def setPadButtons(self, pos, key_events, deadzone=0.6, clicked=False):
         """
         Set pad as buttons
@@ -471,6 +488,23 @@ class EventMapper(object):
                 self._btn_map[SCButtons.LPAD] = (None, 0)
             else:
                 self._btn_map[SCButtons.RPAD] = (None, 0)
+    
+    def setPadButtonCallback(self, pos, callback, clicked=True):
+        """
+        set callback function to be executed when Pad clicked or touched
+        
+        @param Pos pos          designate left or right pad
+        @param callback         Callback function
+        @param bool clicked     callback on touch or on click event
+        """
+        if not clicked:
+            # FIXME: add touch support
+            raise NotImplementedError('Touch callbacks are not supported yet')
+        else:
+            if pos == Pos.LEFT:
+                self._btn_map[SCButtons.LPAD] = (Modes.CALLBACK, callback)
+            else:
+                self._btn_map[SCButtons.RPAD] = (Modes.CALLBACK, callback)
 
     def setPadAxesAsButtons(self, pos, abs_events, deadzone=0.6, clicked=False, revert=True):
         """
