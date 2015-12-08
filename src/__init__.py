@@ -156,8 +156,13 @@ class SteamController(object):
         self._transfer_list.append(transfer)
 
         self._period = LPERIOD
-        self._timer = Timer(LPERIOD, self._callbackTimer)
-        self._timer.start()
+
+        if pid == 0x1102:
+            self._timer = Timer(LPERIOD, self._callbackTimer)
+            self._timer.start()
+        else:
+            self._timer = None
+
         self._tup = None
         self._lastusb = time.time()
 
