@@ -37,8 +37,11 @@ def button_pressed_callback(evm, btn, pressed):
         print "pressing the STEAM button terminates the programm"
         sys.exit()
 
-def touchpad_click_callback(evm, pos, pressed):
-    print "Tochpad {} was {}".format(pos, 'pressed' if pressed else 'released')
+def touchpad_click_callback(evm, pad, pressed):
+    print "Tochpad {} was {}".format(pad, 'pressed' if pressed else 'released')
+
+def touchpad_touch_callback(evm, pad, x, y):
+    print "Tochpad {} was touched @{},{}".format(pad, x, y)
 
 def evminit():
     evm = EventMapper()
@@ -55,8 +58,8 @@ def evminit():
     evm.setButtonCallback(SCButtons.RGRIP, button_pressed_callback)
     evm.setButtonCallback(SCButtons.START, button_pressed_callback)
     evm.setButtonCallback(SCButtons.BACK, button_pressed_callback)
-    evm.setPadButtonCallback(Pos.LEFT, touchpad_click_callback)
-    evm.setPadButtonCallback(Pos.RIGHT, touchpad_click_callback)
+    evm.setPadButtonCallback(Pos.LEFT, touchpad_touch_callback)
+    evm.setPadButtonCallback(Pos.RIGHT, touchpad_click_callback, clicked=True)
     return evm
 
 

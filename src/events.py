@@ -292,8 +292,15 @@ class EventMapper(object):
                 haptic = False
 
                 if sci.buttons & on_test == on_test:
-                    dzone = self._pad_dzones[pos]
+                    # get callback events
+                    callbacks = []
+                    for evt in self._pad_evts[pos]:
+                        if evt[0] == Modes.CALLBACK:
+                            callbacks.append(evt)
+                    for callback_evt in callbacks:
+                        callback_evt[1](self, pos, xm, ym)
 
+                    dzone = self._pad_dzones[pos]
                     if len(self._pad_evts[pos]) == 4:
                         # key or buttons
                         tmode, tev = self._pad_evts[pos][0]
@@ -489,18 +496,21 @@ class EventMapper(object):
             else:
                 self._btn_map[SCButtons.RPAD] = (None, 0)
     
-    def setPadButtonCallback(self, pos, callback, clicked=True):
+    def setPadButtonCallback(self, pos, callback, clicked=False):
         """
         set callback function to be executed when Pad clicked or touched
+        if clicked is False callback will be called with pad, xpos and ypos
+        else with pad and boolean is_pressed
         
         @param Pos pos          designate left or right pad
         @param callback         Callback function
         @param bool clicked     callback on touch or on click event
         """
         if not clicked:
-            # FIXME: add touch support
-            raise NotImplementedError('Touch callbacks are not supported yet')
+            self._pad_modes[pos] = PadModes.BUTTONTOUCH
+            self._pad_evts[pos].append((Modes.CALLBACK, callback))
         else:
+            self._pad_modes[pos] = PadModes.BUTTONCLICK
             if pos == Pos.LEFT:
                 self._btn_map[SCButtons.LPAD] = (Modes.CALLBACK, callback)
             else:
