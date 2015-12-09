@@ -111,7 +111,8 @@ class EventMapper(object):
         self._stick_lxs = None
         self._stick_bys = None
         self._stick_rxs = None
-
+        self._stick_pressed_callback = None
+        
         self._trig_s = [None, None]
 
         self._moved = [0, 0]
@@ -435,6 +436,9 @@ class EventMapper(object):
                 elif self._stick_rxs is not None and x <= self._stick_rxs:
                     self._stick_rxs = None
                     _keyreleased(rmode, rev)
+            if sci.buttons & SCButtons.LPAD == SCButtons.LPAD:
+                if self._stick_pressed_callback is not None:
+                    self._stick_pressed_callback(self)
 
 
         if len(_pressed):
@@ -459,8 +463,8 @@ class EventMapper(object):
         callback is called with parameters self(EventMapper), btn
         and pushed (boollean True -> Button pressed, False -> Button released)
         
-        @param btn              Button
-        @param callback         Callback function
+        @param btn                      Button
+        @param function callback        Callback function
         """
         
         self._btn_map[btn] = (Modes.CALLBACK, callback)
@@ -607,3 +611,12 @@ class EventMapper(object):
                 if self._uip[mode].keyManaged(ev):
                     self._stick_evts.append((mode, ev))
                     break
+
+    def setStickPressedCallback(self, callback):
+        """
+        Set callback on StickPressed event.
+        the function will be called with EventMapper as first (and only) argument
+        
+        @param function Callback function      function that is called on buton press.
+        """
+        self._stick_pressed_callback = callback
