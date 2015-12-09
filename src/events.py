@@ -50,6 +50,7 @@ class Modes(IntEnum):
     GAMEPAD = 0
     KEYBOARD = 1
     MOUSE = 2
+    CALLBACK = 3
 
 class PadModes(IntEnum):
     """Different possible pads modes"""
@@ -110,7 +111,9 @@ class EventMapper(object):
         self._stick_lxs = None
         self._stick_bys = None
         self._stick_rxs = None
-
+        self._stick_axes_callback = None
+        self._stick_pressed_callback = None
+        
         self._trig_s = [None, None]
 
         self._moved = [0, 0]
@@ -189,13 +192,16 @@ class EventMapper(object):
 
             if mode is None:
                 continue
-
             if btn & btn_add:
-                _keypressed(mode, ev)
+                if mode is Modes.CALLBACK:
+                    ev(self, btn, True)
+                else:
+                    _keypressed(mode, ev)
             elif btn & btn_rem:
-                _keyreleased(mode, ev)
-
-
+                if mode is Modes.CALLBACK:
+                    ev(self, btn, False)
+                else:
+                    _keyreleased(mode, ev)
         # Manage pads
         for pos in [Pos.LEFT, Pos.RIGHT]:
 
@@ -288,8 +294,15 @@ class EventMapper(object):
                 haptic = False
 
                 if sci.buttons & on_test == on_test:
-                    dzone = self._pad_dzones[pos]
+                    # get callback events
+                    callbacks = []
+                    for evt in self._pad_evts[pos]:
+                        if evt[0] == Modes.CALLBACK:
+                            callbacks.append(evt)
+                    for callback_evt in callbacks:
+                        callback_evt[1](self, pos, xm, ym)
 
+                    dzone = self._pad_dzones[pos]
                     if len(self._pad_evts[pos]) == 4:
                         # key or buttons
                         tmode, tev = self._pad_evts[pos][0]
@@ -377,6 +390,9 @@ class EventMapper(object):
             x, y = sci.lpad_x, sci.lpad_y
             x_p, y_p = sci_p.lpad_x, sci_p.lpad_y
 
+            if self._stick_axes_callback is not None and (x != x_p or y != y_p):
+                self._stick_axes_callback(self, x, y)
+
             if self._stick_mode == StickModes.AXIS:
                 revert = self._stick_rev
                 (xmode, xev), (ymode, yev) = self._stick_evts # pylint: disable=E0632
@@ -386,6 +402,7 @@ class EventMapper(object):
                 if y != y_p:
                     syn.add(ymode)
                     self._uip[ymode].axisEvent(yev, y if not revert else -y)
+
             elif self._stick_mode == StickModes.BUTTON:
 
                 tmode, tev = self._stick_evts[0]
@@ -424,6 +441,9 @@ class EventMapper(object):
                 elif self._stick_rxs is not None and x <= self._stick_rxs:
                     self._stick_rxs = None
                     _keyreleased(rmode, rev)
+            if sci.buttons & SCButtons.LPAD == SCButtons.LPAD:
+                if self._stick_pressed_callback is not None:
+                    self._stick_pressed_callback(self)
 
 
         if len(_pressed):
@@ -441,6 +461,19 @@ class EventMapper(object):
             if self._uip[mode].keyManaged(key_event):
                 self._btn_map[btn] = (mode, key_event)
                 return
+
+    def setButtonCallback(self, btn, callback):
+        """
+        set callback function to be executed when button is clicked
+        callback is called with parameters self(EventMapper), btn
+        and pushed (boollean True -> Button pressed, False -> Button released)
+        
+        @param btn                      Button
+        @param function callback        Callback function
+        """
+        
+        self._btn_map[btn] = (Modes.CALLBACK, callback)
+
 
     def setPadButtons(self, pos, key_events, deadzone=0.6, clicked=False):
         """
@@ -471,6 +504,26 @@ class EventMapper(object):
                 self._btn_map[SCButtons.LPAD] = (None, 0)
             else:
                 self._btn_map[SCButtons.RPAD] = (None, 0)
+    
+    def setPadButtonCallback(self, pos, callback, clicked=False):
+        """
+        set callback function to be executed when Pad clicked or touched
+        if clicked is False callback will be called with pad, xpos and ypos
+        else with pad and boolean is_pressed
+        
+        @param Pos pos          designate left or right pad
+        @param callback         Callback function
+        @param bool clicked     callback on touch or on click event
+        """
+        if not clicked:
+            self._pad_modes[pos] = PadModes.BUTTONTOUCH
+            self._pad_evts[pos].append((Modes.CALLBACK, callback))
+        else:
+            self._pad_modes[pos] = PadModes.BUTTONCLICK
+            if pos == Pos.LEFT:
+                self._btn_map[SCButtons.LPAD] = (Modes.CALLBACK, callback)
+            else:
+                self._btn_map[SCButtons.RPAD] = (Modes.CALLBACK, callback)
 
     def setPadAxesAsButtons(self, pos, abs_events, deadzone=0.6, clicked=False, revert=True):
         """
@@ -546,6 +599,16 @@ class EventMapper(object):
                             (Modes.GAMEPAD, abs_y_event)]
         self._stick_rev = revert
 
+    def setStickAxesCallback(self, callback):
+        """
+        Set Callback on StickAxes Movement
+        the function will be called with EventMapper, pos_x, pos_y
+        
+        @param function callback       the callback function
+        """
+        self._stick_axes_callback = callback
+
+
     def setStickButtons(self, key_events):
         """
         Set stick as buttons
@@ -563,3 +626,12 @@ class EventMapper(object):
                 if self._uip[mode].keyManaged(ev):
                     self._stick_evts.append((mode, ev))
                     break
+
+    def setStickPressedCallback(self, callback):
+        """
+        Set callback on StickPressed event.
+        the function will be called with EventMapper as first (and only) argument
+        
+        @param function Callback function      function that is called on buton press.
+        """
+        self._stick_pressed_callback = callback
