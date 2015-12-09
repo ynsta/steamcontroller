@@ -111,6 +111,7 @@ class EventMapper(object):
         self._stick_lxs = None
         self._stick_bys = None
         self._stick_rxs = None
+        self._stick_axes_callback = None
         self._stick_pressed_callback = None
         
         self._trig_s = [None, None]
@@ -389,6 +390,9 @@ class EventMapper(object):
             x, y = sci.lpad_x, sci.lpad_y
             x_p, y_p = sci_p.lpad_x, sci_p.lpad_y
 
+            if self._stick_axes_callback is not None and (x != x_p or y != y_p):
+                self._stick_axes_callback(self, x, y)
+
             if self._stick_mode == StickModes.AXIS:
                 revert = self._stick_rev
                 (xmode, xev), (ymode, yev) = self._stick_evts # pylint: disable=E0632
@@ -398,6 +402,7 @@ class EventMapper(object):
                 if y != y_p:
                     syn.add(ymode)
                     self._uip[ymode].axisEvent(yev, y if not revert else -y)
+
             elif self._stick_mode == StickModes.BUTTON:
 
                 tmode, tev = self._stick_evts[0]
@@ -593,6 +598,16 @@ class EventMapper(object):
         self._stick_evts = [(Modes.GAMEPAD, abs_x_event),
                             (Modes.GAMEPAD, abs_y_event)]
         self._stick_rev = revert
+
+    def setStickAxesCallback(self, callback):
+        """
+        Set Callback on StickAxes Movement
+        the function will be called with EventMapper, pos_x, pos_y
+        
+        @param function callback       the callback function
+        """
+        self._stick_axes_callback = callback
+
 
     def setStickButtons(self, key_events):
         """

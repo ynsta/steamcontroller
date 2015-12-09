@@ -46,6 +46,9 @@ def touchpad_touch_callback(evm, pad, x, y):
 def stick_pressed_callback(evm):
     print "Stick pressed"
 
+def stick_axes_callback(evm, x, y):
+    print "Stick Position is {}, {}".format(x, y)
+
 def evminit():
     evm = EventMapper()
     evm.setButtonCallback(SCButtons.STEAM, button_pressed_callback)
@@ -63,6 +66,7 @@ def evminit():
     evm.setButtonCallback(SCButtons.BACK, button_pressed_callback)
     evm.setPadButtonCallback(Pos.LEFT, touchpad_touch_callback)
     evm.setPadButtonCallback(Pos.RIGHT, touchpad_click_callback, clicked=True)
+    evm.setStickAxesCallback(stick_axes_callback)
     evm.setStickPressedCallback(stick_pressed_callback)
     return evm
 
