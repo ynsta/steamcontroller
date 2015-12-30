@@ -373,13 +373,12 @@ class EventMapper(object):
             trigval = sci.ltrig if pos == Pos.LEFT else sci.rtrig
             trigval_prev = sci_p.ltrig if pos == Pos.LEFT else sci_p.rtrig
             mode, ev = self._trig_evts[pos]
-            if self._trig_modes[pos] == TrigModes.AXIS:
-                if trigval != trigval_prev:
-                    if self._trig_axes_callbacks[pos]:
-                        self._trig_axes_callbacks[pos](self, pos, trigval)
-                    else:
-                        syn.add(mode)
-                        self._uip[mode].axisEvent(ev, trigval)
+            if trigval != trigval_prev:
+                if self._trig_axes_callbacks[pos]:
+                    self._trig_axes_callbacks[pos](self, pos, trigval)
+                elif self._trig_modes[pos] == TrigModes.AXIS:
+                    syn.add(mode)
+                    self._uip[mode].axisEvent(ev, trigval)
             elif self._trig_modes[pos] == TrigModes.BUTTON:
                 if self._trig_s[pos] is None and trigval > min(trigval_prev + 10, 200):
                     self._trig_s[pos] = max(0, min(trigval - 10, 180))
