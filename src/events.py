@@ -113,8 +113,9 @@ class EventMapper(object):
         self._stick_rxs = None
         self._stick_axes_callback = None
         self._stick_pressed_callback = None
-        
+
         self._trig_s = [None, None]
+        self._trig_axes_callbacks = [None, None]
 
         self._moved = [0, 0]
 
@@ -374,8 +375,11 @@ class EventMapper(object):
             mode, ev = self._trig_evts[pos]
             if self._trig_modes[pos] == TrigModes.AXIS:
                 if trigval != trigval_prev:
-                    syn.add(mode)
-                    self._uip[mode].axisEvent(ev, trigval)
+                    if self._trig_axes_callbacks[pos]:
+                        self._trig_axes_callbacks[pos](self, pos, trigval)
+                    else:
+                        syn.add(mode)
+                        self._uip[mode].axisEvent(ev, trigval)
             elif self._trig_modes[pos] == TrigModes.BUTTON:
                 if self._trig_s[pos] is None and trigval > min(trigval_prev + 10, 200):
                     self._trig_s[pos] = max(0, min(trigval - 10, 180))
@@ -467,11 +471,11 @@ class EventMapper(object):
         set callback function to be executed when button is clicked
         callback is called with parameters self(EventMapper), btn
         and pushed (boollean True -> Button pressed, False -> Button released)
-        
+
         @param btn                      Button
         @param function callback        Callback function
         """
-        
+
         self._btn_map[btn] = (Modes.CALLBACK, callback)
 
 
@@ -504,13 +508,13 @@ class EventMapper(object):
                 self._btn_map[SCButtons.LPAD] = (None, 0)
             else:
                 self._btn_map[SCButtons.RPAD] = (None, 0)
-    
+
     def setPadButtonCallback(self, pos, callback, clicked=False):
         """
         set callback function to be executed when Pad clicked or touched
         if clicked is False callback will be called with pad, xpos and ypos
         else with pad and boolean is_pressed
-        
+
         @param Pos pos          designate left or right pad
         @param callback         Callback function
         @param bool clicked     callback on touch or on click event
@@ -593,6 +597,10 @@ class EventMapper(object):
         self._trig_modes[pos] = TrigModes.AXIS
         self._trig_evts[pos] = (Modes.GAMEPAD, abs_event)
 
+    def setTrigAxesCallback(self, pos, callback):
+            self._trig_modes[pos] = StickModes.AXIS
+            self._trig_axes_callbacks[pos] = callback
+
     def setStickAxes(self, abs_x_event, abs_y_event, revert=True):
         self._stick_mode = StickModes.AXIS
         self._stick_evts = [(Modes.GAMEPAD, abs_x_event),
@@ -603,7 +611,7 @@ class EventMapper(object):
         """
         Set Callback on StickAxes Movement
         the function will be called with EventMapper, pos_x, pos_y
-        
+
         @param function callback       the callback function
         """
         self._stick_axes_callback = callback
@@ -631,7 +639,7 @@ class EventMapper(object):
         """
         Set callback on StickPressed event.
         the function will be called with EventMapper as first (and only) argument
-        
+
         @param function Callback function      function that is called on buton press.
         """
         self._stick_pressed_callback = callback
