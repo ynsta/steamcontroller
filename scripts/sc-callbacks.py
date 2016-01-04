@@ -32,7 +32,7 @@ from steamcontroller.uinput import Keys
 
 def button_pressed_callback(evm, btn, pressed):
     print "Button {} was {}.".format(btn, 'pressed' if pressed else 'released')
-    
+
     if btn == SCButtons.STEAM and not pressed:
         print "pressing the STEAM button terminates the programm"
         sys.exit()
@@ -48,6 +48,9 @@ def stick_pressed_callback(evm):
 
 def stick_axes_callback(evm, x, y):
     print "Stick Position is {}, {}".format(x, y)
+
+def tigger_axes_callback(evm, pos, value):
+    print "Trigger axes {} has value {}".format(pos, value)
 
 def evminit():
     evm = EventMapper()
@@ -68,6 +71,8 @@ def evminit():
     evm.setPadButtonCallback(Pos.RIGHT, touchpad_click_callback, clicked=True)
     evm.setStickAxesCallback(stick_axes_callback)
     evm.setStickPressedCallback(stick_pressed_callback)
+    evm.setTrigAxesCallback(Pos.RIGHT, tigger_axes_callback)
+    evm.setTrigAxesCallback(Pos.LEFT, tigger_axes_callback)
     return evm
 
 
