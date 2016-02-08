@@ -215,7 +215,7 @@ class EventMapper(object):
                 x, y = sci.rpad_x, sci.rpad_y
                 x_p, y_p = sci_p.rpad_x, sci_p.rpad_y
                 touch = SCButtons.RPADTOUCH
-                click = SCButtons.LPAD
+                click = SCButtons.RPAD
 
             if sci.buttons & touch == touch:
                 # Compute mean pos
