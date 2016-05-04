@@ -1,9 +1,14 @@
 #!/usr/bin/env python
 
-from distutils.core import setup, Extension
+import sys
+from setuptools import setup, Extension
 
 uinput = Extension('libuinput',
                    sources = ['src/uinput.c'])
+
+deps = ['libusb1']
+if sys.version_info < (3,4):
+    deps.append('enum34')
 
 setup(name='python-steamcontroller',
       version='1.0',
@@ -22,4 +27,5 @@ setup(name='python-steamcontroller',
                'scripts/json2vdf.py'],
       license='MIT',
       platforms=['Linux'],
+      install_requires=deps,
       ext_modules=[uinput, ])
