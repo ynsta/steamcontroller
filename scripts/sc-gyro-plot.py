@@ -102,7 +102,12 @@ def _main():
 
         for name in imu.keys():
             imu[name].append(sci._asdict()[name])
-            imu[name] = imu[name][-len(times):]
+            nt = len(times)
+            ni = len(imu[name])
+            if nt < ni:
+                imu[name] = imu[name][-nt:]
+            elif nt > ni:
+                times = times[nt-ni:]
             curves[name].setData(times, imu[name])
 
     app.processEvents()
