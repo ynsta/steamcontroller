@@ -38,20 +38,21 @@ DURATION = 1.0
 STEAM_CONTROLER_FORMAT = [
     ('x',   'ukn_00'),
     ('x',   'ukn_01'),
-    ('H',   'status'),
-    ('H',   'seq'),
+    ('B',   'status'),
     ('x',   'ukn_02'),
+    ('H',   'seq'),
+    ('x',   'ukn_03'),
     ('I',   'buttons'),
     ('B',   'ltrig'),
     ('B',   'rtrig'),
-    ('x',   'ukn_03'),
     ('x',   'ukn_04'),
     ('x',   'ukn_05'),
+    ('x',   'ukn_06'),
     ('h',   'lpad_x'),
     ('h',   'lpad_y'),
     ('h',   'rpad_x'),
     ('h',   'rpad_y'),
-    ('10x', 'ukn_06'),
+    ('10x', 'ukn_07'),
     ('h',   'gpitch'),
     ('h',   'groll'),
     ('h',   'gyaw'),
@@ -59,7 +60,7 @@ STEAM_CONTROLER_FORMAT = [
     ('h',   'q2'),
     ('h',   'q3'),
     ('h',   'q4'),
-    ('16x', 'ukn_07'),
+    ('16x', 'ukn_08'),
 ]
 
 _FORMATS, _NAMES = zip(*STEAM_CONTROLER_FORMAT)
@@ -69,9 +70,9 @@ SteamControllerInput = namedtuple('SteamControllerInput', ' '.join([x for x in _
 SCI_NULL = SteamControllerInput._make(struct.unpack('<' + ''.join(_FORMATS), b'\x00' * 64))
 
 class SCStatus(IntEnum):
-    IDLE  = 2820
-    INPUT = 15361
-    EXIT  = 259
+    INPUT = 0x01
+    HOTPLUG = 0x03
+    IDLE  = 0x04
 
 class SCButtons(IntEnum):
     RPADTOUCH = 0b00010000000000000000000000000000
@@ -216,14 +217,16 @@ class SteamController(object):
             return
 
         data = transfer.getBuffer()
-        self._tup = SteamControllerInput._make(struct.unpack('<' + ''.join(_FORMATS), data))
+        tup = SteamControllerInput._make(struct.unpack('<' + ''.join(_FORMATS), data))
+        if tup.status == SCStatus.INPUT:
+            self._tup = tup
+        
         self._callback()
-
         transfer.submit()
 
     def _callback(self):
 
-        if self._tup is None or self._tup.status != SCStatus.INPUT:
+        if self._tup is None:
             return
 
         self._lastusb = time.time()
