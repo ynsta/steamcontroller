@@ -221,16 +221,26 @@ class EventMapper(object):
                 # Compute mean pos
                 try:
                     xm_p = int(sum(self._xdq[pos]) / len(self._xdq[pos]))
+                except ZeroDivisionError:
+                    xm_p = 0
+
+                try:
                     ym_p = int(sum(self._ydq[pos]) / len(self._ydq[pos]))
                 except ZeroDivisionError:
-                    xm_p, ym_p = 0, 0
+                    ym_p = 0
+
                 self._xdq[pos].append(x)
                 self._ydq[pos].append(y)
                 try:
                     xm = int(sum(self._xdq[pos]) / len(self._xdq[pos]))
+                except ZeroDivisionError:
+                    xm = 0
+
+                try:
                     ym = int(sum(self._ydq[pos]) / len(self._ydq[pos]))
                 except ZeroDivisionError:
-                    xm, ym = 0, 0
+                    ym = 0
+
                 if not sci_p.buttons & touch == touch:
                     xm_p, ym_p = xm, ym
 
