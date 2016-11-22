@@ -6,7 +6,7 @@ from setuptools import setup, Extension
 uinput = Extension('libuinput',
                    sources = ['src/uinput.c'])
 
-deps = ['libusb1']
+deps = ['libusb1', 'psutil']
 if sys.version_info < (3,4):
     deps.append('enum34')
 

@@ -9,6 +9,7 @@ import time
 import atexit
 import signal
 import syslog
+import psutil
 
 class Daemon(object):
     """A generic daemon class.
@@ -89,10 +90,14 @@ class Daemon(object):
         self.daemonize()
         syslog.syslog(syslog.LOG_INFO, '{}: started'.format(os.path.basename(sys.argv[0])))
         while True:
-            try:
-                self.run()
-            except Exception as e: # pylint: disable=W0703
-                syslog.syslog(syslog.LOG_ERR, '{}: {!s}'.format(os.path.basename(sys.argv[0]), e))
+            # look if steam is running
+            if len([p for p in psutil.process_iter() if p.name() == 'steam']) == 0:
+                try:
+                    self.run()
+                except Exception as e: # pylint: disable=W0703
+                    syslog.syslog(syslog.LOG_ERR, '{}: {!s}'.format(os.path.basename(sys.argv[0]), e))
+            else:
+                syslog.syslog(syslog.LOG_INFO, '{}: steam client is runing'.format(os.path.basename(sys.argv[0])))
             time.sleep(2)
 
     def stop(self):
