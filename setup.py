@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
 import sys
-from setuptools import setup, Extension
+try:
+    from setuptools import setup, Extension
+except ImportError:
+    from distutils.core import setup, Extension
 
 uinput = Extension('libuinput',
                    sources = ['src/uinput.c'])
