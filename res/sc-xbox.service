@@ -1,0 +1,9 @@
+[Unit]
+Description=Steam Controller xbox
+
+[Service]
+ExecStart=/usr/bin/sc-xbox.py start
+ExecStop=/usr/bin/sc-xbox.py stop
+
+[Install]
+WantedBy=multi-user.target
