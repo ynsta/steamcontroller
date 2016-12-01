@@ -210,7 +210,7 @@ class UInput(object):
                 lib = path
                 break
         if not lib:
-            raise OSError('Cant find linuinput. searched at:\n {}'.format(
+            raise OSError('Cant find libuinput. searched at:\n {}'.format(
                 '\n'.join(possible_paths)
             )
         )
