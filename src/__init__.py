@@ -27,9 +27,9 @@ from threading import Timer
 import time
 
 VENDOR_ID = 0x28de
-PRODUCT_ID = [0x1102, 0x1142]
-ENDPOINT = [3, 2]
-CONTROLIDX = [2, 1]
+PRODUCT_ID = [0x1102, 0x1142, 0x1142, 0x1142, 0x1142]
+ENDPOINT =   [3, 2, 3, 4, 5]
+CONTROLIDX = [2, 1, 2, 3, 4]
 
 HPERIOD  = 0.02
 LPERIOD  = 0.5
@@ -116,40 +116,63 @@ class SteamController(object):
         self._cmsg = []
         self._ctx = usb1.USBContext()
 
-
+        handle = []
+        pid = []
+        endpoint = []
+        ccidx = []
         for i in range(len(PRODUCT_ID)):
-            pid = PRODUCT_ID[i]
-            endpoint = ENDPOINT[i]
-            ccidx = CONTROLIDX[i]
+            _pid = PRODUCT_ID[i]
+            _endpoint = ENDPOINT[i]
+            _ccidx = CONTROLIDX[i]
 
-            self._handle = self._ctx.openByVendorIDAndProductID(
-                VENDOR_ID, pid,
+            _handle = self._ctx.openByVendorIDAndProductID(
+                VENDOR_ID, _pid,
                 skip_on_error=True,
             )
-            if self._handle is not None:
+            if _handle != None:
+                handle.append(_handle)
+                pid.append(_pid)
+                endpoint.append(_endpoint)
+                ccidx.append(_ccidx)
+
+        if len(handle) == 0:
+            raise ValueError('No SteamControler Device found')
+
+        claimed = False
+        for i in range(len(handle)):
+
+            self._ccidx = ccidx[i]
+            self._handle = handle[i]
+            self._pid = pid[i]
+            self._endpoint = endpoint[i]
+            dev = handle[i].getDevice()
+            cfg = dev[0]
+
+            try:
+                for inter in cfg:
+                    for setting in inter:
+                        number = setting.getNumber()
+                        if self._handle.kernelDriverActive(number):
+                            self._handle.detachKernelDriver(number)
+                        if (setting.getClass() == 3 and
+                            setting.getSubClass() == 0 and
+                            setting.getProtocol() == 0 and
+                            number == i+1):
+                            self._handle.claimInterface(number)
+                            claimed = True
+            except usb1.USBErrorBusy:
+                claimed = False
+
+            if claimed:
                 break
 
-        if self._handle is None:
-            raise ValueError('SteamControler Device not found')
-
-        self._ccidx = ccidx
-        dev = self._handle.getDevice()
-        cfg = dev[0]
-
-        for inter in cfg:
-            for setting in inter:
-                number = setting.getNumber()
-                if self._handle.kernelDriverActive(number):
-                    self._handle.detachKernelDriver(number)
-                if (setting.getClass() == 3 and
-                    setting.getSubClass() == 0 and
-                    setting.getProtocol() == 0):
-                    self._handle.claimInterface(number)
+        if not claimed:
+            raise ValueError('All SteamControler are busy')
 
         self._transfer_list = []
         transfer = self._handle.getTransfer()
         transfer.setInterrupt(
-            usb1.ENDPOINT_IN | endpoint,
+            usb1.ENDPOINT_IN | self._endpoint,
             64,
             callback=self._processReceivedData,
         )
@@ -158,7 +181,7 @@ class SteamController(object):
 
         self._period = LPERIOD
 
-        if pid == 0x1102:
+        if self._pid == 0x1102:
             self._timer = Timer(LPERIOD, self._callbackTimer)
             self._timer.start()
         else:
@@ -220,7 +243,7 @@ class SteamController(object):
         tup = SteamControllerInput._make(struct.unpack('<' + ''.join(_FORMATS), data))
         if tup.status == SCStatus.INPUT:
             self._tup = tup
-        
+
         self._callback()
         transfer.submit()
 
