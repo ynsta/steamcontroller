@@ -1,0 +1,12 @@
+[Unit]
+Description=SteamController Userland driver
+
+[Service]
+Type=forking
+PIDFile=/tmp/steamcontroller1.pid
+ExecStart=/usr/bin/sc-mixed.py -i1 start
+ExecReload=/usr/bin/sc-mixed.py -i1 restart
+ExecStop=/usr/bin/sc-mixed.py -i1 stop
+
+[Install]
+WantedBy=multi-user.target
