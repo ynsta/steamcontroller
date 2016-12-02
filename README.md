@@ -57,7 +57,7 @@ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
 Other test tools are installed:
  - `sc-dump.py` : Dump raw message from the controller.
  - `sc-gyro-plot.py` : Plot curves from gyro data (require pyqtgraph and pyside installed).
- - `sc-test-cmsg.py` : Permit to send control message to the contoller. For example:  
+ - `sc-test-cmsg.py` : Permit to send control message to the contoller. For example:
    `echo 8f07005e 015e01f4 01000000 | sc-test-cmsg.py` will make the controller beep.
  - `vdf2json.py` : Convert Steam VDF file to JSON.
  - `json2vdf.py` : Convert back JSON to VDF file.
@@ -98,6 +98,10 @@ Other test tools are installed:
 ### Disable Gyro
 
  - `87153284 03180000 31020008 07000707 00300000 2f010000 00000000 00000000`
+
+### Stop Controller
+ - `9f046f66 66210000 ...`
+
 
 ## Control Messages formats
 

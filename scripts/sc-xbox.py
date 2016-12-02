@@ -35,6 +35,8 @@ from steamcontroller.uinput import \
     Axes
 from steamcontroller.daemon import Daemon
 
+import gc
+
 def evminit():
     evm = EventMapper()
 
@@ -67,6 +69,9 @@ class SCDaemon(Daemon):
         evm = evminit()
         sc = SteamController(callback=evm.process)
         sc.run()
+        del sc
+        del evm
+        gc.collect()
 
 if __name__ == '__main__':
     import argparse
@@ -92,7 +97,8 @@ if __name__ == '__main__':
                 evm = evminit()
                 sc = SteamController(callback=evm.process)
                 sc.run()
+
             except KeyboardInterrupt:
-                return
+                pass
 
     _main()

@@ -30,6 +30,8 @@ from steamcontroller.uinput import Keys
 
 from steamcontroller.daemon import Daemon
 
+import gc
+
 def evminit():
     evm = EventMapper()
     evm.setPadMouse(Pos.RIGHT)
@@ -68,6 +70,9 @@ class SCDaemon(Daemon):
         evm = evminit()
         sc = SteamController(callback=evm.process)
         sc.run()
+        del sc
+        del evm
+        gc.collect()
 
 if __name__ == '__main__':
     import argparse

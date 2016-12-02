@@ -10,6 +10,8 @@ import atexit
 import signal
 import syslog
 import psutil
+import traceback
+import gc
 
 class Daemon(object):
     """A generic daemon class.
@@ -96,6 +98,8 @@ class Daemon(object):
                     self.run()
                 except Exception as e: # pylint: disable=W0703
                     syslog.syslog(syslog.LOG_ERR, '{}: {!s}'.format(os.path.basename(sys.argv[0]), e))
+                    syslog.syslog(syslog.LOG_ERR, traceback.format_exc())
+                    gc.collect()
             else:
                 syslog.syslog(syslog.LOG_INFO, '{}: steam client is runing'.format(os.path.basename(sys.argv[0])))
             time.sleep(2)

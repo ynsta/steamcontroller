@@ -35,6 +35,7 @@ from steamcontroller.uinput import \
     Axes
 from steamcontroller.daemon import Daemon
 
+import gc
 
 def set_evm_pad(evm):
     evm.setStickAxes(Axes.ABS_X, Axes.ABS_Y)
@@ -87,8 +88,6 @@ def set_evm_desktop(evm):
     evm.setButtonAction(SCButtons.LPAD, Keys.BTN_MIDDLE)
     evm.setButtonAction(SCButtons.RPAD, Keys.KEY_SPACE)
 
-
-
 pad = True
 def toggle_callback(evm, btn, pressed):
     global pad
@@ -110,6 +109,9 @@ class SCDaemon(Daemon):
         evm = evminit()
         sc = SteamController(callback=evm.process)
         sc.run()
+        del sc
+        del evm
+        gc.collect()
 
 if __name__ == '__main__':
     import argparse

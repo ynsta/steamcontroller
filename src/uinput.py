@@ -22,8 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+
 import os
 import ctypes
+import _ctypes
 import time
 from math import pi, copysign, sqrt
 from enum import IntEnum
@@ -191,6 +193,13 @@ class UInput(object):
             self._a, self._amin, self._amax, self._afuzz, self._aflat = zip(*axes)
 
         self._r = rels
+        self.vendor = vendor
+        self.product = product
+        self.name = name
+        self.keyboard = keyboard
+        self._fd = None
+
+    def createDevice(self):
         possible_paths = []
         for extension in get_so_extensions():
             possible_paths.append(
@@ -214,6 +223,7 @@ class UInput(object):
                 '\n'.join(possible_paths)
             )
         )
+
         self._lib = ctypes.CDLL(lib)
 
         c_k        = (ctypes.c_uint16 * len(self._k))(*self._k)
@@ -223,11 +233,11 @@ class UInput(object):
         c_afuzz    = (ctypes.c_int32  * len(self._afuzz))(*self._afuzz)
         c_aflat    = (ctypes.c_int32  * len(self._aflat))(*self._aflat)
         c_r        = (ctypes.c_uint16 * len(self._r))(*self._r)
-        c_vendor   = ctypes.c_uint16(vendor)
-        c_product  = ctypes.c_uint16(product)
-        c_keyboard = ctypes.c_int(keyboard)
+        c_vendor   = ctypes.c_uint16(self.vendor)
+        c_product  = ctypes.c_uint16(self.product)
+        c_keyboard = ctypes.c_int(self.keyboard)
 
-        c_name = ctypes.c_char_p(name)
+        c_name = ctypes.c_char_p(self.name)
         self._fd = self._lib.uinput_init(ctypes.c_int(len(self._k)),
                                          c_k,
                                          ctypes.c_int(len(self._a)),
@@ -251,6 +261,10 @@ class UInput(object):
         @param int axis         key or btn event (KEY_* or BTN_*)
         @param int val          event value
         """
+
+        if self._fd == None:
+            self.createDevice()
+
         self._lib.uinput_key(self._fd,
                              ctypes.c_uint16(key),
                              ctypes.c_int32(val))
@@ -263,6 +277,10 @@ class UInput(object):
         @param int axis         abs event (ABS_*)
         @param int val          event value
         """
+
+        if self._fd == None:
+            self.createDevice()
+
         self._lib.uinput_abs(self._fd,
                              ctypes.c_uint16(axis),
                              ctypes.c_int32(val))
@@ -274,6 +292,10 @@ class UInput(object):
         @param int rel          rel event (REL_*)
         @param int val          event value
         """
+
+        if self._fd == None:
+            self.createDevice()
+
         self._lib.uinput_rel(self._fd,
                              ctypes.c_uint16(rel),
                              ctypes.c_int32(val))
@@ -284,6 +306,10 @@ class UInput(object):
 
         @param int val          scan event value (scancode)
         """
+
+        if self._fd == None:
+            self.createDevice()
+
         self._lib.uinput_scan(self._fd,
                               ctypes.c_int32(val))
 
@@ -291,6 +317,10 @@ class UInput(object):
         """
         Generate a syn event
         """
+
+        if self._fd == None:
+            self.createDevice()
+
         self._lib.uinput_syn(self._fd)
 
 
@@ -301,6 +331,9 @@ class UInput(object):
         @param int delay        delay in ms
         @param int period       period is ms
         """
+
+        if self._fd == None:
+            self.createDevice()
 
         self._lib.uinput_set_delay_period(self._fd,
                                           ctypes.c_int32(delay),
@@ -317,8 +350,12 @@ class UInput(object):
 
 
     def __del__(self):
-        if self._lib:
+
+        if self._lib and self._fd:
             self._lib.uinput_destroy(self._fd)
+            self._fd = None
+            _ctypes.dlclose(self._lib._handle)
+            self._lib = None
 
 
 class Gamepad(UInput):
@@ -430,9 +467,9 @@ class Mouse(UInput):
         self._radscale = (degree * pi / 180) / ampli
         self._mass = mass
         self._friction = friction
-        self._r = r
-        self._I = (2 * self._mass * self._r**2) / 5.0
-        self._a = self._r * self._friction / self._I
+        self._rad = r
+        self._I = (2 * self._mass * self._rad**2) / 5.0
+        self._acc = self._rad * self._friction / self._I
 
         self._xvel_dq = deque(maxlen=mean_len)
         self._yvel_dq = deque(maxlen=mean_len)
@@ -465,8 +502,8 @@ class Mouse(UInput):
         self._scr_mass = mass
         self._scr_friction = friction
         self._scr_r = r
-        self._scr_I = (2 * self._mass * self._r**2) / 5.0
-        self._scr_a = self._r * self._friction / self._I
+        self._scr_I = (2 * self._mass * self._rad**2) / 5.0
+        self._scr_a = self._rad * self._friction / self._I
 
         self._scr_xvel_dq = deque(maxlen=mean_len)
         self._scr_yvel_dq = deque(maxlen=mean_len)
@@ -528,11 +565,11 @@ class Mouse(UInput):
 
             _hyp = sqrt((self._xvel**2) + (self._yvel**2))
             if _hyp != 0.0:
-                _ax = self._a * (abs(self._xvel) / _hyp)
-                _ay = self._a * (abs(self._yvel) / _hyp)
+                _ax = self._acc * (abs(self._xvel) / _hyp)
+                _ay = self._acc * (abs(self._yvel) / _hyp)
             else:
-                _ax = self._a
-                _ay = self._a
+                _ax = self._acc
+                _ay = self._acc
 
             # Cap friction desceleration
             _dvx = min(abs(self._xvel), _ax * dt)

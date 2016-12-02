@@ -24,7 +24,8 @@ import struct
 from enum import IntEnum
 
 from threading import Timer
-import time
+from time import time
+
 
 VENDOR_ID = 0x28de
 PRODUCT_ID = [0x1102, 0x1142, 0x1142, 0x1142, 0x1142]
@@ -64,6 +65,10 @@ STEAM_CONTROLER_FORMAT = [
 ]
 
 _FORMATS, _NAMES = zip(*STEAM_CONTROLER_FORMAT)
+
+EXITCMD = struct.pack('>' + 'I' * 2,
+                      0x9f046f66,
+                      0x66210000)
 
 SteamControllerInput = namedtuple('SteamControllerInput', ' '.join([x for x in _NAMES if not x.startswith('ukn_')]))
 
@@ -159,6 +164,7 @@ class SteamController(object):
                             setting.getProtocol() == 0 and
                             number == i+1):
                             self._handle.claimInterface(number)
+                            self._number = number
                             claimed = True
             except usb1.USBErrorBusy:
                 claimed = False
@@ -188,7 +194,7 @@ class SteamController(object):
             self._timer = None
 
         self._tup = None
-        self._lastusb = time.time()
+        self._lastusb = time()
 
         # Disable Haptic auto feedback
 
@@ -205,10 +211,16 @@ class SteamController(object):
                                       0x2f010000))
         self._ctx.handleEvents()
 
+    def _close(self):
+        if self._handle:
+            self._sendControl(EXITCMD)
+            self._handle.releaseInterface(self._number)
+            self._handle.resetDevice()
+            self._handle.close()
+            self._handle = None
 
     def __del__(self):
-        if self._handle:
-            self._handle.close()
+        self._close()
 
     def _sendControl(self, data, timeout=0):
 
@@ -220,6 +232,9 @@ class SteamController(object):
                                   index=self._ccidx,
                                   data=data + zeros,
                                   timeout=timeout)
+
+    def addExit(self):
+        self._cmsg.insert(0, EXITCMD)
 
     def addFeedback(self, position, amplitude=128, period=0, count=1):
         """
@@ -252,20 +267,18 @@ class SteamController(object):
         if self._tup is None:
             return
 
-        self._lastusb = time.time()
+        self._lastusb = time()
 
         if isinstance(self._cb_args, (list, tuple)):
             self._cb(self, self._tup, *self._cb_args)
         else:
             self._cb(self, self._tup)
 
-
-
         self._period = HPERIOD
 
     def _callbackTimer(self):
 
-        d = time.time() - self._lastusb
+        d = time() - self._lastusb
         self._timer.cancel()
 
         if d > DURATION:
@@ -295,7 +308,8 @@ class SteamController(object):
                     if len(self._cmsg) > 0:
                         cmsg = self._cmsg.pop()
                         self._sendControl(cmsg)
-
+                        if cmsg == EXITCMD:
+                            break
             except usb1.USBErrorInterrupted:
                 pass
 

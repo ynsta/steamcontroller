@@ -27,6 +27,7 @@ events
 
 """
 
+from time import time
 from math import sqrt
 
 from enum import IntEnum
@@ -39,6 +40,8 @@ from steamcontroller import \
 import steamcontroller.uinput as sui
 
 from collections import deque
+
+EXIT_PRESS_DURATION = 2.0
 
 class Pos(IntEnum):
     """Specify witch pad or trig is used"""
@@ -118,7 +121,13 @@ class EventMapper(object):
         self._trig_axes_callbacks = [None, None]
 
         self._moved = [0, 0]
+        self._steam_pressed_time = 0.0
 
+    def __del__(self):
+        if hasattr(self, '_uip') and self._uip:
+            for u in self._uip:
+                del u
+            self._uip = []
 
     def process(self, sc, sci):
         """
@@ -188,17 +197,26 @@ class EventMapper(object):
             else:
                 return False
 
+        # Manage long steam press to exit
+        if btn_add & SCButtons.STEAM == SCButtons.STEAM:
+            self._steam_pressed_time = time()
+        if (sci.buttons & SCButtons.STEAM == SCButtons.STEAM and
+            time() - self._steam_pressed_time > EXIT_PRESS_DURATION):
+            sc.addExit()
+
         # Manage buttons
         for btn, (mode, ev) in self._btn_map.items():
 
             if mode is None:
                 continue
+
             if btn & btn_add:
                 if mode is Modes.CALLBACK:
                     ev(self, btn, True)
                 else:
                     _keypressed(mode, ev)
             elif btn & btn_rem:
+
                 if mode is Modes.CALLBACK:
                     ev(self, btn, False)
                 else:

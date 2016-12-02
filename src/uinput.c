@@ -208,6 +208,6 @@ void uinput_syn(int fd)
 
 void uinput_destroy(int fd)
 {
-    ioctl(fd, UI_DEV_DESTROY);
+    ioctl(fd, UI_DEV_DESTROY, 0);
     close(fd);
 }
