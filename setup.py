@@ -14,7 +14,7 @@ if sys.version_info < (3,4):
     deps.append('enum34')
 
 setup(name='python-steamcontroller',
-      version='1.1',
+      version='1.2',
       description='Steam Controller userland driver',
       author='Stany MARCEL',
       author_email='stanypub@gmail.com',
