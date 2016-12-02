@@ -80,17 +80,17 @@ Other test tools are installed:
  7. Create a haptic feedback Manager (**Paused**)
  8. Measure latencies.
  9. Support multiple controller in wireless mode (**Done**)
-10. Support multiple controller in wired mode
-11. Support correct deconnexion of controllers (with 2sec press on steam button) (**Done**)
-12. Add support to control light intensity
-13. Add support for gyroscopes in the event mapper:
-    - Enable gyro condition (always on, or on specific button event)
-    - Use gyro as mouse (add yaw, pitch, roll accell to mouse event with a scale factor).
-    - Use gyro as an axis (compute yawn, pitch or roll from quaternion, normalize to -32768 32768 and use it as an axe)
-14. Optimize event mapper.
-15. Verify if pairing between a controller and a dongle is possible without steam or add a tools to do it.
-16. Add support to change "music" for power on off.
-17. Create an tool to convert musical notes, to haptic messages.
+ 10. Support multiple controller in wired mode
+ 11. Support correct deconnexion of controllers (with 2sec press on steam button) (**Done**)
+ 12. Add support to control light intensity
+ 13. Add support for gyroscopes in the event mapper:
+     - Enable gyro condition (always on, or on specific button event)
+     - Use gyro as mouse (add yaw, pitch, roll accell to mouse event with a scale factor).
+     - Use gyro as an axis (compute yawn, pitch or roll from quaternion, normalize to -32768 32768 and use it as an axe)
+ 14. Optimize event mapper.
+ 15. Verify if pairing between a controller and a dongle is possible without steam or add a tools to do it.
+ 16. Add support to change "music" for power on off.
+ 17. Create an tool to convert musical notes, to haptic messages.
 
 ## Control Messages Capture
 
