@@ -65,8 +65,7 @@ Other test tools are installed:
 
 ## TODO / Status
 
- 1. Finish to guess each bytes/bits roles in the usb message (Mostly **Done**).
-    - Verify that Gyroscope data 4 to 7 are a quaternion as suspected
+ 1. Finish to guess each bytes/bits roles in the usb message (**Done**).
  2. Understand how to configure haptic feed backs (**Done**).
  3. Understand how to enable gyroscopes (**Done**).
  4. Redirect inputs to userland events via uinput (**Done**).
@@ -74,18 +73,30 @@ Other test tools are installed:
     - Keyboard uintput device (**Done**)
     - Mouse uintput device with trackball model (**Done**)
  5. Create a simple xbox event mapper (**Done**)
- 6. Create a configurable event mapper (**Work in Progress**):
+ 6. Create a configurable event mapper (**Paused**):
    - Create an event mapper that reads steam vdf files and maps usb inputs to uinput events.
    - Create fallback mappings for unsupported config options.
    - Get all possible configurations of steam config file.
- 7. Create a haptic feedback Manager (**Work in Progress**)
+ 7. Create a haptic feedback Manager (**Paused**)
  8. Measure latencies.
+ 9. Support multiple controller in wireless mode (**Done**)
+10. Support multiple controller in wired mode
+11. Support correct deconnexion of controllers (with 2sec press on steam button) (**Done**)
+12. Add support to control light intensity
+13. Add support for gyroscopes in the event mapper:
+    - Enable gyro condition (always on, or on specific button event)
+    - Use gyro as mouse (add yaw, pitch, roll accell to mouse event with a scale factor).
+    - Use gyro as an axis (compute yawn, pitch or roll from quaternion, normalize to -32768 32768 and use it as an axe)
+14. Optimize event mapper.
+15. Verify if pairing between a controller and a dongle is possible without steam or add a tools to do it.
+16. Add support to change "music" for power on off.
+17. Create an tool to convert musical notes, to haptic messages.
 
 ## Control Messages Capture
 
  1. `sudo modprobe usbmon`
  2. `lsusb -d 28de:1142` and look at bus and device numbers (B & D)
- 3. `sudo cat /sys/kernel/debug/usb/usbmon/Bu | grep Co:B:D:0` B=3 and D=003 on my setup.
+ 3. `sudo cat /sys/kernel/debug/usb/usbmon/Bu | grep Co:B:D:0` (B=3 and D=003 for example)
 
 ### Disable auto feedback on rpad:
 
