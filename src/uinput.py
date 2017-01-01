@@ -369,7 +369,7 @@ class Gamepad(UInput):
     def __init__(self):
         super(Gamepad, self).__init__(vendor=0x045e,
                                       product=0x028e,
-                                      version=1,
+                                      version=0x110,
                                       name=b"Microsoft X-Box 360 pad",
                                       keys=[Keys.BTN_START,
                                             Keys.BTN_MODE,
