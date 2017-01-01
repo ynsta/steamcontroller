@@ -184,7 +184,7 @@ class UInput(object):
     """
 
 
-    def __init__(self, vendor, product, name, keys, axes, rels, keyboard=False):
+    def __init__(self, vendor, product, version, name, keys, axes, rels, keyboard=False):
         self._lib = None
         self._k = keys
         if not axes or len(axes) == 0:
@@ -196,6 +196,7 @@ class UInput(object):
         self.vendor = vendor
         self.product = product
         self.name = name
+        self.version = version
         self.keyboard = keyboard
         self._fd = None
 
@@ -235,6 +236,7 @@ class UInput(object):
         c_r        = (ctypes.c_uint16 * len(self._r))(*self._r)
         c_vendor   = ctypes.c_uint16(self.vendor)
         c_product  = ctypes.c_uint16(self.product)
+        c_version  = ctypes.c_uint16(self.version)
         c_keyboard = ctypes.c_int(self.keyboard)
 
         c_name = ctypes.c_char_p(self.name)
@@ -251,6 +253,7 @@ class UInput(object):
                                          c_keyboard,
                                          c_vendor,
                                          c_product,
+                                         c_version,
                                          c_name)
 
 
@@ -366,6 +369,7 @@ class Gamepad(UInput):
     def __init__(self):
         super(Gamepad, self).__init__(vendor=0x045e,
                                       product=0x028e,
+                                      version=1,
                                       name=b"Microsoft X-Box 360 pad",
                                       keys=[Keys.BTN_START,
                                             Keys.BTN_MODE,
@@ -413,6 +417,7 @@ class Mouse(UInput):
     def __init__(self):
         super(Mouse, self).__init__(vendor=0x28de,
                                     product=0x1142,
+                                    version=1,
                                     name=b"Steam Controller Mouse",
                                     keys=[Keys.BTN_LEFT,
                                           Keys.BTN_RIGHT,
@@ -692,6 +697,7 @@ class Keyboard(UInput):
     def __init__(self):
         super(Keyboard, self).__init__(vendor=0x28de,
                                        product=0x1142,
+                                       version=1,
                                        name=b"Steam Controller Keyboard",
                                        keys=Scans.keys(),
                                        axes=[],
