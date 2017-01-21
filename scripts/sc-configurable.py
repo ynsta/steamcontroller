@@ -66,8 +66,10 @@ def load_vdf(path): # {{{
 	return obj
 # }}}
 
-def evminit():
+def evminit(config_file_path):
 	evm = EventMapper()
+	config = load_vdf(config_file_path)
+
 	evm.setPadMouse(Pos.RIGHT)
 	evm.setPadScroll(Pos.LEFT)
 	evm.setStickButtons([
@@ -102,8 +104,12 @@ def evminit():
 	return evm
 
 class SCDaemon(Daemon):
+	def __init__(self, pidfile, config_file):
+		self.pidfile = pidfile
+		self.config_file = config_file
+
 	def run(self):
-		evm = evminit()
+		evm = evminit(self.config_file)
 		sc = SteamController(callback=evm.process)
 		sc.run()
 		del sc
@@ -120,12 +126,10 @@ if __name__ == '__main__':
 		parser.add_argument('-i', '--index', type = int, choices = [0,1,2,3], default = None)
 		args = parser.parse_args()
 
-		config = load_vdf(args.config_file)
-
 		if args.index != None:
-			daemon = SCDaemon('/tmp/steamcontroller{:d}.pid'.format(args.index))
+			daemon = SCDaemon('/tmp/steamcontroller{:d}.pid'.format(args.index), args.config_file)
 		else:
-			daemon = SCDaemon('/tmp/steamcontroller.pid')
+			daemon = SCDaemon('/tmp/steamcontroller.pid', args.config_file)
 
 		if 'start' == args.command:
 			daemon.start()
@@ -135,7 +139,7 @@ if __name__ == '__main__':
 			daemon.restart()
 		elif 'debug' == args.command:
 			try:
-				evm = evminit()
+				evm = evminit(args.config_file)
 				sc = SteamController(callback=evm.process)
 				sc.run()
 			except KeyboardInterrupt:
