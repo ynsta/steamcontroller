@@ -63,6 +63,9 @@ def load_vdf(path): # {{{
 	#    the "id" fields of these objects.
 	obj['controller_mappings']['group'] = {group['id'] : group for group in obj['controller_mappings']['group']}
 
+	# ID -> binding doesn't really do us any good.  Flip it.
+	obj['controller_mappings']['preset']['group_source_bindings'] = {value : key for key, value in obj['controller_mappings']['preset']['group_source_bindings'].items()}
+
 	return obj
 # }}}
 
