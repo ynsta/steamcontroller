@@ -116,8 +116,12 @@ if __name__ == '__main__':
 	def _main():
 		parser = argparse.ArgumentParser(description=__doc__)
 		parser.add_argument('command', type=str, choices=['start', 'stop', 'restart', 'debug'])
+		parser.add_argument('-c', '--config-file', type = str, required = True)
 		parser.add_argument('-i', '--index', type=int, choices=[0,1,2,3], default=None)
 		args = parser.parse_args()
+
+		config = load_vdf(args.config_file)
+
 		if args.index != None:
 			daemon = SCDaemon('/tmp/steamcontroller{:d}.pid'.format(args.index))
 		else:
