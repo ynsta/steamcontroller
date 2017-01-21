@@ -32,6 +32,39 @@ from steamcontroller.uinput import Keys
 from steamcontroller.daemon import Daemon
 
 import gc
+import json
+
+import vdf2json
+
+def join_duplicate_keys(ordered_pairs): # {{{
+	d = {}
+	for k, v in ordered_pairs:
+		if k in d:
+			if(type(d[k]) == list):
+				d[k].append(v)
+			else:
+				newlist = []
+				newlist.append(d[k])
+				newlist.append(v)
+				d[k] = newlist
+		else:
+			d[k] = v
+	return d
+# }}}
+
+def load_vdf(path): # {{{
+	f = open(path, 'r')
+	obj = json.loads(vdf2json.vdf2json(f), object_pairs_hook = join_duplicate_keys)
+
+	# Since /controller_mappings/group is a key duplicated numerous times, it
+	#    makes it cumbersome to use.  This changes /controller_mappings/group
+	#    to be a single-use key with a dict in it; each object in the dict is a
+	#    one of these separate "group" objects, and the keys to the dict are
+	#    the "id" fields of these objects.
+	obj['controller_mappings']['group'] = {group['id'] : group for group in obj['controller_mappings']['group']}
+
+	return obj
+# }}}
 
 def evminit():
 	evm = EventMapper()
