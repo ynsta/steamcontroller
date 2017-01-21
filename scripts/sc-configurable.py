@@ -2,7 +2,8 @@
 
 # The MIT License (MIT)
 #
-# Copyright (c) 2015 Stany MARCEL <stanypub@gmail.com>
+# Copyright (c) 2016 Mike Cronce <mike@quadra-tec.net>
+#                    Stany MARCEL <stanypub@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +23,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-"""Steam Controller Mouse, Keyboard mode"""
+"""Steam Controller VDF-configurable mode"""
 
 from steamcontroller import SteamController, SCButtons
 from steamcontroller.events import EventMapper, Pos
