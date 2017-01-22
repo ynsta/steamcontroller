@@ -81,6 +81,10 @@ def get_binding(group_inputs, input_name, activator): # {{{
 		binding[1] = binding[1].replace('_ARROW', '')
 		binding[1] = binding[1].replace('_', '')
 		binding[1] = binding[1].replace(',', '') # Items such as "key_press W, w"; everything after the comma is already trimmed by split() above, ignore trailing items for now'
+
+		if(binding[1] == 'PERIOD'):
+			binding[1] = 'DOT'
+
 		return Keys.__getattr__('KEY_' + binding[1])
 	elif(binding[0] == 'mouse_wheel'):
 		# TODO:  Figure out if we actually need this; if so, add support
