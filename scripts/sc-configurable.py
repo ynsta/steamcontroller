@@ -81,6 +81,11 @@ def evminit(config_file_path):
 	evm = EventMapper()
 	config = load_vdf(config_file_path)
 
+	groups = config['controller_mappings']['group']
+	bindings = config['controller_mappings']['preset']['group_source_bindings']
+
+	# TODO:  Check/respect "mode" entry in each group
+
 	evm.setPadMouse(Pos.RIGHT)
 	evm.setPadScroll(Pos.LEFT)
 	evm.setStickButtons([
@@ -98,10 +103,13 @@ def evminit(config_file_path):
 
 	evm.setButtonAction(SCButtons.STEAM, Keys.KEY_HOMEPAGE)
 
-	evm.setButtonAction(SCButtons.A, Keys.KEY_ENTER)
-	evm.setButtonAction(SCButtons.B, Keys.KEY_BACKSPACE)
-	evm.setButtonAction(SCButtons.X, Keys.KEY_ESC)
-	evm.setButtonAction(SCButtons.Y, Keys.KEY_PLAYPAUSE)
+	if('button_diamond active' in bindings):
+		group_id = bindings['button_diamond active']
+		inputs = groups[group_id]['inputs']
+		evm.setButtonAction(SCButtons.A, get_binding(inputs, 'button_a', 'Full_Press'))
+		evm.setButtonAction(SCButtons.B, get_binding(inputs, 'button_b', 'Full_Press'))
+		evm.setButtonAction(SCButtons.X, get_binding(inputs, 'button_x', 'Full_Press'))
+		evm.setButtonAction(SCButtons.Y, get_binding(inputs, 'button_y', 'Full_Press'))
 
 	evm.setButtonAction(SCButtons.START, Keys.KEY_NEXTSONG)
 	evm.setButtonAction(SCButtons.BACK, Keys.KEY_PREVIOUSSONG)
