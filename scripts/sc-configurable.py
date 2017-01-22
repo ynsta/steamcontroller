@@ -120,7 +120,39 @@ def set_trackpad_config(evm, pos, group): # {{{
 # }}}
 
 def evminit(config_file_path):
-	evm = EventMapper()
+	evm = EventMapper(gamepad_definition = {
+		'vendor' : 0x28de,
+		'product' : 0x1142,
+		'version' : 0x1,
+		'name' : b"Steam Controller",
+		'keys' : [
+			Keys.BTN_START,
+			Keys.BTN_MODE,
+			Keys.BTN_SELECT,
+			Keys.BTN_A,
+			Keys.BTN_B,
+			Keys.BTN_X,
+			Keys.BTN_Y,
+			Keys.BTN_TL,
+			Keys.BTN_TR,
+			Keys.BTN_TL2,
+			Keys.BTN_TR2,
+			Keys.BTN_THUMBL,
+			Keys.BTN_THUMBR,
+			Keys.BTN_JOYSTICK
+		],
+		'axes' : [
+			(Axes.ABS_X, -32768, 32767, 16, 128),
+			(Axes.ABS_Y, -32768, 32767, 16, 128),
+			(Axes.ABS_Z, 0, 255, 0, 0),
+			(Axes.ABS_RZ, 0, 255, 0, 0),
+			(Axes.ABS_HAT0X, -1, 1, 0, 0),
+			(Axes.ABS_HAT0Y, -1, 1, 0, 0)
+			(Axes.ABS_HAT1X, -1, 1, 0, 0),
+			(Axes.ABS_HAT1Y, -1, 1, 0, 0)
+		],
+		'rels' : []
+	})
 	config = load_vdf(config_file_path)
 
 	groups = config['controller_mappings']['group']
