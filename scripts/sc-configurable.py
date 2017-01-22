@@ -70,7 +70,11 @@ def load_vdf(path): # {{{
 # }}}
 
 def get_binding(group_inputs, input_name, activator): # {{{
-	return group_inputs[input_name]['activators'][activator]['bindings']['binding']
+	binding = group_inputs[input_name]['activators'][activator]['bindings']['binding'].split()
+
+	# TODO:  mouse_wheel, mouse_button, mode_shift ... more?
+	if(binding[0] == 'key_press'):
+		return Keys.getattr('KEY_' + binding[1])
 # }}}
 
 def evminit(config_file_path):
