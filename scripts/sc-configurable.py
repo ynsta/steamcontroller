@@ -79,6 +79,7 @@ def get_binding(group_inputs, input_name, activator): # {{{
 
 def set_trackpad_config(evm, pos, group): # {{{
 	button = SCButtons.RPAD if pos == Pos.RIGHT else SCButtons.LPAD
+	# TODO:  scrollwheel, dpad modes
 	if(group['mode'] == 'absolute_mouse'):
 		evm.setPadMouse(pos)
 		try:
