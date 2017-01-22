@@ -79,9 +79,18 @@ def get_binding(group_inputs, input_name, activator): # {{{
 
 def set_trackpad_config(evm, pos, group): # {{{
 	button = SCButtons.RPAD if pos == Pos.RIGHT else SCButtons.LPAD
-	# TODO:  scrollwheel, dpad modes
+	# TODO: dpad modes
 	if(group['mode'] == 'absolute_mouse'):
 		evm.setPadMouse(pos)
+		try:
+			# TODO:  Validate
+			evm.setButtonAction(button, get_binding(group['inputs'], 'click', 'Full_Press'))
+		except:
+			# No click action set
+			pass
+	elif(group['mode'] == 'scrollwheel'):
+		# TODO:  Support configuration for scroll directions
+		evm.setPadScroll(pos)
 		try:
 			# TODO:  Validate
 			evm.setButtonAction(button, get_binding(group['inputs'], 'click', 'Full_Press'))
