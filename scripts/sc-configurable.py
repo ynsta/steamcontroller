@@ -172,6 +172,8 @@ def evminit(config_file_path):
 		if(group['mode'] == 'trigger'):
 			evm.setTrigButton(Pos.RIGHT, get_binding(group['inputs'], 'click', 'Full_Press'))
 
+	# This cannot be configured from the Steam UI.  Should we extend that file
+	#    to support configuring it?
 	evm.setButtonAction(SCButtons.STEAM, Keys.KEY_HOMEPAGE)
 
 	return evm
