@@ -84,16 +84,22 @@ def evminit(config_file_path):
 	groups = config['controller_mappings']['group']
 	bindings = config['controller_mappings']['preset']['group_source_bindings']
 
-	# TODO:  Check/respect "mode" entry in each group
+	# TODO:  Check/respect all possible "mode" entries in each group
 
 	evm.setPadMouse(Pos.RIGHT)
 	evm.setPadScroll(Pos.LEFT)
-	evm.setStickButtons([
-		Keys.KEY_UP,
-		Keys.KEY_LEFT,
-		Keys.KEY_DOWN,
-		Keys.KEY_RIGHT
-	])
+
+	if('joystick active' in bindings):
+		group_id = bindings['joystick active']
+		group = groups[group_id]
+		inputs = group['inputs']
+		if(group['mode'] == 'dpad'):
+			evm.setStickButtons([
+				get_binding(inputs, 'dpad_north', 'Full_Press'),
+				get_binding(inputs, 'dpad_west', 'Full_Press'),
+				get_binding(inputs, 'dpad_south', 'Full_Press'),
+				get_binding(inputs, 'dpad_east', 'Full_Press')
+			])
 
 	evm.setTrigButton(Pos.LEFT, Keys.BTN_RIGHT)
 	evm.setTrigButton(Pos.RIGHT, Keys.BTN_LEFT)
