@@ -172,9 +172,6 @@ def evminit(config_file_path):
 		evm.setButtonAction(SCButtons.X, get_binding(inputs, 'button_x', 'Full_Press'))
 		evm.setButtonAction(SCButtons.Y, get_binding(inputs, 'button_y', 'Full_Press'))
 
-	evm.setButtonAction(SCButtons.LPAD, Keys.BTN_MIDDLE)
-	evm.setButtonAction(SCButtons.RPAD, Keys.KEY_SPACE)
-
 	evm.setButtonAction(SCButtons.STEAM, Keys.KEY_HOMEPAGE)
 
 	return evm
