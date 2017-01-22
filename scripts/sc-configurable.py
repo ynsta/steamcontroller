@@ -86,7 +86,19 @@ def evminit(config_file_path):
 
 	# TODO:  Check/respect all possible "mode" entries in each group
 
-	evm.setPadMouse(Pos.RIGHT)
+	if('right_trackpad active' in bindings):
+		group_id = bindings['right_trackpad active']
+		group = groups[group_id]
+		# TODO:  scrollwheel, dpad modes
+		if(group['mode'] == 'absolute_mouse'):
+			evm.setPadMouse(Pos.RIGHT)
+			try:
+				# TODO:  Validate
+				evm.setButtonAction(SCbuttons.RPAD, get_binding(group['inputs'], 'click', 'Full_Press')
+			except:
+				# No click action set
+				pass
+
 	evm.setPadScroll(Pos.LEFT)
 
 	if('joystick active' in bindings):
