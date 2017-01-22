@@ -80,6 +80,7 @@ def get_binding(group_inputs, input_name, activator): # {{{
 		# Ugly
 		binding[1] = binding[1].replace('_ARROW', '')
 		binding[1] = binding[1].replace('_', '')
+		binding[1] = binding[1].replace(',', '') # Items such as "key_press W, w"; everything after the comma is already trimmed by split() above, ignore trailing items for now'
 		return Keys.__getattr__('KEY_' + binding[1])
 
 	return None
