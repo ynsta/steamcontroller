@@ -140,8 +140,17 @@ def evminit(config_file_path):
 				get_binding(inputs, 'dpad_east', 'Full_Press')
 			])
 
-	evm.setTrigButton(Pos.LEFT, Keys.BTN_RIGHT)
-	evm.setTrigButton(Pos.RIGHT, Keys.BTN_LEFT)
+	if('left_trigger active' in bindings):
+		group_id = bindings['left_trigger active']
+		group = groups[group_id]
+		if(group['mode'] == 'trigger'):
+			evm.setTrigButton(Pos.LEFT, get_binding(group['inputs'], 'click', 'Full_Press'))
+
+	if('right_trigger active' in bindings):
+		group_id = bindings['right_trigger active']
+		group = groups[group_id]
+		if(group['mode'] == 'trigger'):
+			evm.setTrigButton(Pos.RIGHT, get_binding(group['inputs'], 'click', 'Full_Press'))
 
 	evm.setButtonAction(SCButtons.LB, Keys.KEY_VOLUMEDOWN)
 	evm.setButtonAction(SCButtons.RB, Keys.KEY_VOLUMEUP)
