@@ -123,10 +123,12 @@ def evminit(config_file_path):
 	if('left_trackpad active' in bindings):
 		group_id = bindings['left_trackpad active']
 		set_trackpad_config(evm, Pos.LEFT, groups[group_id])
+		print('--- Left trackpad loaded')
 
 	if('right_trackpad active' in bindings):
 		group_id = bindings['right_trackpad active']
 		set_trackpad_config(evm, Pos.RIGHT, groups[group_id])
+		print('--- Right trackpad loaded')
 
 	if('joystick active' in bindings):
 		group_id = bindings['joystick active']
@@ -139,6 +141,7 @@ def evminit(config_file_path):
 				get_binding(inputs, 'dpad_south', 'Full_Press'),
 				get_binding(inputs, 'dpad_east', 'Full_Press')
 			])
+		print('--- Joystick loaded')
 
 	if('button_diamond active' in bindings):
 		group_id = bindings['button_diamond active']
@@ -147,6 +150,7 @@ def evminit(config_file_path):
 		evm.setButtonAction(SCButtons.B, get_binding(inputs, 'button_b', 'Full_Press'))
 		evm.setButtonAction(SCButtons.X, get_binding(inputs, 'button_x', 'Full_Press'))
 		evm.setButtonAction(SCButtons.Y, get_binding(inputs, 'button_y', 'Full_Press'))
+		print('--- Button diamond loaded')
 
 	if('switch active' in bindings):
 		group_id = bindings['switch active']
@@ -159,18 +163,21 @@ def evminit(config_file_path):
 			evm.setButtonAction(SCButtons.BACK, get_binding(inputs, 'button_menu', 'Full_Press'))
 			evm.setButtonAction(SCButtons.LGRIP, get_binding(inputs, 'button_back_left', 'Full_Press'))
 			evm.setButtonAction(SCButtons.RGRIP, get_binding(inputs, 'button_back_right', 'Full_Press'))
+		print('--- Switches loaded')
 
 	if('left_trigger active' in bindings):
 		group_id = bindings['left_trigger active']
 		group = groups[group_id]
 		if(group['mode'] == 'trigger'):
 			evm.setTrigButton(Pos.LEFT, get_binding(group['inputs'], 'click', 'Full_Press'))
+		print('--- Left trigger loaded')
 
 	if('right_trigger active' in bindings):
 		group_id = bindings['right_trigger active']
 		group = groups[group_id]
 		if(group['mode'] == 'trigger'):
 			evm.setTrigButton(Pos.RIGHT, get_binding(group['inputs'], 'click', 'Full_Press'))
+		print('--- Right trigger loaded')
 
 	# This cannot be configured from the Steam UI.  Should we extend that file
 	#    to support configuring it?
