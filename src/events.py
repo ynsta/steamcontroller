@@ -82,9 +82,8 @@ class EventMapper(object):
     callback to be registered to a SteamController instance
     """
 
-    def __init__(self):
-
-        self._uip = (sui.Gamepad(),
+    def __init__(self, gamepad_definition = None):
+        self._uip = (sui.Gamepad(gamepad_defintion),
                      sui.Keyboard(),
                      sui.Mouse())
 
