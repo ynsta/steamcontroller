@@ -120,13 +120,13 @@ def evminit(config_file_path):
 
 	# TODO:  Check/respect all possible "mode" entries in each group
 
-	if('right_trackpad active' in bindings):
-		group_id = bindings['right_trackpad active']
-		set_trackpad_config(evm, Pos.RIGHT, groups[group_id])
-
 	if('left_trackpad active' in bindings):
 		group_id = bindings['left_trackpad active']
 		set_trackpad_config(evm, Pos.LEFT, groups[group_id])
+
+	if('right_trackpad active' in bindings):
+		group_id = bindings['right_trackpad active']
+		set_trackpad_config(evm, Pos.RIGHT, groups[group_id])
 
 	if('joystick active' in bindings):
 		group_id = bindings['joystick active']
@@ -140,17 +140,13 @@ def evminit(config_file_path):
 				get_binding(inputs, 'dpad_east', 'Full_Press')
 			])
 
-	if('left_trigger active' in bindings):
-		group_id = bindings['left_trigger active']
-		group = groups[group_id]
-		if(group['mode'] == 'trigger'):
-			evm.setTrigButton(Pos.LEFT, get_binding(group['inputs'], 'click', 'Full_Press'))
-
-	if('right_trigger active' in bindings):
-		group_id = bindings['right_trigger active']
-		group = groups[group_id]
-		if(group['mode'] == 'trigger'):
-			evm.setTrigButton(Pos.RIGHT, get_binding(group['inputs'], 'click', 'Full_Press'))
+	if('button_diamond active' in bindings):
+		group_id = bindings['button_diamond active']
+		inputs = groups[group_id]['inputs']
+		evm.setButtonAction(SCButtons.A, get_binding(inputs, 'button_a', 'Full_Press'))
+		evm.setButtonAction(SCButtons.B, get_binding(inputs, 'button_b', 'Full_Press'))
+		evm.setButtonAction(SCButtons.X, get_binding(inputs, 'button_x', 'Full_Press'))
+		evm.setButtonAction(SCButtons.Y, get_binding(inputs, 'button_y', 'Full_Press'))
 
 	if('switch active' in bindings):
 		group_id = bindings['switch active']
@@ -164,13 +160,17 @@ def evminit(config_file_path):
 			evm.setButtonAction(SCButtons.LGRIP, get_binding(inputs, 'button_back_left', 'Full_Press'))
 			evm.setButtonAction(SCButtons.RGRIP, get_binding(inputs, 'button_back_right', 'Full_Press'))
 
-	if('button_diamond active' in bindings):
-		group_id = bindings['button_diamond active']
-		inputs = groups[group_id]['inputs']
-		evm.setButtonAction(SCButtons.A, get_binding(inputs, 'button_a', 'Full_Press'))
-		evm.setButtonAction(SCButtons.B, get_binding(inputs, 'button_b', 'Full_Press'))
-		evm.setButtonAction(SCButtons.X, get_binding(inputs, 'button_x', 'Full_Press'))
-		evm.setButtonAction(SCButtons.Y, get_binding(inputs, 'button_y', 'Full_Press'))
+	if('left_trigger active' in bindings):
+		group_id = bindings['left_trigger active']
+		group = groups[group_id]
+		if(group['mode'] == 'trigger'):
+			evm.setTrigButton(Pos.LEFT, get_binding(group['inputs'], 'click', 'Full_Press'))
+
+	if('right_trigger active' in bindings):
+		group_id = bindings['right_trigger active']
+		group = groups[group_id]
+		if(group['mode'] == 'trigger'):
+			evm.setTrigButton(Pos.RIGHT, get_binding(group['inputs'], 'click', 'Full_Press'))
 
 	evm.setButtonAction(SCButtons.STEAM, Keys.KEY_HOMEPAGE)
 
