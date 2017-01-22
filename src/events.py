@@ -488,6 +488,10 @@ class EventMapper(object):
 
 
     def setButtonAction(self, btn, key_event):
+        if(key_event == None and btn in self._btn_map):
+            del self._btn_map[btn]
+            return
+
         for mode in Modes:
             if self._uip[mode].keyManaged(key_event):
                 self._btn_map[btn] = (mode, key_event)
