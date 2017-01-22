@@ -366,31 +366,40 @@ class Gamepad(UInput):
     Gamepad uinput class, create a Xbox360 gamepad device
     """
 
-    def __init__(self):
-        super(Gamepad, self).__init__(vendor=0x045e,
-                                      product=0x028e,
-                                      version=0x110,
-                                      name=b"Microsoft X-Box 360 pad",
-                                      keys=[Keys.BTN_START,
-                                            Keys.BTN_MODE,
-                                            Keys.BTN_SELECT,
-                                            Keys.BTN_A,
-                                            Keys.BTN_B,
-                                            Keys.BTN_X,
-                                            Keys.BTN_Y,
-                                            Keys.BTN_TL,
-                                            Keys.BTN_TR,
-                                            Keys.BTN_THUMBL,
-                                            Keys.BTN_THUMBR],
-                                      axes=[(Axes.ABS_X, -32768, 32767, 16, 128),
-                                            (Axes.ABS_Y, -32768, 32767, 16, 128),
-                                            (Axes.ABS_RX, -32768, 32767, 16, 128),
-                                            (Axes.ABS_RY, -32768, 32767, 16, 128),
-                                            (Axes.ABS_Z, 0, 255, 0, 0),
-                                            (Axes.ABS_RZ, 0, 255, 0, 0),
-                                            (Axes.ABS_HAT0X, -1, 1, 0, 0),
-                                            (Axes.ABS_HAT0Y, -1, 1, 0, 0)],
-                                      rels=[])
+    def __init__(self, gamepad_definition = None):
+        if(gamepad_definition == None):
+            gamepad_definition = {
+                'vendor' : 0x045e,
+                'product' : 0x028e,
+                'version' : 0x110,
+                'name' : b"Microsoft X-Box 360 pad",
+                'keys' : [
+                    Keys.BTN_START,
+                    Keys.BTN_MODE,
+                    Keys.BTN_SELECT,
+                    Keys.BTN_A,
+                    Keys.BTN_B,
+                    Keys.BTN_X,
+                    Keys.BTN_Y,
+                    Keys.BTN_TL,
+                    Keys.BTN_TR,
+                    Keys.BTN_THUMBL,
+                    Keys.BTN_THUMBR
+                ],
+                'axes' : [
+                    (Axes.ABS_X, -32768, 32767, 16, 128),
+                    (Axes.ABS_Y, -32768, 32767, 16, 128),
+                    (Axes.ABS_RX, -32768, 32767, 16, 128),
+                    (Axes.ABS_RY, -32768, 32767, 16, 128),
+                    (Axes.ABS_Z, 0, 255, 0, 0),
+                    (Axes.ABS_RZ, 0, 255, 0, 0),
+                    (Axes.ABS_HAT0X, -1, 1, 0, 0),
+                    (Axes.ABS_HAT0Y, -1, 1, 0, 0)
+                ],
+                'rels' : []
+            }
+
+        super(Gamepad, self).__init__(**gamepad_definition)
 
 
 class Mouse(UInput):
