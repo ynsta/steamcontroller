@@ -115,7 +115,9 @@ def evminit(config_file_path):
 		group_id = bindings['right_trackpad active']
 		set_trackpad_config(evm, Pos.RIGHT, groups[group_id])
 
-	evm.setPadScroll(Pos.LEFT)
+	if('left_trackpad active' in bindings):
+		group_id = bindings['left_trackpad active']
+		set_trackpad_config(evm, Pos.LEFT, groups[group_id])
 
 	if('joystick active' in bindings):
 		group_id = bindings['joystick active']
