@@ -69,6 +69,10 @@ def load_vdf(path): # {{{
 	return obj
 # }}}
 
+def get_binding(group_inputs, input_name, activator): # {{{
+	return group_inputs[input_name]['activators'][activator]['bindings']['binding']
+# }}}
+
 def evminit(config_file_path):
 	evm = EventMapper()
 	config = load_vdf(config_file_path)
