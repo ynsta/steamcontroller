@@ -87,21 +87,11 @@ def set_trackpad_config(evm, pos, group): # {{{
 	# TODO: dpad modes
 	if(group['mode'] == 'absolute_mouse'):
 		evm.setPadMouse(pos)
-		try:
-			# TODO:  Validate
-			evm.setButtonAction(button, get_binding(group['inputs'], 'click', 'Full_Press'))
-		except:
-			# No click action set
-			pass
+		evm.setButtonAction(button, get_binding(group['inputs'], 'click', 'Full_Press'))
 	elif(group['mode'] == 'scrollwheel'):
 		# TODO:  Support configuration for scroll directions
 		evm.setPadScroll(pos)
-		try:
-			# TODO:  Validate
-			evm.setButtonAction(button, get_binding(group['inputs'], 'click', 'Full_Press'))
-		except:
-			# No click action set
-			pass
+		evm.setButtonAction(button, get_binding(group['inputs'], 'click', 'Full_Press'))
 # }}}
 
 def evminit(config_file_path):
