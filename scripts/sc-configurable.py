@@ -77,6 +77,18 @@ def get_binding(group_inputs, input_name, activator): # {{{
 		return Keys.getattr('KEY_' + binding[1])
 # }}}
 
+def set_trackpad_config(evm, pos, group): # {{{
+	button = SCButtons.RPAD if pos == Pos.RIGHT else SCButtons.LPAD
+	if(group['mode'] == 'absolute_mouse'):
+		evm.setPadMouse(pos)
+		try:
+			# TODO:  Validate
+			evm.setButtonAction(button, get_binding(group['inputs'], 'click', 'Full_Press')
+		except:
+			# No click action set
+			pass
+# }}}
+
 def evminit(config_file_path):
 	evm = EventMapper()
 	config = load_vdf(config_file_path)
@@ -88,16 +100,7 @@ def evminit(config_file_path):
 
 	if('right_trackpad active' in bindings):
 		group_id = bindings['right_trackpad active']
-		group = groups[group_id]
-		# TODO:  scrollwheel, dpad modes
-		if(group['mode'] == 'absolute_mouse'):
-			evm.setPadMouse(Pos.RIGHT)
-			try:
-				# TODO:  Validate
-				evm.setButtonAction(SCbuttons.RPAD, get_binding(group['inputs'], 'click', 'Full_Press')
-			except:
-				# No click action set
-				pass
+		set_trackpad_config(evm, Pos.RIGHT, groups[group_id])
 
 	evm.setPadScroll(Pos.LEFT)
 
