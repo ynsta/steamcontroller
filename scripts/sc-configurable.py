@@ -83,7 +83,7 @@ def set_trackpad_config(evm, pos, group): # {{{
 		evm.setPadMouse(pos)
 		try:
 			# TODO:  Validate
-			evm.setButtonAction(button, get_binding(group['inputs'], 'click', 'Full_Press')
+			evm.setButtonAction(button, get_binding(group['inputs'], 'click', 'Full_Press'))
 		except:
 			# No click action set
 			pass
