@@ -70,7 +70,10 @@ def load_vdf(path): # {{{
 # }}}
 
 def get_binding(group_inputs, input_name, activator): # {{{
-	binding = group_inputs[input_name]['activators'][activator]['bindings']['binding'].split()
+	try:
+		binding = group_inputs[input_name]['activators'][activator]['bindings']['binding'].split()
+	except KeyError:
+		return None
 
 	# TODO:  mouse_wheel, mouse_button, mode_shift ... more?
 	if(binding[0] == 'key_press'):
