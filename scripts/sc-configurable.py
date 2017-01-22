@@ -152,10 +152,17 @@ def evminit(config_file_path):
 		if(group['mode'] == 'trigger'):
 			evm.setTrigButton(Pos.RIGHT, get_binding(group['inputs'], 'click', 'Full_Press'))
 
-	evm.setButtonAction(SCButtons.LB, Keys.KEY_VOLUMEDOWN)
-	evm.setButtonAction(SCButtons.RB, Keys.KEY_VOLUMEUP)
-
-	evm.setButtonAction(SCButtons.STEAM, Keys.KEY_HOMEPAGE)
+	if('switch active' in bindings):
+		group_id = bindings['switch active']
+		group = groups[group_id]
+		if(group['mode'] == 'switches'):
+			inputs = group['inputs']
+			evm.setButtonAction(SCButtons.LB, get_binding(inputs, 'left_bumper', 'Full_Press'))
+			evm.setButtonAction(SCButtons.RB, get_binding(inputs, 'right_bumper', 'Full_Press'))
+			evm.setButtonAction(SCButtons.START, get_binding(inputs, 'button_escape', 'Full_Press'))
+			evm.setButtonAction(SCButtons.BACK, get_binding(inputs, 'button_menu', 'Full_Press'))
+			evm.setButtonAction(SCButtons.LGRIP, get_binding(inputs, 'button_back_left', 'Full_Press'))
+			evm.setButtonAction(SCButtons.RGRIP, get_binding(inputs, 'button_back_right', 'Full_Press'))
 
 	if('button_diamond active' in bindings):
 		group_id = bindings['button_diamond active']
@@ -165,14 +172,10 @@ def evminit(config_file_path):
 		evm.setButtonAction(SCButtons.X, get_binding(inputs, 'button_x', 'Full_Press'))
 		evm.setButtonAction(SCButtons.Y, get_binding(inputs, 'button_y', 'Full_Press'))
 
-	evm.setButtonAction(SCButtons.START, Keys.KEY_NEXTSONG)
-	evm.setButtonAction(SCButtons.BACK, Keys.KEY_PREVIOUSSONG)
-
-	evm.setButtonAction(SCButtons.LGRIP, Keys.KEY_BACK)
-	evm.setButtonAction(SCButtons.RGRIP, Keys.KEY_FORWARD)
-
 	evm.setButtonAction(SCButtons.LPAD, Keys.BTN_MIDDLE)
 	evm.setButtonAction(SCButtons.RPAD, Keys.KEY_SPACE)
+
+	evm.setButtonAction(SCButtons.STEAM, Keys.KEY_HOMEPAGE)
 
 	return evm
 
