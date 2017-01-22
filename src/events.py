@@ -83,7 +83,7 @@ class EventMapper(object):
     """
 
     def __init__(self, gamepad_definition = None):
-        self._uip = (sui.Gamepad(gamepad_defintion),
+        self._uip = (sui.Gamepad(gamepad_definition),
                      sui.Keyboard(),
                      sui.Mouse())
 
