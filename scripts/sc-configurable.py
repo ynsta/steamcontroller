@@ -148,7 +148,7 @@ def evminit(config_file_path):
 			(Axes.ABS_Z, 0, 255, 0, 0),
 			(Axes.ABS_RZ, 0, 255, 0, 0),
 			(Axes.ABS_HAT0X, -1, 1, 0, 0),
-			(Axes.ABS_HAT0Y, -1, 1, 0, 0)
+			(Axes.ABS_HAT0Y, -1, 1, 0, 0),
 			(Axes.ABS_HAT1X, -1, 1, 0, 0),
 			(Axes.ABS_HAT1Y, -1, 1, 0, 0)
 		],
