@@ -149,6 +149,7 @@ def evminit(config_file_path):
 				get_binding(inputs, 'dpad_south', 'Full_Press'),
 				get_binding(inputs, 'dpad_east', 'Full_Press')
 			])
+			evm.setButtonAction(SCButtons.LPAD, get_binding(inputs, 'click', 'Full_Press'))
 		print('--- Joystick loaded')
 
 	if('button_diamond active' in bindings):
