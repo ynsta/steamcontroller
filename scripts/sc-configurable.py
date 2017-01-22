@@ -74,7 +74,7 @@ def get_binding(group_inputs, input_name, activator): # {{{
 
 	# TODO:  mouse_wheel, mouse_button, mode_shift ... more?
 	if(binding[0] == 'key_press'):
-		return Keys.getattr('KEY_' + binding[1])
+		return Keys.__getattr__('KEY_' + binding[1])
 # }}}
 
 def set_trackpad_config(evm, pos, group): # {{{
