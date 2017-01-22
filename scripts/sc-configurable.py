@@ -71,7 +71,11 @@ def load_vdf(path): # {{{
 
 def get_binding(group_inputs, input_name, activator): # {{{
 	try:
-		binding = group_inputs[input_name]['activators'][activator]['bindings']['binding'].split()
+		activator = group_inputs[input_name]['activators'][activator]
+		if(type(activator) == list):
+			# TODO:  Support multiples
+			activator = activator[0]
+		binding = activator['bindings']['binding'].split()
 	except KeyError:
 		return None
 
