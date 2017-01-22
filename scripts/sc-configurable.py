@@ -75,7 +75,7 @@ def get_binding(group_inputs, input_name, activator): # {{{
 	except KeyError:
 		return None
 
-	# TODO:  mouse_button, mode_shift ... more?
+	# TODO:  mode_shift ... maybe more?
 	if(binding[0] == 'key_press'):
 		# Ugly
 		binding[1] = binding[1].replace('_ARROW', '')
@@ -85,6 +85,8 @@ def get_binding(group_inputs, input_name, activator): # {{{
 	elif(binding[0] == 'mouse_wheel'):
 		# TODO:  Figure out if we actually need this; if so, add support
 		return None
+	elif(binding[0] == 'mouse_button'):
+		return Keys.__getattr__('BTN_' + binding[1])
 
 	return None
 # }}}
