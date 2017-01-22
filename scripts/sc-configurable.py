@@ -120,6 +120,7 @@ def set_trackpad_config(evm, pos, group): # {{{
 # }}}
 
 def evminit(config_file_path):
+	# TODO:  Dynamic gamepad definition for keys/axes based on config
 	evm = EventMapper(gamepad_definition = {
 		'vendor' : 0x28de,
 		'product' : 0x1142,
