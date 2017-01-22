@@ -27,7 +27,7 @@
 
 from steamcontroller import SteamController, SCButtons
 from steamcontroller.events import EventMapper, Pos
-from steamcontroller.uinput import Keys
+from steamcontroller.uinput import Axes, Keys
 
 from steamcontroller.daemon import Daemon
 
