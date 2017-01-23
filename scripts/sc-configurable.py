@@ -27,7 +27,7 @@
 
 from steamcontroller import SteamController, SCButtons
 from steamcontroller.events import EventMapper, Pos
-from steamcontroller.uinput import Axes, Keys
+from steamcontroller.uinput import Axes, Keys, Scans
 
 from steamcontroller.daemon import Daemon
 
@@ -126,22 +126,7 @@ def evminit(config_file_path):
 		'product' : 0x1142,
 		'version' : 0x1,
 		'name' : b"Steam Controller",
-		'keys' : [
-			Keys.BTN_START,
-			Keys.BTN_MODE,
-			Keys.BTN_SELECT,
-			Keys.BTN_A,
-			Keys.BTN_B,
-			Keys.BTN_X,
-			Keys.BTN_Y,
-			Keys.BTN_TL,
-			Keys.BTN_TR,
-			Keys.BTN_TL2,
-			Keys.BTN_TR2,
-			Keys.BTN_THUMBL,
-			Keys.BTN_THUMBR,
-			Keys.BTN_JOYSTICK
-		],
+		'keys' : Scans.keys(),
 		'axes' : [
 			(Axes.ABS_X, -32768, 32767, 16, 128),
 			(Axes.ABS_Y, -32768, 32767, 16, 128),
