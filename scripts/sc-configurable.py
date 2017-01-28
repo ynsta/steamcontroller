@@ -26,7 +26,7 @@
 """Steam Controller VDF-configurable mode"""
 
 from steamcontroller import SteamController, SCButtons
-from steamcontroller.events import EventMapper, Pos
+from steamcontroller.events import EventMapper, PadModes, Pos, TrigModes
 from steamcontroller.uinput import Axes, Keys, Scans
 
 from steamcontroller.daemon import Daemon
@@ -99,24 +99,114 @@ def get_binding(group_inputs, input_name, activator): # {{{
 	return None
 # }}}
 
-def set_trackpad_config(evm, pos, group): # {{{
-	button = SCButtons.RPAD if pos == Pos.RIGHT else SCButtons.LPAD
+def parse_analog_config(group): # {{{
+	config = {}
 	if(group['mode'] == 'absolute_mouse'):
-		evm.setPadMouse(pos)
-		evm.setButtonAction(button, get_binding(group['inputs'], 'click', 'Full_Press'))
+		config['mode'] = PadModes.MOUSE
+		config['buttons'] = {'click' : get_binding(group['inputs'], 'click', 'Full_Press')}
 	elif(group['mode'] == 'scrollwheel'):
+		config['mode'] = PadModes.MOUSESCROLL
+		config['buttons'] = {'click' : get_binding(group['inputs'], 'click', 'Full_Press')}
+	elif(group['mode'] == 'dpad'):
+		config['mode'] = PadModes.BUTTONCLICK
+		config['buttons'] = {
+			'north' : get_binding(group['inputs'], 'dpad_north', 'Full_Press'),
+			'west' : get_binding(group['inputs'], 'dpad_west', 'Full_Press'),
+			'south' : get_binding(group['inputs'], 'dpad_south', 'Full_Press'),
+			'east' : get_binding(group['inputs'], 'dpad_east', 'Full_Press')
+		}
+	return config
+# }}}
+
+def parse_trigger_config(group): # {{{
+	config = {}
+	if(group['mode'] == 'trigger'):
+		config['mode'] = TrigModes.BUTTON
+		config['buttons'] = {'click' : get_binding(group['inputs'], 'click', 'Full_Press')}
+	return config
+# }}}
+
+def parse_config(config): # {{{
+	groups = config['controller_mappings']['group']
+	bindings = config['controller_mappings']['preset']['group_source_bindings']
+
+	# TODO:  Check/respect all possible "mode" entries in each group
+
+	output_config = {
+		'left_trackpad' : {},
+		'right_trackpad' : {},
+		'joystick' : {},
+		'button_diamond' : {},
+		'switch' : {},
+		'left_trigger' : {},
+		'right_trigger' : {}
+	}
+
+	if('left_trackpad active' in bindings):
+		output_config['left_trackpad']['active'] = parse_analog_config(groups[bindings['left_trackpad active']])
+		print('--- Left trackpad (active) loaded')
+
+	if('right_trackpad active' in bindings):
+		output_config['right_trackpad']['active'] = parse_analog_config(groups[bindings['right_trackpad active']])
+		print('--- Right trackpad (active) loaded')
+
+	if('joystick active' in bindings):
+		output_config['joystick']['active'] = parse_analog_config(groups[bindings['joystick active']])
+		print('--- Joystick (active) loaded')
+
+	if('button_diamond active' in bindings):
+		inputs = groups[bindings['button_diamond active']]
+		output_config['button_diamond']['active'] = {'buttons' : {
+			'a' : get_binding(inputs, 'button_a', 'Full_Press'),
+			'b' : get_binding(inputs, 'button_b', 'Full_Press'),
+			'x' : get_binding(inputs, 'button_x', 'Full_Press'),
+			'y' : get_binding(inputs, 'button_y', 'Full_Press')
+		}}
+		print('--- Button diamond (active) loaded')
+
+	if('switch active' in bindings):
+		inputs = groups[bindings['switch active']]
+		output_config['switch']['active'] = {'buttons' : {
+			'left_bumper' : get_binding(inputs, 'left_bumper', 'Full_Press'),
+			'right_bumper' : get_binding(inputs, 'right_bumper', 'Full_Press'),
+			'start' : get_binding(inputs, 'button_escape', 'Full_Press'),
+			'back' : get_binding(inputs, 'button_menu', 'Full_Press'),
+			'left_grip' : get_binding(inputs, 'button_back_left', 'Full_Press'),
+			'right_grip' : get_binding(inputs, 'button_back_right', 'Full_Press')
+		}}
+		print('--- Switches (active) loaded')
+	
+	if('left_trigger active' in bindings):
+		group_id = bindings['left_trigger active']
+		output_config['left_trigger']['active'] = parse_trigger_config(groups[bindings['left_trigger active']])
+		print('--- Left trigger (active) loaded')
+
+	if('right_trigger active' in bindings):
+		group_id = bindings['right_trigger active']
+		output_config['right_trigger']['active'] = parse_trigger_config(groups[bindings['right_trigger active']])
+		print('--- Right trigger (active) loaded')
+
+	return output_config
+# }}}
+
+def set_trackpad_config(evm, pos, config): # {{{
+	button = SCButtons.RPAD if pos == Pos.RIGHT else SCButtons.LPAD
+	if(config['mode'] == PadModes.MOUSE):
+		evm.setPadMouse(pos)
+		evm.setButtonAction(button, config['buttons']['click'])
+	elif(config['mode'] == PadModes.MOUSESCROLL):
 		# TODO:  Support configuration for scroll directions
 		evm.setPadScroll(pos)
-		evm.setButtonAction(button, get_binding(group['inputs'], 'click', 'Full_Press'))
-	elif(group['mode'] == 'dpad'):
-		inputs = group['inputs']
+		evm.setButtonAction(button, config['buttons']['click'])
+	elif(config['mode'] == PadModes.BUTTONCLICK):
 		# TODO:  Configurable whether or not click is required?
-		evm.setPadButtons(pos, [
-			get_binding(inputs, 'dpad_north', 'Full_Press'),
-			get_binding(inputs, 'dpad_west', 'Full_Press'),
-			get_binding(inputs, 'dpad_south', 'Full_Press'),
-			get_binding(inputs, 'dpad_east', 'Full_Press')
-		], clicked = True)
+		buttons = config['buttons']
+		evm.setPadButtons(pos, [buttons['north'], buttons['west'], buttons['south'], buttons['east']], clicked = True)
+# }}}
+
+def set_trigger_config(evm, pos, config): # {{{
+	if(config['mode'] == TrigModes.BUTTON):
+		evm.setTrigButton(pos, config['buttons']['click'])
 # }}}
 
 def evminit(config_file_path):
@@ -139,72 +229,50 @@ def evminit(config_file_path):
 		],
 		'rels' : []
 	})
-	config = load_vdf(config_file_path)
+	vdf = load_vdf(config_file_path)
+	config = parse_config(vdf)
 
-	groups = config['controller_mappings']['group']
-	bindings = config['controller_mappings']['preset']['group_source_bindings']
+	if('active' in config['left_trackpad']):
+		set_trackpad_config(evm, Pos.LEFT, config['left_trackpad']['active'])
+		print('--- Left trackpad configured')
 
-	# TODO:  Check/respect all possible "mode" entries in each group
+	if('active' in config['right_trackpad']):
+		set_trackpad_config(evm, Pos.RIGHT, config['right_trackpad']['active'])
+		print('--- Right trackpad configured')
 
-	if('left_trackpad active' in bindings):
-		group_id = bindings['left_trackpad active']
-		set_trackpad_config(evm, Pos.LEFT, groups[group_id])
-		print('--- Left trackpad loaded')
+	if('active' in config['joystick']):
+		group = config['joystick']['active']
+		if(group['mode'] == PadModes.BUTTONCLICK):
+			evm.setStickButtons([group['buttons']['north'], group['buttons']['west'], group['buttons']['south'], group['buttons']['east']])
+			if('click' in group['buttons'] and group['buttons']['click'] != None):
+				evm.setActionButton(SCButtons.LPAD, group['buttons']['click'])
+		print('--- Joystick configured')
 
-	if('right_trackpad active' in bindings):
-		group_id = bindings['right_trackpad active']
-		set_trackpad_config(evm, Pos.RIGHT, groups[group_id])
-		print('--- Right trackpad loaded')
+	if('active' in config['button_diamond']):
+		group = config['button_diamond']['active']
+		evm.setButtonAction(SCButtons.A, group['buttons']['a'])
+		evm.setButtonAction(SCButtons.B, group['buttons']['b'])
+		evm.setButtonAction(SCButtons.X, group['buttons']['x'])
+		evm.setButtonAction(SCButtons.Y, group['buttons']['y'])
+		print('--- Button diamond configured')
 
-	if('joystick active' in bindings):
-		group_id = bindings['joystick active']
-		group = groups[group_id]
-		inputs = group['inputs']
-		if(group['mode'] == 'dpad'):
-			evm.setStickButtons([
-				get_binding(inputs, 'dpad_north', 'Full_Press'),
-				get_binding(inputs, 'dpad_west', 'Full_Press'),
-				get_binding(inputs, 'dpad_south', 'Full_Press'),
-				get_binding(inputs, 'dpad_east', 'Full_Press')
-			])
-			evm.setButtonAction(SCButtons.LPAD, get_binding(inputs, 'click', 'Full_Press'))
-		print('--- Joystick loaded')
+	if('active' in config['switch']):
+		group = config['switch']['active']
+		evm.setButtonAction(SCButtons.LB, group['buttons']['left_bumper'])
+		evm.setButtonAction(SCButtons.RB, group['buttons']['right_bumper'])
+		evm.setButtonAction(SCButtons.START, group['buttons']['start'])
+		evm.setButtonAction(SCButtons.BACK, group['buttons']['back'])
+		evm.setButtonAction(SCButtons.LGRIP, group['buttons']['left_grip'])
+		evm.setButtonAction(SCButtons.RGRIP, group['buttons']['right_grip'])
+		print('--- Switches configured')
 
-	if('button_diamond active' in bindings):
-		group_id = bindings['button_diamond active']
-		inputs = groups[group_id]['inputs']
-		evm.setButtonAction(SCButtons.A, get_binding(inputs, 'button_a', 'Full_Press'))
-		evm.setButtonAction(SCButtons.B, get_binding(inputs, 'button_b', 'Full_Press'))
-		evm.setButtonAction(SCButtons.X, get_binding(inputs, 'button_x', 'Full_Press'))
-		evm.setButtonAction(SCButtons.Y, get_binding(inputs, 'button_y', 'Full_Press'))
-		print('--- Button diamond loaded')
+	if('active' in config['left_trigger']):
+		set_trigger_config(evm, Pos.LEFT, config['left_trigger']['active'])
+		print('--- Left trigger configured')
 
-	if('switch active' in bindings):
-		group_id = bindings['switch active']
-		group = groups[group_id]
-		if(group['mode'] == 'switches'):
-			inputs = group['inputs']
-			evm.setButtonAction(SCButtons.LB, get_binding(inputs, 'left_bumper', 'Full_Press'))
-			evm.setButtonAction(SCButtons.RB, get_binding(inputs, 'right_bumper', 'Full_Press'))
-			evm.setButtonAction(SCButtons.START, get_binding(inputs, 'button_escape', 'Full_Press'))
-			evm.setButtonAction(SCButtons.BACK, get_binding(inputs, 'button_menu', 'Full_Press'))
-			evm.setButtonAction(SCButtons.LGRIP, get_binding(inputs, 'button_back_left', 'Full_Press'))
-			evm.setButtonAction(SCButtons.RGRIP, get_binding(inputs, 'button_back_right', 'Full_Press'))
-		print('--- Switches loaded')
-
-	if('left_trigger active' in bindings):
-		group_id = bindings['left_trigger active']
-		group = groups[group_id]
-		if(group['mode'] == 'trigger'):
-			evm.setTrigButton(Pos.LEFT, get_binding(group['inputs'], 'click', 'Full_Press'))
-		print('--- Left trigger loaded')
-
-	if('right_trigger active' in bindings):
-		group_id = bindings['right_trigger active']
-		group = groups[group_id]
-		if(group['mode'] == 'trigger'):
-			evm.setTrigButton(Pos.RIGHT, get_binding(group['inputs'], 'click', 'Full_Press'))
-		print('--- Right trigger loaded')
+	if('active' in config['right_trigger']):
+		set_trigger_config(evm, Pos.RIGHT, config['right_trigger']['active'])
+		print('--- Right trigger configured')
 
 	# This cannot be configured from the Steam UI.  Should we extend that file
 	#    to support configuring it?
