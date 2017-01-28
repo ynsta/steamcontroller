@@ -203,7 +203,7 @@ class EventMapper(object):
             time() - self._steam_pressed_time > EXIT_PRESS_DURATION):
             sc.addExit()
 
-        # Manage buttons
+        # Manage buttons {{{
         for btn, (mode, ev) in self._btn_map.items():
 
             if mode is None:
@@ -220,7 +220,9 @@ class EventMapper(object):
                     ev(self, btn, False)
                 else:
                     _keyreleased(mode, ev)
-        # Manage pads
+        # }}}
+
+        # Manage pads {{{
         for pos in [Pos.LEFT, Pos.RIGHT]:
 
             if pos == Pos.LEFT:
@@ -262,7 +264,7 @@ class EventMapper(object):
                     xm_p, ym_p = xm, ym
 
 
-            # Mouse and mouse scroll modes
+            # Mouse and mouse scroll modes {{{
             if self._pad_modes[pos] in (PadModes.MOUSE, PadModes.MOUSESCROLL):
                 _free = True
                 _dx = 0
@@ -286,9 +288,9 @@ class EventMapper(object):
                         # FIXME: make haptic configurable
                         if not _free:
                             sc.addFeedback(pos, amplitude=256)
+            # }}}
 
-
-            # Axis mode
+            # Axis mode {{{
             elif self._pad_modes[pos] == PadModes.AXIS:
                 revert = self._pad_revs[pos]
                 (xmode, xev), (ymode, yev) = self._pad_evts[pos]
@@ -307,8 +309,9 @@ class EventMapper(object):
                     if y != y_p:
                         self._uip[ymode].axisEvent(yev, y if not revert else -y)
                         syn.add(ymode)
+            # }}}
 
-            # Button touch mode
+            # Button touch mode {{{
             elif (self._pad_modes[pos] == PadModes.BUTTONTOUCH or
                   self._pad_modes[pos] == PadModes.BUTTONCLICK):
 
@@ -388,14 +391,15 @@ class EventMapper(object):
 
                 if haptic and self._pad_modes[pos] == PadModes.BUTTONTOUCH:
                     sc.addFeedback(pos, amplitude=300)
+            # }}}
 
             if sci.buttons & touch != touch:
                 xm_p, ym_p, xm, ym = 0, 0, 0, 0
                 self._xdq[pos].clear()
                 self._ydq[pos].clear()
+        # }}}
 
-
-        # Manage Trig
+        # Manage Trig {{{
         for pos in [Pos.LEFT, Pos.RIGHT]:
             trigval = sci.ltrig if pos == Pos.LEFT else sci.rtrig
             trigval_prev = sci_p.ltrig if pos == Pos.LEFT else sci_p.rtrig
@@ -413,9 +417,9 @@ class EventMapper(object):
                 elif self._trig_s[pos] is not None and trigval <= self._trig_s[pos]:
                     self._trig_s[pos] = None
                     _keyreleased(mode, ev)
+        # }}}
 
-
-        # Manage Stick
+        # Manage Stick {{{
         if sci.buttons & SCButtons.LPADTOUCH != SCButtons.LPADTOUCH:
             x, y = sci.lpad_x, sci.lpad_y
             x_p, y_p = sci_p.lpad_x, sci_p.lpad_y
@@ -474,7 +478,7 @@ class EventMapper(object):
             if sci.buttons & SCButtons.LPAD == SCButtons.LPAD:
                 if self._stick_pressed_callback is not None:
                     self._stick_pressed_callback(self)
-
+        # }}}
 
         if len(_pressed):
             self._uip[Modes.KEYBOARD].pressEvent(_pressed)
