@@ -155,7 +155,7 @@ def parse_config(config): # {{{
 		print('--- Joystick (active) loaded')
 
 	if('button_diamond active' in bindings):
-		inputs = groups[bindings['button_diamond active']]
+		inputs = groups[bindings['button_diamond active']]['inputs']
 		output_config['button_diamond']['active'] = {'buttons' : {
 			'a' : get_binding(inputs, 'button_a', 'Full_Press'),
 			'b' : get_binding(inputs, 'button_b', 'Full_Press'),
@@ -165,7 +165,7 @@ def parse_config(config): # {{{
 		print('--- Button diamond (active) loaded')
 
 	if('switch active' in bindings):
-		inputs = groups[bindings['switch active']]
+		inputs = groups[bindings['switch active']]['inputs']
 		output_config['switch']['active'] = {'buttons' : {
 			'left_bumper' : get_binding(inputs, 'left_bumper', 'Full_Press'),
 			'right_bumper' : get_binding(inputs, 'right_bumper', 'Full_Press'),
