@@ -205,7 +205,6 @@ class EventMapper(object):
 
         # Manage buttons {{{
         for btn, (mode, ev) in self._btn_map.items():
-
             if mode is None:
                 continue
 
@@ -215,7 +214,6 @@ class EventMapper(object):
                 else:
                     _keypressed(mode, ev)
             elif btn & btn_rem:
-
                 if mode is Modes.CALLBACK:
                     ev(self, btn, False)
                 else:
@@ -224,7 +222,6 @@ class EventMapper(object):
 
         # Manage pads {{{
         for pos in [Pos.LEFT, Pos.RIGHT]:
-
             if pos == Pos.LEFT:
                 x, y = sci.lpad_x, sci.lpad_y
                 x_p, y_p = sci_p.lpad_x, sci_p.lpad_y
@@ -263,7 +260,6 @@ class EventMapper(object):
                 if not sci_p.buttons & touch == touch:
                     xm_p, ym_p = xm, ym
 
-
             # Mouse and mouse scroll modes {{{
             if self._pad_modes[pos] in (PadModes.MOUSE, PadModes.MOUSESCROLL):
                 _free = True
@@ -295,7 +291,6 @@ class EventMapper(object):
                 revert = self._pad_revs[pos]
                 (xmode, xev), (ymode, yev) = self._pad_evts[pos]
                 if xmode is not None:
-
                     # FIXME: make haptic configurable
                     if sci.buttons & touch == touch:
                         self._moved[pos] += sqrt((xm - xm_p)**2 + (ym - ym_p)**2)
@@ -312,9 +307,7 @@ class EventMapper(object):
             # }}}
 
             # Button touch mode {{{
-            elif (self._pad_modes[pos] == PadModes.BUTTONTOUCH or
-                  self._pad_modes[pos] == PadModes.BUTTONCLICK):
-
+            elif (self._pad_modes[pos] == PadModes.BUTTONTOUCH or self._pad_modes[pos] == PadModes.BUTTONCLICK):
                 if self._pad_modes[pos] == PadModes.BUTTONTOUCH:
                     on_test = touch
                     off_test = touch
@@ -438,7 +431,6 @@ class EventMapper(object):
                     self._uip[ymode].axisEvent(yev, y if not revert else -y)
 
             elif self._stick_mode == StickModes.BUTTON:
-
                 tmode, tev = self._stick_evts[0]
                 lmode, lev = self._stick_evts[1]
                 bmode, bev = self._stick_evts[2]
