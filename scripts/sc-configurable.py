@@ -247,7 +247,7 @@ def evminit(config_file_path):
 		if(group['mode'] == PadModes.BUTTONCLICK):
 			evm.setStickButtons([group['buttons']['north'], group['buttons']['west'], group['buttons']['south'], group['buttons']['east']])
 			if('click' in group['buttons'] and group['buttons']['click'] != None):
-				evm.setActionButton(SCButtons.LPAD, group['buttons']['click'])
+				evm.setButtonAction(SCButtons.LPAD, group['buttons']['click'])
 		print('--- Joystick configured')
 
 	if('active' in config['button_diamond']):
