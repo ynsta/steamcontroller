@@ -153,7 +153,7 @@ def parse_config(config): # {{{
 	if('joystick active' in bindings):
 		group = groups[bindings['joystick active']]
 		output_config['joystick']['active'] = parse_analog_config(group)
-		output_config['joystick']['active']['click'] = get_binding(group['inputs'], 'click', 'Full_Press')
+		output_config['joystick']['active']['buttons']['click'] = get_binding(group['inputs'], 'click', 'Full_Press')
 		print('--- Joystick (active) loaded')
 
 	if('button_diamond active' in bindings):
