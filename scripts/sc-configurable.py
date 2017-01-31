@@ -151,7 +151,9 @@ def parse_config(config): # {{{
 		print('--- Right trackpad (active) loaded')
 
 	if('joystick active' in bindings):
-		output_config['joystick']['active'] = parse_analog_config(groups[bindings['joystick active']])
+		group = groups[bindings['joystick active']]
+		output_config['joystick']['active'] = parse_analog_config(group)
+		output_config['joystick']['active']['click'] = get_binding(group['inputs'], 'click', 'Full_Press')
 		print('--- Joystick (active) loaded')
 
 	if('button_diamond active' in bindings):
