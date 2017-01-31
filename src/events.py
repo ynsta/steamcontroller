@@ -373,8 +373,7 @@ class EventMapper(object):
                         else:
                             haptic |= _absreleased(xev)
 
-                if (sci.buttons & off_test != off_test and
-                    sci_p.buttons & on_test == on_test):
+                if (sci.buttons & off_test != off_test and sci_p.buttons & on_test == on_test):
                     if len(self._pad_evts[pos]) == 4:
                         for mode, ev in self._pad_evts[pos]:
                             haptic |= _keyreleased(mode, ev)
