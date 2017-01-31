@@ -209,15 +209,19 @@ class EventMapper(object):
                 continue
 
             if btn & btn_add:
-                if mode is Modes.CALLBACK:
-                    ev(self, btn, True)
-                else:
-                    _keypressed(mode, ev)
+                # This hack makes me want to go take a shower
+                if(btn != SCButtons.LPAD or not (btn_add | SCButtons.LPADTOUCH)):
+                    if mode is Modes.CALLBACK:
+                        ev(self, btn, True)
+                    else:
+                        _keypressed(mode, ev)
             elif btn & btn_rem:
-                if mode is Modes.CALLBACK:
-                    ev(self, btn, False)
-                else:
-                    _keyreleased(mode, ev)
+                # This hack still makes me want to go take a shower
+                if(btn != SCButtons.LPAD or not (btn_add | SCButtons.LPADTOUCH)):
+                    if mode is Modes.CALLBACK:
+                        ev(self, btn, False)
+                    else:
+                        _keyreleased(mode, ev)
         # }}}
 
         # Manage pads {{{
