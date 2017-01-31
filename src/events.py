@@ -210,14 +210,14 @@ class EventMapper(object):
 
             if btn & btn_add:
                 # This hack makes me want to go take a shower
-                if(btn != SCButtons.LPAD or not (btn_add | SCButtons.LPADTOUCH)):
+                if(not (btn == SCButtons.LPAD and (sci.buttons & SCButtons.LPADTOUCH))):
                     if mode is Modes.CALLBACK:
                         ev(self, btn, True)
                     else:
                         _keypressed(mode, ev)
             elif btn & btn_rem:
                 # This hack still makes me want to go take a shower
-                if(btn != SCButtons.LPAD or not (btn_add | SCButtons.LPADTOUCH)):
+                if(not (btn == SCButtons.LPAD and (sci_p.buttons & SCButtons.LPADTOUCH))):
                     if mode is Modes.CALLBACK:
                         ev(self, btn, False)
                     else:
