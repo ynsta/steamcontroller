@@ -487,7 +487,7 @@ class EventMapper(object):
 
     def setButtonAction(self, btn, key_event, mode = None):
         if(key_event == None and btn in self._btn_map):
-            del self._btn_map[btn]
+            self._btn_map[btn] = (None, 0)
             return
 
         if(mode != None):
