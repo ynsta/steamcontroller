@@ -100,7 +100,6 @@ class EventMapper(object):
         self._stick_mode = StickModes.NOACTION
         self._stick_evts = [(None, 0)]*2
         self._stick_rev = False
-        self._stick_click = (None, 0)
 
         self._sci_prev = SCI_NULL
 
@@ -467,16 +466,9 @@ class EventMapper(object):
                 elif self._stick_rxs is not None and x <= self._stick_rxs:
                     self._stick_rxs = None
                     _keyreleased(rmode, rev)
-            if(self._stick_pressed_callback is not None):
-                if(sci.buttons & SCButtons.LPAD == SCButtons.LPAD):
+            if sci.buttons & SCButtons.LPAD == SCButtons.LPAD:
+                if self._stick_pressed_callback is not None:
                     self._stick_pressed_callback(self)
-            if(self._stick_click[0] != None):
-                mode, ev = self._stick_click
-                pad_mask = (SCButtons.LPAD | SCButtons.LPADTOUCH)
-                if(btn_add & pad_mask == SCButtons.LPAD):
-                    _keypressed(mode, ev)
-                elif(btn_rem & pad_mask == SCButtons.LPAD):
-                    _keyreleased(mode, ev)
         # }}}
 
         if len(_pressed):
