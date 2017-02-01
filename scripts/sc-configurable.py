@@ -211,14 +211,31 @@ def set_trigger_config(evm, pos, config): # {{{
 		evm.setTrigButton(pos, config['buttons']['click'])
 # }}}
 
+def get_keys_from_config(config): # {{{
+	buttons = []
+	for group in config.values():
+		for mode in group.values():
+			if('buttons' in mode):
+				for button in mode['buttons'].values():
+					if(button != None):
+						buttons.append(button)
+	buttons = list(set(buttons))
+	return buttons
+# }}}
+
 def evminit(config_file_path):
-	# TODO:  Dynamic gamepad definition for keys/axes based on config
+	vdf = load_vdf(config_file_path)
+	config = parse_config(vdf)
+
+	keys = get_keys_from_config(config)
+
+	# TODO:  Dynamic gamepad definition for axes based on config
 	evm = EventMapper(gamepad_definition = {
 		'vendor' : 0x28de,
 		'product' : 0x1142,
 		'version' : 0x1,
 		'name' : b"Steam Controller",
-		'keys' : Scans.keys(),
+		'keys' : keys,
 		'axes' : [
 			(Axes.ABS_X, -32768, 32767, 16, 128),
 			(Axes.ABS_Y, -32768, 32767, 16, 128),
@@ -231,8 +248,6 @@ def evminit(config_file_path):
 		],
 		'rels' : []
 	})
-	vdf = load_vdf(config_file_path)
-	config = parse_config(vdf)
 
 	if('active' in config['left_trackpad']):
 		set_trackpad_config(evm, Pos.LEFT, config['left_trackpad']['active'])
