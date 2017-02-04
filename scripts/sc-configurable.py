@@ -208,7 +208,7 @@ def set_trackpad_config(evm, pos, config): # {{{
 
 def set_trigger_config(evm, pos, config): # {{{
 	if(config['mode'] == TrigModes.BUTTON):
-		evm.setTrigButton(pos, config['buttons']['click'])
+		evm.setTrigButton(pos, config['buttons']['click'], Modes.GAMEPAD)
 # }}}
 
 def get_keys_from_config(config): # {{{
@@ -260,7 +260,7 @@ def evminit(config_file_path):
 	if('active' in config['joystick']):
 		group = config['joystick']['active']
 		if(group['mode'] == PadModes.BUTTONCLICK):
-			evm.setStickButtons([group['buttons']['north'], group['buttons']['west'], group['buttons']['south'], group['buttons']['east']])
+			evm.setStickButtons([group['buttons']['north'], group['buttons']['west'], group['buttons']['south'], group['buttons']['east']], Modes.GAMEPAD)
 			if('click' in group['buttons'] and group['buttons']['click'] != None):
 				evm.setButtonAction(SCButtons.LPAD, group['buttons']['click'], Modes.GAMEPAD)
 		print('--- Joystick configured')
