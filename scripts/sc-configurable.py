@@ -26,7 +26,7 @@
 """Steam Controller VDF-configurable mode"""
 
 from steamcontroller import SteamController, SCButtons
-from steamcontroller.events import EventMapper, PadModes, Pos, TrigModes
+from steamcontroller.events import EventMapper, Modes, PadModes, Pos, TrigModes
 from steamcontroller.uinput import Axes, Keys, Scans
 
 from steamcontroller.daemon import Daemon
@@ -195,11 +195,11 @@ def set_trackpad_config(evm, pos, config): # {{{
 	button = SCButtons.RPAD if pos == Pos.RIGHT else SCButtons.LPAD
 	if(config['mode'] == PadModes.MOUSE):
 		evm.setPadMouse(pos)
-		evm.setButtonAction(button, config['buttons']['click'])
+		evm.setButtonAction(button, config['buttons']['click'], Modes.GAMEPAD)
 	elif(config['mode'] == PadModes.MOUSESCROLL):
 		# TODO:  Support configuration for scroll directions
 		evm.setPadScroll(pos)
-		evm.setButtonAction(button, config['buttons']['click'])
+		evm.setButtonAction(button, config['buttons']['click'], Modes.GAMEPAD)
 	elif(config['mode'] == PadModes.BUTTONCLICK):
 		# TODO:  Configurable whether or not click is required?
 		buttons = config['buttons']
@@ -262,25 +262,25 @@ def evminit(config_file_path):
 		if(group['mode'] == PadModes.BUTTONCLICK):
 			evm.setStickButtons([group['buttons']['north'], group['buttons']['west'], group['buttons']['south'], group['buttons']['east']])
 			if('click' in group['buttons'] and group['buttons']['click'] != None):
-				evm.setButtonAction(SCButtons.LPAD, group['buttons']['click'])
+				evm.setButtonAction(SCButtons.LPAD, group['buttons']['click'], Modes.GAMEPAD)
 		print('--- Joystick configured')
 
 	if('active' in config['button_diamond']):
 		group = config['button_diamond']['active']
-		evm.setButtonAction(SCButtons.A, group['buttons']['a'])
-		evm.setButtonAction(SCButtons.B, group['buttons']['b'])
-		evm.setButtonAction(SCButtons.X, group['buttons']['x'])
-		evm.setButtonAction(SCButtons.Y, group['buttons']['y'])
+		evm.setButtonAction(SCButtons.A, group['buttons']['a'], Modes.GAMEPAD)
+		evm.setButtonAction(SCButtons.B, group['buttons']['b'], Modes.GAMEPAD)
+		evm.setButtonAction(SCButtons.X, group['buttons']['x'], Modes.GAMEPAD)
+		evm.setButtonAction(SCButtons.Y, group['buttons']['y'], Modes.GAMEPAD)
 		print('--- Button diamond configured')
 
 	if('active' in config['switch']):
 		group = config['switch']['active']
-		evm.setButtonAction(SCButtons.LB, group['buttons']['left_bumper'])
-		evm.setButtonAction(SCButtons.RB, group['buttons']['right_bumper'])
-		evm.setButtonAction(SCButtons.START, group['buttons']['start'])
-		evm.setButtonAction(SCButtons.BACK, group['buttons']['back'])
-		evm.setButtonAction(SCButtons.LGRIP, group['buttons']['left_grip'])
-		evm.setButtonAction(SCButtons.RGRIP, group['buttons']['right_grip'])
+		evm.setButtonAction(SCButtons.LB, group['buttons']['left_bumper'], Modes.GAMEPAD)
+		evm.setButtonAction(SCButtons.RB, group['buttons']['right_bumper'], Modes.GAMEPAD)
+		evm.setButtonAction(SCButtons.START, group['buttons']['start'], Modes.GAMEPAD)
+		evm.setButtonAction(SCButtons.BACK, group['buttons']['back'], Modes.GAMEPAD)
+		evm.setButtonAction(SCButtons.LGRIP, group['buttons']['left_grip'], Modes.GAMEPAD)
+		evm.setButtonAction(SCButtons.RGRIP, group['buttons']['right_grip'], Modes.GAMEPAD)
 		print('--- Switches configured')
 
 	if('active' in config['left_trigger']):
@@ -293,7 +293,7 @@ def evminit(config_file_path):
 
 	# This cannot be configured from the Steam UI.  Should we extend that file
 	#    to support configuring it?
-	evm.setButtonAction(SCButtons.STEAM, Keys.KEY_HOMEPAGE)
+	evm.setButtonAction(SCButtons.STEAM, Keys.KEY_HOMEPAGE, Modes.GAMEPAD)
 
 	return evm
 
