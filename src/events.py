@@ -512,7 +512,7 @@ class EventMapper(object):
         self._btn_map[btn] = (Modes.CALLBACK, callback)
 
 
-    def setPadButtons(self, pos, key_events, deadzone=0.6, clicked=False):
+    def setPadButtons(self, pos, key_events, deadzone=0.6, clicked=False, mode = None):
         """
         Set pad as buttons
 
@@ -529,10 +529,13 @@ class EventMapper(object):
 
         self._pad_evts[pos] = []
         for ev in key_events:
-            for mode in Modes:
-                if self._uip[mode].keyManaged(ev):
-                    self._pad_evts[pos].append((mode, ev))
-                    break
+            if(mode != None):
+                self._pad_evts[pos].append((mode, ev))
+            else:
+                for mode in self._uip.keys():
+                    if self._uip[mode].keyManaged(ev):
+                        self._pad_evts[pos].append((mode, ev))
+                        break
 
         self._pad_dzones[pos] = 32768 * deadzone
 
