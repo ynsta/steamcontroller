@@ -82,10 +82,14 @@ class EventMapper(object):
     callback to be registered to a SteamController instance
     """
 
-    def __init__(self, gamepad_definition = None):
-        self._uip = (sui.Gamepad(gamepad_definition),
-                     sui.Keyboard(),
-                     sui.Mouse())
+    def __init__(self, gamepad_definition = None, modes = [Modes.GAMEPAD, Modes.MOUSE, Modes.KEYBOARD]):
+        self._uip = {}
+        if(Modes.GAMEPAD in modes):
+            self._uip[Modes.GAMEPAD] = sui.Gamepad(gamepad_definition)
+        if(Modes.KEYBOARD in modes):
+            self._uip[Modes.KEYBOARD] = sui.Keyboard()
+        if(Modes.MOUSE in modes):
+            self._uip[Modes.MOUSE] = sui.Mouse()
 
         self._btn_map = {x : (None, 0) for x in list(SCButtons)}
 
@@ -494,7 +498,7 @@ class EventMapper(object):
             self._btn_map[btn] = (mode, key_event)
             return
 
-        for mode in Modes:
+        for mode in self._uip.keys():
             if self._uip[mode].keyManaged(key_event):
                 self._btn_map[btn] = (mode, key_event)
                 return
@@ -634,7 +638,7 @@ class EventMapper(object):
             self._trig_evts[pos] = (mode, key_event)
             return
 
-        for mode in Modes:
+        for mode in self._uip.keys():
             if self._uip[mode].keyManaged(key_event):
                 self._trig_evts[pos] = (mode, key_event)
                 return
@@ -679,7 +683,7 @@ class EventMapper(object):
             if(mode != None):
                 self._stick_evts.append((mode, ev))
             else:
-                for mode in Modes:
+                for mode in self._uip.keys():
                     if self._uip[mode].keyManaged(ev):
                         self._stick_evts.append((mode, ev))
                         break
