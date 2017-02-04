@@ -619,8 +619,18 @@ class EventMapper(object):
                                (Modes.GAMEPAD, abs_y_event)]
         self._pad_revs[pos] = revert
 
-    def setTrigButton(self, pos, key_event):
+    def setTrigButton(self, pos, key_event, mode = None):
+        if(key_event == None):
+            self._trig_evts[pos] = (None, 0)
+            self._trig_modes[pos] = TrigModes.NOACTION
+            return
+
         self._trig_modes[pos] = TrigModes.BUTTON
+
+        if(mode != None):
+            self._trig_evts[pos] = (mode, key_event)
+            return
+
         for mode in Modes:
             if self._uip[mode].keyManaged(key_event):
                 self._trig_evts[pos] = (mode, key_event)
@@ -650,7 +660,7 @@ class EventMapper(object):
         self._stick_axes_callback = callback
 
 
-    def setStickButtons(self, key_events):
+    def setStickButtons(self, key_events, mode = None):
         """
         Set stick as buttons
 
@@ -663,10 +673,13 @@ class EventMapper(object):
 
         self._stick_evts = []
         for ev in key_events:
-            for mode in Modes:
-                if self._uip[mode].keyManaged(ev):
-                    self._stick_evts.append((mode, ev))
-                    break
+            if(mode != None):
+                self._stick_evts.append((mode, ev))
+            else:
+                for mode in Modes:
+                    if self._uip[mode].keyManaged(ev):
+                        self._stick_evts.append((mode, ev))
+                        break
 
     def setStickPressedCallback(self, callback):
         """
