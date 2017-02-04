@@ -203,7 +203,7 @@ def set_trackpad_config(evm, pos, config): # {{{
 	elif(config['mode'] == PadModes.BUTTONCLICK):
 		# TODO:  Configurable whether or not click is required?
 		buttons = config['buttons']
-		evm.setPadButtons(pos, [buttons['north'], buttons['west'], buttons['south'], buttons['east']], clicked = True)
+		evm.setPadButtons(pos, [buttons['north'], buttons['west'], buttons['south'], buttons['east']], clicked = True, mode = Modes.GAMEPAD)
 # }}}
 
 def set_trigger_config(evm, pos, config): # {{{
