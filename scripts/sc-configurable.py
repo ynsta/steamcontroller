@@ -227,11 +227,31 @@ def get_keys_from_config(config): # {{{
 	return buttons
 # }}}
 
+def get_modes_from_config(config): # {{{
+	modes = set()
+	for group in config.values():
+		for mode in group.values():
+			if('buttons' in mode):
+				modes.add(Modes.GAMEPAD)
+				break
+		if(Modes.GAMEPAD in modes):
+			break
+	for group in ['left_trackpad', 'right_trackpad']:
+		for mode in config[group].values():
+			if(mode['mode'] == PadModes.MOUSE):
+				modes.add(Modes.MOUSE)
+				break
+		if(Modes.MOUSE in modes):
+			break
+	return list(modes)
+# }}}
+
 def evminit(config_file_path):
 	vdf = load_vdf(config_file_path)
 	config = parse_config(vdf)
 
 	keys = get_keys_from_config(config)
+	modes = get_modes_from_config(config)
 
 	# TODO:  Dynamic gamepad definition for axes based on config
 	evm = EventMapper(gamepad_definition = {
@@ -251,7 +271,7 @@ def evminit(config_file_path):
 			(Axes.ABS_HAT1Y, -1, 1, 0, 0)
 		],
 		'rels' : []
-	}, modes = [Modes.GAMEPAD, Modes.MOUSE])
+	}, modes = modes)
 
 	if('active' in config['left_trackpad']):
 		set_trackpad_config(evm, Pos.LEFT, config['left_trackpad']['active'])
