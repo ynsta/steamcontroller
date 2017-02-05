@@ -89,7 +89,11 @@ def get_binding(group_inputs, input_name, activator): # {{{
 		if(binding[1] == 'PERIOD'):
 			binding[1] = 'DOT'
 
-		return Keys.__getattr__('KEY_' + binding[1])
+		# Holy crap, the hacks don't get much uglier than this.  Add 0x100 to
+		#    all KEY_ constants, because the keyboard ends at 0xff and that
+		#    seems to make the uinput subsystem happy about considering this
+		#    to be a gamepad/joystick.
+		return Keys.__getattr__('KEY_' + binding[1]) + 0x100
 	elif(binding[0] == 'mouse_wheel'):
 		# TODO:  Figure out if we actually need this; if so, add support
 		return None
