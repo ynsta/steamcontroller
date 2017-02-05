@@ -227,6 +227,11 @@ def get_keys_from_config(config): # {{{
 	return buttons
 # }}}
 
+def get_axes_from_config(config): # {{{
+	# TODO:  Implement this
+	return []
+# }}}
+
 def get_modes_from_config(config): # {{{
 	modes = set()
 	for group in config.values():
@@ -251,25 +256,16 @@ def evminit(config_file_path):
 	config = parse_config(vdf)
 
 	keys = get_keys_from_config(config)
+	axes = get_axes_from_config(config)
 	modes = get_modes_from_config(config)
 
-	# TODO:  Dynamic gamepad definition for axes based on config
 	evm = EventMapper(gamepad_definition = {
 		'vendor' : 0x28de,
 		'product' : 0x1142,
 		'version' : 0x1,
 		'name' : b"Steam Controller",
 		'keys' : keys,
-		'axes' : [
-			(Axes.ABS_X, -32768, 32767, 16, 128),
-			(Axes.ABS_Y, -32768, 32767, 16, 128),
-			(Axes.ABS_Z, 0, 255, 0, 0),
-			(Axes.ABS_RZ, 0, 255, 0, 0),
-			(Axes.ABS_HAT0X, -1, 1, 0, 0),
-			(Axes.ABS_HAT0Y, -1, 1, 0, 0),
-			(Axes.ABS_HAT1X, -1, 1, 0, 0),
-			(Axes.ABS_HAT1Y, -1, 1, 0, 0)
-		],
+		'axes' : axes,
 		'rels' : []
 	}, modes = modes)
 
