@@ -33,6 +33,7 @@ from steamcontroller.daemon import Daemon
 
 import gc
 import json
+import os
 
 import vdf2json
 
@@ -263,7 +264,7 @@ def evminit(config_file_path):
 		'vendor' : 0x28de,
 		'product' : 0x1142,
 		'version' : 0x1,
-		'name' : b"Steam Controller",
+		'name' : b"Steam Controller [" + bytes(os.path.basename(config_file_path), 'utf-8') + b']',
 		'keys' : keys,
 		'axes' : axes,
 		'rels' : []
