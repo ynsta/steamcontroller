@@ -247,7 +247,7 @@ def evminit(config_file_path):
 			(Axes.ABS_HAT1Y, -1, 1, 0, 0)
 		],
 		'rels' : []
-	})
+	}, modes = [Modes.GAMEPAD, Modes.MOUSE])
 
 	if('active' in config['left_trackpad']):
 		set_trackpad_config(evm, Pos.LEFT, config['left_trackpad']['active'])
