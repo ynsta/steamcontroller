@@ -196,26 +196,6 @@ def parse_config(config): # {{{
 	return output_config
 # }}}
 
-def set_trackpad_config(evm, pos, config): # {{{
-	button = SCButtons.RPAD if pos == Pos.RIGHT else SCButtons.LPAD
-	if(config['mode'] == PadModes.MOUSE):
-		evm.setPadMouse(pos)
-		evm.setButtonAction(button, config['buttons']['click'], Modes.GAMEPAD)
-	elif(config['mode'] == PadModes.MOUSESCROLL):
-		# TODO:  Support configuration for scroll directions
-		evm.setPadScroll(pos)
-		evm.setButtonAction(button, config['buttons']['click'], Modes.GAMEPAD)
-	elif(config['mode'] == PadModes.BUTTONCLICK):
-		# TODO:  Configurable whether or not click is required?
-		buttons = config['buttons']
-		evm.setPadButtons(pos, [buttons['north'], buttons['west'], buttons['south'], buttons['east']], clicked = True, mode = Modes.GAMEPAD)
-# }}}
-
-def set_trigger_config(evm, pos, config): # {{{
-	if(config['mode'] == TrigModes.BUTTON):
-		evm.setTrigButton(pos, config['buttons']['click'], Modes.GAMEPAD)
-# }}}
-
 def get_keys_from_config(config): # {{{
 	buttons = []
 	for group in config.values():
@@ -250,6 +230,26 @@ def get_modes_from_config(config): # {{{
 		if(Modes.MOUSE in modes):
 			break
 	return list(modes)
+# }}}
+
+def set_trackpad_config(evm, pos, config): # {{{
+	button = SCButtons.RPAD if pos == Pos.RIGHT else SCButtons.LPAD
+	if(config['mode'] == PadModes.MOUSE):
+		evm.setPadMouse(pos)
+		evm.setButtonAction(button, config['buttons']['click'], Modes.GAMEPAD)
+	elif(config['mode'] == PadModes.MOUSESCROLL):
+		# TODO:  Support configuration for scroll directions
+		evm.setPadScroll(pos)
+		evm.setButtonAction(button, config['buttons']['click'], Modes.GAMEPAD)
+	elif(config['mode'] == PadModes.BUTTONCLICK):
+		# TODO:  Configurable whether or not click is required?
+		buttons = config['buttons']
+		evm.setPadButtons(pos, [buttons['north'], buttons['west'], buttons['south'], buttons['east']], clicked = True, mode = Modes.GAMEPAD)
+# }}}
+
+def set_trigger_config(evm, pos, config): # {{{
+	if(config['mode'] == TrigModes.BUTTON):
+		evm.setTrigButton(pos, config['buttons']['click'], Modes.GAMEPAD)
 # }}}
 
 def evminit(config_file_path):
