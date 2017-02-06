@@ -104,7 +104,26 @@ def get_binding(group_inputs, input_name, activator): # {{{
 	return None
 # }}}
 
-def parse_analog_config(group): # {{{
+def parse_trackpad_config(group): # {{{
+	config = {}
+	if(group['mode'] == 'absolute_mouse'):
+		config['mode'] = PadModes.MOUSE
+		config['buttons'] = {'click' : get_binding(group['inputs'], 'click', 'Full_Press')}
+	elif(group['mode'] == 'scrollwheel'):
+		config['mode'] = PadModes.MOUSESCROLL
+		config['buttons'] = {'click' : get_binding(group['inputs'], 'click', 'Full_Press')}
+	elif(group['mode'] == 'dpad'):
+		config['mode'] = PadModes.BUTTONCLICK
+		config['buttons'] = {
+			'north' : get_binding(group['inputs'], 'dpad_north', 'Full_Press'),
+			'west' : get_binding(group['inputs'], 'dpad_west', 'Full_Press'),
+			'south' : get_binding(group['inputs'], 'dpad_south', 'Full_Press'),
+			'east' : get_binding(group['inputs'], 'dpad_east', 'Full_Press')
+		}
+	return config
+# }}}
+
+def parse_joystick_config(group): # {{{
 	config = {}
 	if(group['mode'] == 'absolute_mouse'):
 		config['mode'] = PadModes.MOUSE
@@ -148,16 +167,16 @@ def parse_config(config): # {{{
 	}
 
 	if('left_trackpad active' in bindings):
-		output_config['left_trackpad']['active'] = parse_analog_config(groups[bindings['left_trackpad active']])
+		output_config['left_trackpad']['active'] = parse_trackpad_config(groups[bindings['left_trackpad active']])
 		print('--- Left trackpad (active) loaded')
 
 	if('right_trackpad active' in bindings):
-		output_config['right_trackpad']['active'] = parse_analog_config(groups[bindings['right_trackpad active']])
+		output_config['right_trackpad']['active'] = parse_trackpad_config(groups[bindings['right_trackpad active']])
 		print('--- Right trackpad (active) loaded')
 
 	if('joystick active' in bindings):
 		group = groups[bindings['joystick active']]
-		output_config['joystick']['active'] = parse_analog_config(group)
+		output_config['joystick']['active'] = parse_joystick_config(group)
 		output_config['joystick']['active']['buttons']['click'] = get_binding(group['inputs'], 'click', 'Full_Press')
 		print('--- Joystick (active) loaded')
 
