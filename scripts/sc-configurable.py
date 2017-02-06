@@ -125,19 +125,28 @@ def parse_trackpad_config(group): # {{{
 
 def parse_joystick_config(group): # {{{
 	config = {}
-	if(group['mode'] == 'absolute_mouse'):
-		config['mode'] = PadModes.MOUSE
-		config['buttons'] = {'click' : get_binding(group['inputs'], 'click', 'Full_Press')}
+	if(group['mode'] == 'joystick_mouse'):
+		config['mode'] = StickModes.AXIS
+		if('click' in group['inputs']):
+			config['buttons'] = {'click' : get_binding(group['inputs'], 'click', 'Full_Press')}
 	elif(group['mode'] == 'scrollwheel'):
-		config['mode'] = PadModes.MOUSESCROLL
-		config['buttons'] = {'click' : get_binding(group['inputs'], 'click', 'Full_Press')}
+		# TODO:  Implement
+		pass
 	elif(group['mode'] == 'dpad'):
-		config['mode'] = PadModes.BUTTONCLICK
+		config['mode'] = StickModes.BUTTON
 		config['buttons'] = {
 			'north' : get_binding(group['inputs'], 'dpad_north', 'Full_Press'),
 			'west' : get_binding(group['inputs'], 'dpad_west', 'Full_Press'),
 			'south' : get_binding(group['inputs'], 'dpad_south', 'Full_Press'),
 			'east' : get_binding(group['inputs'], 'dpad_east', 'Full_Press')
+		}
+	elif(group['mode'] == 'buttons'):
+		config['mode'] = StickModes.BUTTON
+		config['buttons'] = {
+			'north' : get_binding(group['inputs'], 'button_y', 'Full_Press'),
+			'west' : get_binding(group['inputs'], 'button_x', 'Full_Press'),
+			'south' : get_binding(group['inputs'], 'button_b', 'Full_Press'),
+			'east' : get_binding(group['inputs'], 'button_a', 'Full_Press')
 		}
 	return config
 # }}}
