@@ -104,6 +104,24 @@ def get_binding(group_inputs, input_name, activator): # {{{
 	return None
 # }}}
 
+def get_dpad_inputs(group): # {{{
+	return {
+		'north' : get_binding(group, 'dpad_north', 'Full_Press'),
+		'west' : get_binding(group, 'dpad_west', 'Full_Press'),
+		'south' : get_binding(group, 'dpad_south', 'Full_Press'),
+		'east' : get_binding(group, 'dpad_east', 'Full_Press')
+	}
+# }}}
+
+def get_diamond_inputs(group): # {{{
+	return {
+		'north' : get_binding(group, 'button_y', 'Full_Press'),
+		'west' : get_binding(group, 'button_x', 'Full_Press'),
+		'south' : get_binding(group, 'button_b', 'Full_Press'),
+		'east' : get_binding(group, 'button_a', 'Full_Press')
+	}
+# }}}
+
 def parse_trackpad_config(group): # {{{
 	config = {}
 	if(group['mode'] == 'absolute_mouse'):
@@ -114,12 +132,10 @@ def parse_trackpad_config(group): # {{{
 		config['buttons'] = {'click' : get_binding(group['inputs'], 'click', 'Full_Press')}
 	elif(group['mode'] == 'dpad'):
 		config['mode'] = PadModes.BUTTONCLICK
-		config['buttons'] = {
-			'north' : get_binding(group['inputs'], 'dpad_north', 'Full_Press'),
-			'west' : get_binding(group['inputs'], 'dpad_west', 'Full_Press'),
-			'south' : get_binding(group['inputs'], 'dpad_south', 'Full_Press'),
-			'east' : get_binding(group['inputs'], 'dpad_east', 'Full_Press')
-		}
+		config['buttons'] = get_dpad_inputs(group['inputs'])
+	elif(group['mode'] == 'buttons'):
+		config['mode'] = PadModes.BUTTONCLICK
+		config['buttons'] = get_diamond_inputs(group['inputs'])
 	return config
 # }}}
 
@@ -134,20 +150,10 @@ def parse_joystick_config(group): # {{{
 		pass
 	elif(group['mode'] == 'dpad'):
 		config['mode'] = StickModes.BUTTON
-		config['buttons'] = {
-			'north' : get_binding(group['inputs'], 'dpad_north', 'Full_Press'),
-			'west' : get_binding(group['inputs'], 'dpad_west', 'Full_Press'),
-			'south' : get_binding(group['inputs'], 'dpad_south', 'Full_Press'),
-			'east' : get_binding(group['inputs'], 'dpad_east', 'Full_Press')
-		}
+		config['buttons'] = get_dpad_inputs(group['inputs'])
 	elif(group['mode'] == 'buttons'):
 		config['mode'] = StickModes.BUTTON
-		config['buttons'] = {
-			'north' : get_binding(group['inputs'], 'button_y', 'Full_Press'),
-			'west' : get_binding(group['inputs'], 'button_x', 'Full_Press'),
-			'south' : get_binding(group['inputs'], 'button_b', 'Full_Press'),
-			'east' : get_binding(group['inputs'], 'button_a', 'Full_Press')
-		}
+		config['buttons'] = get_diamond_inputs(group['inputs'])
 	return config
 # }}}
 
