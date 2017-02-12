@@ -301,6 +301,31 @@ def set_trackpad_config(evm, pos, config): # {{{
 		evm.setButtonAction(button, config['buttons']['click'], Modes.GAMEPAD)
 # }}}
 
+def set_joystick_config(evm, config): # {{{
+	if(config['mode'] == StickModes.BUTTON):
+		evm.setStickButtons([config['buttons']['north'], config['buttons']['west'], config['buttons']['south'], config['buttons']['east']], Modes.GAMEPAD)
+		if('click' in config['buttons'] and config['buttons']['click'] != None):
+			evm.setButtonAction(SCButtons.LPAD, config['buttons']['click'], Modes.GAMEPAD)
+	elif(config['mode'] == StickModes.AXIS):
+		evm.setStickAxes(*[axis[0] for axis in config['axes']])
+# }}}
+
+def set_diamond_config(evm, config): # {{{
+	evm.setButtonAction(SCButtons.A, config['buttons']['a'], Modes.GAMEPAD)
+	evm.setButtonAction(SCButtons.B, config['buttons']['b'], Modes.GAMEPAD)
+	evm.setButtonAction(SCButtons.X, config['buttons']['x'], Modes.GAMEPAD)
+	evm.setButtonAction(SCButtons.Y, config['buttons']['y'], Modes.GAMEPAD)
+# }}}
+
+def set_switches_config(evm, config): # {{{
+	evm.setButtonAction(SCButtons.LB, config['buttons']['left_bumper'], Modes.GAMEPAD)
+	evm.setButtonAction(SCButtons.RB, config['buttons']['right_bumper'], Modes.GAMEPAD)
+	evm.setButtonAction(SCButtons.START, config['buttons']['start'], Modes.GAMEPAD)
+	evm.setButtonAction(SCButtons.BACK, config['buttons']['back'], Modes.GAMEPAD)
+	evm.setButtonAction(SCButtons.LGRIP, config['buttons']['left_grip'], Modes.GAMEPAD)
+	evm.setButtonAction(SCButtons.RGRIP, config['buttons']['right_grip'], Modes.GAMEPAD)
+# }}}
+
 def set_trigger_config(evm, pos, config): # {{{
 	if(config['mode'] == TrigModes.BUTTON):
 		evm.setTrigButton(pos, config['buttons']['click'], Modes.GAMEPAD)
@@ -333,31 +358,15 @@ def evminit(config_file_path):
 		print('--- Right trackpad configured')
 
 	if('active' in config['joystick']):
-		group = config['joystick']['active']
-		if(group['mode'] == StickModes.BUTTON):
-			evm.setStickButtons([group['buttons']['north'], group['buttons']['west'], group['buttons']['south'], group['buttons']['east']], Modes.GAMEPAD)
-			if('click' in group['buttons'] and group['buttons']['click'] != None):
-				evm.setButtonAction(SCButtons.LPAD, group['buttons']['click'], Modes.GAMEPAD)
-		elif(group['mode'] == StickModes.AXIS):
-			evm.setStickAxes(*[axis[0] for axis in group['axes']])
+		set_joystick_config(evm, config['joystick']['active'])
 		print('--- Joystick configured')
 
 	if('active' in config['button_diamond']):
-		group = config['button_diamond']['active']
-		evm.setButtonAction(SCButtons.A, group['buttons']['a'], Modes.GAMEPAD)
-		evm.setButtonAction(SCButtons.B, group['buttons']['b'], Modes.GAMEPAD)
-		evm.setButtonAction(SCButtons.X, group['buttons']['x'], Modes.GAMEPAD)
-		evm.setButtonAction(SCButtons.Y, group['buttons']['y'], Modes.GAMEPAD)
+		set_diamond_config(evm, config['button_diamond']['active'])
 		print('--- Button diamond configured')
 
 	if('active' in config['switch']):
-		group = config['switch']['active']
-		evm.setButtonAction(SCButtons.LB, group['buttons']['left_bumper'], Modes.GAMEPAD)
-		evm.setButtonAction(SCButtons.RB, group['buttons']['right_bumper'], Modes.GAMEPAD)
-		evm.setButtonAction(SCButtons.START, group['buttons']['start'], Modes.GAMEPAD)
-		evm.setButtonAction(SCButtons.BACK, group['buttons']['back'], Modes.GAMEPAD)
-		evm.setButtonAction(SCButtons.LGRIP, group['buttons']['left_grip'], Modes.GAMEPAD)
-		evm.setButtonAction(SCButtons.RGRIP, group['buttons']['right_grip'], Modes.GAMEPAD)
+		set_switches_config(evm, config['switch']['active'])
 		print('--- Switches configured')
 
 	if('active' in config['left_trigger']):
