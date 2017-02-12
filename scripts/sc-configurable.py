@@ -26,7 +26,7 @@
 """Steam Controller VDF-configurable mode"""
 
 from steamcontroller import SteamController, SCButtons
-from steamcontroller.events import EventMapper, Modes, PadModes, Pos, TrigModes
+from steamcontroller.events import EventMapper, Modes, StickModes, PadModes, Pos, TrigModes
 from steamcontroller.uinput import Axes, Keys, Scans
 
 from steamcontroller.daemon import Daemon
@@ -314,7 +314,7 @@ def evminit(config_file_path):
 
 	if('active' in config['joystick']):
 		group = config['joystick']['active']
-		if(group['mode'] == PadModes.BUTTONCLICK):
+		if(group['mode'] == StickModes.BUTTON):
 			evm.setStickButtons([group['buttons']['north'], group['buttons']['west'], group['buttons']['south'], group['buttons']['east']], Modes.GAMEPAD)
 			if('click' in group['buttons'] and group['buttons']['click'] != None):
 				evm.setButtonAction(SCButtons.LPAD, group['buttons']['click'], Modes.GAMEPAD)
