@@ -35,6 +35,7 @@ class SCDaemon(Daemon):
 	def __init__(self, pidfile, config_file):
 		self.pidfile = pidfile
 		self.config_file = config_file
+		self.logfile = '/var/log/steam-controller.log'
 
 	def run(self):
 		config = Configurator('Steam Controller', self.config_file)
