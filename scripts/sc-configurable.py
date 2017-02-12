@@ -122,11 +122,15 @@ def get_diamond_inputs(group): # {{{
 	}
 # }}}
 
-def parse_trackpad_config(group): # {{{
+def parse_trackpad_config(group, pos): # {{{
 	config = {}
 	if(group['mode'] == 'absolute_mouse'):
 		config['mode'] = PadModes.MOUSE
 		config['buttons'] = {'click' : get_binding(group['inputs'], 'click', 'Full_Press')}
+	elif(group['mode'] == 'mouse_region'):
+		# TODO:  Implement
+		config['mode'] = PadModes.NOACTION
+		pass
 	elif(group['mode'] == 'scrollwheel'):
 		config['mode'] = PadModes.MOUSESCROLL
 		config['buttons'] = {'click' : get_binding(group['inputs'], 'click', 'Full_Press')}
@@ -136,6 +140,11 @@ def parse_trackpad_config(group): # {{{
 	elif(group['mode'] == 'buttons'):
 		config['mode'] = PadModes.BUTTONCLICK
 		config['buttons'] = get_diamond_inputs(group['inputs'])
+	elif(group['mode'] == 'mouse_joystick'):
+		config['mode'] = PadModes.AXIS
+		config['buttons'] = {'click' : get_binding(group['inputs'], 'click', 'Full_Press')}
+		axes = [Axes.ABS_HAT0X, Axes.ABS_HAT0Y] if pos == Pos.LEFT else [Axes.ABS_HAT1X, Axes.ABS_HAT1Y]
+		config['axes'] = [(axis, -1, 1, 0, 0) for axis in axes]
 	return config
 # }}}
 
@@ -143,10 +152,11 @@ def parse_joystick_config(group): # {{{
 	config = {}
 	if(group['mode'] == 'joystick_mouse'):
 		config['mode'] = StickModes.AXIS
-		if('click' in group['inputs']):
-			config['buttons'] = {'click' : get_binding(group['inputs'], 'click', 'Full_Press')}
+		config['buttons'] = {'click' : get_binding(group['inputs'], 'click', 'Full_Press')}
+		config['axes'] = [(axis, -32768, 32767, 16, 128) for axis in [Axes.ABS_X, Axes.ABS_Y]]
 	elif(group['mode'] == 'scrollwheel'):
 		# TODO:  Implement
+		config['mode'] = StickModes.NOACTION
 		pass
 	elif(group['mode'] == 'dpad'):
 		config['mode'] = StickModes.BUTTON
@@ -182,11 +192,11 @@ def parse_config(config): # {{{
 	}
 
 	if('left_trackpad active' in bindings):
-		output_config['left_trackpad']['active'] = parse_trackpad_config(groups[bindings['left_trackpad active']])
+		output_config['left_trackpad']['active'] = parse_trackpad_config(groups[bindings['left_trackpad active']], Pos.LEFT)
 		print('--- Left trackpad (active) loaded')
 
 	if('right_trackpad active' in bindings):
-		output_config['right_trackpad']['active'] = parse_trackpad_config(groups[bindings['right_trackpad active']])
+		output_config['right_trackpad']['active'] = parse_trackpad_config(groups[bindings['right_trackpad active']], Pos.RIGHT)
 		print('--- Right trackpad (active) loaded')
 
 	if('joystick active' in bindings):
@@ -243,8 +253,15 @@ def get_keys_from_config(config): # {{{
 # }}}
 
 def get_axes_from_config(config): # {{{
-	# TODO:  Implement this
-	return []
+	axes = []
+	for group in config.values():
+		for mode in group.values():
+			if('axes' in mode):
+				for axis in mode['axes']:
+					if(axis != None):
+						axes.append(axis)
+	axes = list(set(axes))
+	return axes
 # }}}
 
 def get_modes_from_config(config): # {{{
@@ -279,6 +296,9 @@ def set_trackpad_config(evm, pos, config): # {{{
 		# TODO:  Configurable whether or not click is required?
 		buttons = config['buttons']
 		evm.setPadButtons(pos, [buttons['north'], buttons['west'], buttons['south'], buttons['east']], clicked = True, mode = Modes.GAMEPAD)
+	elif(config['mode'] == PadModes.AXIS):
+		evm.setPadAxes(pos, *[axis[0] for axis in config['axes']])
+		evm.setButtonAction(button, config['buttons']['click'], Modes.GAMEPAD)
 # }}}
 
 def set_trigger_config(evm, pos, config): # {{{
@@ -318,6 +338,8 @@ def evminit(config_file_path):
 			evm.setStickButtons([group['buttons']['north'], group['buttons']['west'], group['buttons']['south'], group['buttons']['east']], Modes.GAMEPAD)
 			if('click' in group['buttons'] and group['buttons']['click'] != None):
 				evm.setButtonAction(SCButtons.LPAD, group['buttons']['click'], Modes.GAMEPAD)
+		elif(group['mode'] == StickModes.AXIS):
+			evm.setStickAxes(*[axis[0] for axis in group['axes']])
 		print('--- Joystick configured')
 
 	if('active' in config['button_diamond']):
