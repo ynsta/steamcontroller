@@ -89,6 +89,12 @@ def get_binding(group_inputs, input_name, activator): # {{{
 
 		if(binding[1] == 'PERIOD'):
 			binding[1] = 'DOT'
+		elif(binding[1] == 'ESCAPE'):
+			binding[1] = 'ESC'
+		elif(binding[1] == 'DASH'):
+			binding[1] = 'MINUS'
+		elif(binding[1] == 'EQUALS'):
+			binding[1] = 'EQUAL'
 
 		# Holy crap, the hacks don't get much uglier than this.  Add 0x100 to
 		#    all KEY_ constants, because the keyboard ends at 0xff and that
