@@ -145,7 +145,7 @@ def parse_trackpad_config(group, pos): # {{{
 	elif(group['mode'] == 'dpad'):
 		config['mode'] = PadModes.BUTTONCLICK
 		config['buttons'] = get_dpad_inputs(group['inputs'])
-	elif(group['mode'] == 'buttons'):
+	elif(group['mode'] == 'four_buttons'):
 		config['mode'] = PadModes.BUTTONCLICK
 		config['buttons'] = get_diamond_inputs(group['inputs'])
 	elif(group['mode'] == 'mouse_joystick'):
