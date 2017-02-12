@@ -448,7 +448,7 @@ class Configurator():
 				break
 		for group in ['left_trackpad', 'right_trackpad']:
 			for mode in self.config[group].values():
-				if(mode['mode'] == PadModes.MOUSE):
+				if(mode['mode'] in [PadModes.MOUSE, PadModes.MOUSESCROLL]):
 					modes.add(Modes.MOUSE)
 					break
 			if(Modes.MOUSE in modes):
