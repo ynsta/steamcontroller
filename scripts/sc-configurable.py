@@ -73,10 +73,10 @@ def load_vdf(path): # {{{
 def get_binding(group_inputs, input_name, activator): # {{{
 	try:
 		activator = group_inputs[input_name]['activators'][activator]
-		if(type(activator) == list):
-			# TODO:  Support multiples
-			activator = activator[0]
-		binding = activator['bindings']['binding'].split()
+		# TODO:  Proper support for multiples
+		if(type(activator) != list):
+			activator = [activator]
+		binding = activator[0]['bindings']['binding'].split()
 	except KeyError:
 		return None
 
@@ -100,6 +100,8 @@ def get_binding(group_inputs, input_name, activator): # {{{
 		return None
 	elif(binding[0] == 'mouse_button'):
 		return Keys.__getattr__('BTN_' + binding[1])
+	elif(binding[0] == 'mode_shift'):
+		return [a['bindings']['binding'].split()[1] for a in activator]
 
 	return None
 # }}}
@@ -193,16 +195,24 @@ def parse_config(config): # {{{
 
 	if('left_trackpad active' in bindings):
 		output_config['left_trackpad']['active'] = parse_trackpad_config(groups[bindings['left_trackpad active']], Pos.LEFT)
+		if('left_trackpad active modeshift' in bindings):
+			output_config['left_trackpad']['modeshift'] = parse_trackpad_config(groups[bindings['left_trackpad active modeshift']], Pos.LEFT)
 		print('--- Left trackpad (active) loaded')
 
 	if('right_trackpad active' in bindings):
 		output_config['right_trackpad']['active'] = parse_trackpad_config(groups[bindings['right_trackpad active']], Pos.RIGHT)
+		if('right_trackpad active modeshift' in bindings):
+			output_config['right_trackpad']['modeshift'] = parse_trackpad_config(groups[bindings['right_trackpad active modeshift']], Pos.RIGHT)
 		print('--- Right trackpad (active) loaded')
 
 	if('joystick active' in bindings):
 		group = groups[bindings['joystick active']]
 		output_config['joystick']['active'] = parse_joystick_config(group)
 		output_config['joystick']['active']['buttons']['click'] = get_binding(group['inputs'], 'click', 'Full_Press')
+		if('joystick active modeshift' in bindings):
+			group = groups[bindings['joystick active modeshift']]
+			output_config['joystick']['modeshift'] = parse_joystick_config(group)
+			output_config['joystick']['modeshift']['buttons']['click'] = get_binding(group['inputs'], 'click', 'Full_Press')
 		print('--- Joystick (active) loaded')
 
 	if('button_diamond active' in bindings):
@@ -213,6 +223,14 @@ def parse_config(config): # {{{
 			'x' : get_binding(inputs, 'button_x', 'Full_Press'),
 			'y' : get_binding(inputs, 'button_y', 'Full_Press')
 		}}
+		if('button_diamond active modeshift' in bindings):
+			inputs = groups[bindings['button_diamond active modeshift']]['inputs']
+			output_config['button_diamond']['modeshift'] = {'buttons' : {
+				'a' : get_binding(inputs, 'button_a', 'Full_Press'),
+				'b' : get_binding(inputs, 'button_b', 'Full_Press'),
+				'x' : get_binding(inputs, 'button_x', 'Full_Press'),
+				'y' : get_binding(inputs, 'button_y', 'Full_Press')
+			}}
 		print('--- Button diamond (active) loaded')
 
 	if('switch active' in bindings):
@@ -225,16 +243,32 @@ def parse_config(config): # {{{
 			'left_grip' : get_binding(inputs, 'button_back_left', 'Full_Press'),
 			'right_grip' : get_binding(inputs, 'button_back_right', 'Full_Press')
 		}}
+		if('switch active modeshift' in bindings):
+			inputs = groups[bindings['switch active modeshift']]['inputs']
+			output_config['switch']['modeshift'] = {'buttons' : {
+				'left_bumper' : get_binding(inputs, 'left_bumper', 'Full_Press'),
+				'right_bumper' : get_binding(inputs, 'right_bumper', 'Full_Press'),
+				'start' : get_binding(inputs, 'button_escape', 'Full_Press'),
+				'back' : get_binding(inputs, 'button_menu', 'Full_Press'),
+				'left_grip' : get_binding(inputs, 'button_back_left', 'Full_Press'),
+				'right_grip' : get_binding(inputs, 'button_back_right', 'Full_Press')
+			}}
 		print('--- Switches (active) loaded')
 	
 	if('left_trigger active' in bindings):
 		group_id = bindings['left_trigger active']
 		output_config['left_trigger']['active'] = parse_trigger_config(groups[bindings['left_trigger active']])
+		if('left_trigger active modeshift' in bindings):
+			group_id = bindings['left_trigger active modeshift']
+			output_config['left_trigger']['modeshift'] = parse_trigger_config(groups[bindings['left_trigger active modeshift']])
 		print('--- Left trigger (active) loaded')
 
 	if('right_trigger active' in bindings):
 		group_id = bindings['right_trigger active']
 		output_config['right_trigger']['active'] = parse_trigger_config(groups[bindings['right_trigger active']])
+		if('right_trigger active modeshift' in bindings):
+			group_id = bindings['right_trigger active modeshift']
+			output_config['right_trigger']['modeshift'] = parse_trigger_config(groups[bindings['right_trigger active modeshift']])
 		print('--- Right trigger (active) loaded')
 
 	return output_config
@@ -246,7 +280,7 @@ def get_keys_from_config(config): # {{{
 		for mode in group.values():
 			if('buttons' in mode):
 				for button in mode['buttons'].values():
-					if(button != None):
+					if(button != None and type(button) != list):
 						buttons.append(button)
 	buttons = list(set(buttons))
 	return buttons
@@ -283,6 +317,24 @@ def get_modes_from_config(config): # {{{
 	return list(modes)
 # }}}
 
+def modeshift(evm, sections, pressed, config): # {{{
+	group = 'modeshift' if pressed else 'active'
+	if('left_trackpad' in sections and group in config['left_trackpad']):
+		set_trackpad_config(evm, Pos.LEFT, config['left_trackpad'][group])
+	if('right_trackpad' in sections and group in config['right_trackpad']):
+		set_trackpad_config(evm, Pos.RIGHT, config['right_trackpad'][group])
+	if('joystick' in sections and group in config['joystick']):
+		set_joystick_config(evm, config['joystick'][group])
+	if('button_diamond' in sections and group in config['button_diamond']):
+		set_diamond_config(evm, config['button_diamond'][group])
+	if('switch' in sections and group in config['switch']):
+		set_switches_config(evm, config['switch'][group], config, False)
+	if('left_trigger' in sections and group in config['left_trigger']):
+		set_trigger_config(evm, Pos.LEFT, config['left_trigger'][group])
+	if('right_trigger' in sections and group in config['right_trigger']):
+		set_trigger_config(evm, Pos.RIGHT, config['right_trigger'][group])
+# }}}
+
 def set_trackpad_config(evm, pos, config): # {{{
 	button = SCButtons.RPAD if pos == Pos.RIGHT else SCButtons.LPAD
 	if(config['mode'] == PadModes.MOUSE):
@@ -317,13 +369,21 @@ def set_diamond_config(evm, config): # {{{
 	evm.setButtonAction(SCButtons.Y, config['buttons']['y'], Modes.GAMEPAD)
 # }}}
 
-def set_switches_config(evm, config): # {{{
-	evm.setButtonAction(SCButtons.LB, config['buttons']['left_bumper'], Modes.GAMEPAD)
-	evm.setButtonAction(SCButtons.RB, config['buttons']['right_bumper'], Modes.GAMEPAD)
-	evm.setButtonAction(SCButtons.START, config['buttons']['start'], Modes.GAMEPAD)
-	evm.setButtonAction(SCButtons.BACK, config['buttons']['back'], Modes.GAMEPAD)
-	evm.setButtonAction(SCButtons.LGRIP, config['buttons']['left_grip'], Modes.GAMEPAD)
-	evm.setButtonAction(SCButtons.RGRIP, config['buttons']['right_grip'], Modes.GAMEPAD)
+def set_switches_config(evm, group, config, do_modeshifts): # {{{
+	evm.setButtonAction(SCButtons.LB, group['buttons']['left_bumper'], Modes.GAMEPAD)
+	evm.setButtonAction(SCButtons.RB, group['buttons']['right_bumper'], Modes.GAMEPAD)
+	evm.setButtonAction(SCButtons.START, group['buttons']['start'], Modes.GAMEPAD)
+	evm.setButtonAction(SCButtons.BACK, group['buttons']['back'], Modes.GAMEPAD)
+	if(type(group['buttons']['left_grip']) == list):
+		if(do_modeshifts):
+			evm.setButtonCallback(SCButtons.LGRIP, lambda evm, btn, pressed: modeshift(evm, group['buttons']['left_grip'], pressed, config))
+	else:
+		evm.setButtonAction(SCButtons.LGRIP, group['buttons']['left_grip'], Modes.GAMEPAD)
+	if(type(group['buttons']['right_grip']) == list):
+		if(do_modeshifts):
+			evm.setButtonCallback(SCButtons.RGRIP, lambda evm, btn, pressed: modeshift(evm, group['buttons']['right_grip'], pressed, config))
+	else:
+		evm.setButtonAction(SCButtons.RGRIP, group['buttons']['right_grip'], Modes.GAMEPAD)
 # }}}
 
 def set_trigger_config(evm, pos, config): # {{{
@@ -366,7 +426,7 @@ def evminit(config_file_path):
 		print('--- Button diamond configured')
 
 	if('active' in config['switch']):
-		set_switches_config(evm, config['switch']['active'])
+		set_switches_config(evm, config['switch']['active'], config, True)
 		print('--- Switches configured')
 
 	if('active' in config['left_trigger']):
