@@ -209,7 +209,7 @@ def parse_trackpad_config(group, pos): # {{{
 		config['mode'] = PadModes.AXIS
 		config['buttons'] = {'click' : get_binding(group['inputs'], 'click', 'Full_Press')}
 		axes = [Axes.ABS_HAT0X, Axes.ABS_HAT0Y] if pos == Pos.LEFT else [Axes.ABS_HAT1X, Axes.ABS_HAT1Y]
-		config['axes'] = [(axis, -8, 7, 2, 2) for axis in axes]
+		config['axes'] = [(axis, -32768, 32767, 16, 128) for axis in axes]
 	return config
 # }}}
 
@@ -534,3 +534,4 @@ class Configurator():
 		if(group['mode'] == TrigModes.BUTTON):
 			self.evm.setTrigButton(pos, group['buttons']['click'], Modes.GAMEPAD)
 	# }}}
+
