@@ -442,9 +442,14 @@ class Configurator():
 		for group in self.config.values():
 			for mode in group.values():
 				if('buttons' in mode):
-					modes.add(Modes.GAMEPAD)
-					break
-			if(Modes.GAMEPAD in modes):
+					for button in mode['buttons'].values():
+						if(button == None or type(button) == list):
+							continue
+						if(button < 0x100):
+							modes.add(Modes.KEYBOARD)
+						else:
+							modes.add(Modes.GAMEPAD)
+			if(Modes.GAMEPAD in modes and Modes.KEYBOARD in modes):
 				break
 		for group in ['left_trackpad', 'right_trackpad']:
 			for mode in self.config[group].values():
