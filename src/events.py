@@ -242,16 +242,17 @@ class EventMapper(object):
                 click = SCButtons.RPAD
 
             if sci.buttons & touch == touch:
-                # Compute mean pos
-                try:
-                    xm_p = int(sum(self._xdq[pos]) / len(self._xdq[pos]))
-                except ZeroDivisionError:
-                    xm_p = 0
+                if(sci_p.buttons & touch == touch):
+                    # Compute mean pos
+                    try:
+                        xm_p = int(sum(self._xdq[pos]) / len(self._xdq[pos]))
+                    except ZeroDivisionError:
+                        xm_p = 0
 
-                try:
-                    ym_p = int(sum(self._ydq[pos]) / len(self._ydq[pos]))
-                except ZeroDivisionError:
-                    ym_p = 0
+                    try:
+                        ym_p = int(sum(self._ydq[pos]) / len(self._ydq[pos]))
+                    except ZeroDivisionError:
+                        ym_p = 0
 
                 self._xdq[pos].append(x)
                 self._ydq[pos].append(y)
@@ -265,8 +266,10 @@ class EventMapper(object):
                 except ZeroDivisionError:
                     ym = 0
 
-                if not sci_p.buttons & touch == touch:
+                if(not sci_p.buttons & touch == touch):
                     xm_p, ym_p = xm, ym
+                    xm = 0
+                    ym = 0
 
             # Mouse and mouse scroll modes {{{
             if self._pad_modes[pos] in (PadModes.MOUSE, PadModes.MOUSESCROLL):
@@ -306,12 +309,19 @@ class EventMapper(object):
                             sc.addFeedback(pos, amplitude=100)
                             self._moved[pos] %= 4000
 
-                    if x != x_p:
-                        self._uip[xmode].axisEvent(xev, x)
-                        syn.add(xmode)
-                    if y != y_p:
-                        self._uip[ymode].axisEvent(yev, y if not revert else -y)
-                        syn.add(ymode)
+                        if x != x_p:
+                            self._uip[xmode].axisEvent(xev, x)
+                            syn.add(xmode)
+                        if y != y_p:
+                            self._uip[ymode].axisEvent(yev, y if not revert else -y)
+                            syn.add(ymode)
+                    else:
+                        if(x_p != 0):
+                            self._uip[xmode].axisEvent(xev, 0)
+                            syn.add(xmode)
+                        if(y_p != 0):
+                            self._uip[ymode].axisEvent(yev, 0)
+                            syn.add(ymode)
             # }}}
 
             # Button touch mode {{{
