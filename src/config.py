@@ -357,14 +357,18 @@ class Configurator():
 		self.vdf_path = vdf_path
 		if(self.vdf_path != None):
 			self.load_config()
-			self.generate_eventmapper()
 		self.vendor = vendor
 		self.product = product
 		self.version = version
 	# }}}
 
 	def load_config(self): # {{{
-		self.config = parse_config(load_vdf(self.vdf_path))
+		self.import_config(parse_config(load_vdf(self.vdf_path)))
+	# }}}
+
+	def import_config(self, config): # {{{
+		self.config = config
+		self.generate_eventmapper()
 	# }}}
 
 	def generate_gamepad_definition(self): # {{{
