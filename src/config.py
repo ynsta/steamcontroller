@@ -383,31 +383,31 @@ class Configurator():
 		assert self.config != None
 		self.evm = EventMapper(gamepad_definition = self.generate_gamepad_definition(), modes = self.get_modes())
 
-		if('active' in self.config['left_trackpad']):
+		if('left_trackpad' in self.config and 'active' in self.config['left_trackpad']):
 			self.set_trackpad_config(Pos.LEFT, 'active')
 			print('--- Left trackpad configured')
 
-		if('active' in self.config['right_trackpad']):
+		if('right_trackpad' in self.config and 'active' in self.config['right_trackpad']):
 			self.set_trackpad_config(Pos.RIGHT, 'active')
 			print('--- Right trackpad configured')
 
-		if('active' in self.config['joystick']):
+		if('joystick' in self.config and 'active' in self.config['joystick']):
 			self.set_joystick_config('active')
 			print('--- Joystick configured')
 
-		if('active' in self.config['button_diamond']):
+		if('button_diamond' in self.config and 'active' in self.config['button_diamond']):
 			self.set_diamond_config('active')
 			print('--- Button diamond configured')
 
-		if('active' in self.config['switch']):
+		if('switch' in self.config and 'active' in self.config['switch']):
 			self.set_switches_config('active', True)
 			print('--- Switches configured')
 
-		if('active' in self.config['left_trigger']):
+		if('left_trigger' in self.config and 'active' in self.config['left_trigger']):
 			self.set_trigger_config(Pos.LEFT, 'active')
 			print('--- Left trigger configured')
 
-		if('active' in self.config['right_trigger']):
+		if('right_trigger' in self.config and 'active' in self.config['right_trigger']):
 			self.set_trigger_config(Pos.RIGHT, 'active')
 			print('--- Right trigger configured')
 
