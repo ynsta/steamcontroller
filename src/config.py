@@ -479,10 +479,10 @@ class Configurator():
 			self.evm.setButtonAction(button, group['buttons']['click'])
 		elif(group['mode'] == PadModes.BUTTONCLICK):
 			buttons = group['buttons']
-			self.evm.setPadButtons(pos, [buttons['north'], buttons['west'], buttons['south'], buttons['east']], clicked = True, mode = Modes.GAMEPAD)
+			self.evm.setPadButtons(pos, [buttons['north'], buttons['west'], buttons['south'], buttons['east']], clicked = True)
 		elif(group['mode'] == PadModes.BUTTONTOUCH):
 			buttons = group['buttons']
-			self.evm.setPadButtons(pos, [buttons['north'], buttons['west'], buttons['south'], buttons['east']], clicked = False, mode = Modes.GAMEPAD)
+			self.evm.setPadButtons(pos, [buttons['north'], buttons['west'], buttons['south'], buttons['east']], clicked = False)
 			self.evm.setButtonAction(button, group['buttons']['click'])
 		elif(group['mode'] == PadModes.AXIS):
 			self.evm.setPadAxes(pos, *[axis[0] for axis in group['axes']])
