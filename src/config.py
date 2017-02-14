@@ -497,9 +497,12 @@ class Configurator():
 			self.evm.setPadScroll(pos)
 			self.evm.setButtonAction(button, group['buttons']['click'])
 		elif(group['mode'] == PadModes.BUTTONCLICK):
-			# TODO:  Configurable whether or not click is required?
 			buttons = group['buttons']
 			self.evm.setPadButtons(pos, [buttons['north'], buttons['west'], buttons['south'], buttons['east']], clicked = True, mode = Modes.GAMEPAD)
+		elif(group['mode'] == PadModes.BUTTONTOUCH):
+			buttons = group['buttons']
+			self.evm.setPadButtons(pos, [buttons['north'], buttons['west'], buttons['south'], buttons['east']], clicked = False, mode = Modes.GAMEPAD)
+			self.evm.setButtonAction(button, group['buttons']['click'])
 		elif(group['mode'] == PadModes.AXIS):
 			self.evm.setPadAxes(pos, *[axis[0] for axis in group['axes']])
 			self.evm.setButtonAction(button, group['buttons']['click'])
