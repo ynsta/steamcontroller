@@ -445,27 +445,8 @@ class Configurator():
 	# }}}
 
 	def get_modes(self): # {{{
-		modes = set()
-		for group in self.config.values():
-			for mode in group.values():
-				if('buttons' in mode):
-					for button in mode['buttons'].values():
-						if(button == None or type(button) == list):
-							continue
-						if(button < 0x100):
-							modes.add(Modes.KEYBOARD)
-						else:
-							modes.add(Modes.GAMEPAD)
-			if(Modes.GAMEPAD in modes and Modes.KEYBOARD in modes):
-				break
-		for group in ['left_trackpad', 'right_trackpad']:
-			for mode in self.config[group].values():
-				if(mode['mode'] in [PadModes.MOUSE, PadModes.MOUSESCROLL]):
-					modes.add(Modes.MOUSE)
-					break
-			if(Modes.MOUSE in modes):
-				break
-		return list(modes)
+		# TODO:  Figure out if this is actually useful or not
+		return [Modes.GAMEPAD, Modes.MOUSE, Modes.KEYBOARD]
 	# }}}
 
 	def modeshift(self, sections, pressed): # {{{
