@@ -417,7 +417,7 @@ class Configurator():
 
 		# This cannot be configured from the Steam UI.  Should we extend that file
 		#    to support configuring it?
-		self.evm.setButtonAction(SCButtons.STEAM, Keys.KEY_HOMEPAGE)
+		self.evm.setButtonAction(SCButtons.STEAM, Keys.KEY_ESC)
 	# }}}
 
 	def get_keys(self): # {{{
