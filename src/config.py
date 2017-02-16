@@ -376,7 +376,7 @@ class Configurator():
 			'vendor' : self.vendor,
 			'product' : self.product,
 			'version' : self.version,
-			'name' : bytes(self.name + ((' [' + os.path.basename(self.vdf_path) + ']') if self.vdf_path != None else ''), 'utf-8'),
+			'name' : self.get_gamepad_name(),
 			'keys' : self.get_keys(),
 			'axes' : self.get_axes(),
 			'rels' : []
@@ -418,6 +418,17 @@ class Configurator():
 		# This cannot be configured from the Steam UI.  Should we extend that file
 		#    to support configuring it?
 		self.evm.setButtonAction(SCButtons.STEAM, Keys.KEY_ESC)
+	# }}}
+
+	def get_gamepad_name(self): # {{{
+		name = self.name + ((' [' + os.path.basename(self.vdf_path) + ']') if self.vdf_path != None else '')
+		try:
+			# In python3, we need to do this to get a string of 8-bit chars
+			return bytes(name)
+		except TypeError:
+			# But in python2, str consists of 8-bit chars; it's the unicode type
+			#    that consists of wide chars
+			return name
 	# }}}
 
 	def get_keys(self): # {{{
