@@ -360,25 +360,25 @@ class EventMapper(object):
                         cos = math.cos(angle)
 
                         # top
-                        if(sin >= 0.545):
+                        if(sin >= 0.383):
                             haptic |= _keypressed(tmode, tev)
                         else:
                             haptic |= _keyreleased(tmode, tev)
 
                         # left
-                        if(cos <= -0.545):
+                        if(cos <= -0.383):
                             haptic |= _keypressed(lmode, lev)
                         else:
                             haptic |= _keyreleased(lmode, lev)
 
                         # bottom
-                        if(sin <= -0.545):
+                        if(sin <= -0.383):
                             haptic |= _keypressed(bmode, bev)
                         else:
                             haptic |= _keyreleased(bmode, bev)
 
                         # right
-                        if(cos >= 0.545):
+                        if(cos >= 0.383):
                             haptic |= _keypressed(rmode, rev)
                         else:
                             haptic |= _keyreleased(rmode, rev)
