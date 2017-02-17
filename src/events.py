@@ -28,7 +28,7 @@ events
 """
 
 from time import time
-from math import sqrt
+import math
 
 from enum import IntEnum
 
@@ -297,7 +297,7 @@ class EventMapper(object):
 
                     # FIXME: make haptic configurable
                     if sci.buttons & touch == touch:
-                        self._moved[pos] += sqrt((xm - xm_p)**2 + (ym - ym_p)**2)
+                        self._moved[pos] += math.sqrt((xm - xm_p)**2 + (ym - ym_p)**2)
                         if self._moved[pos] >= 4000:
                             sc.addFeedback(pos, amplitude=100)
                             self._moved[pos] %= 4000
@@ -339,22 +339,46 @@ class EventMapper(object):
                         bmode, bev = self._pad_evts[pos][2]
                         rmode, rev = self._pad_evts[pos][3]
 
-                        if ym > dzone: # TOP
+                        distance = math.hypot(xm, ym)
+
+                        # For whatever reason, the "extremes" on the pads (in
+                        #    radians), are approximately:
+                        #       up:     0.6pi
+                        #       left:  -0.9pi
+                        #       down:  -0.4pi
+                        #       right:  0.1pi
+                        #    Because of this, we subtract 0.1 from them to
+                        #    normalize.
+                        angle = math.atan2(float(ym), float(xm)) - (0.1 * math.pi)
+                        sin = math.sin(angle)
+
+                        # TODO:  Figure out whether it's faster to calculate
+                        #    both sine and cosine here and have simple
+                        #    conditionals, or to only figure out one and have
+                        #    half the conditionals look like (e.g.) this:
+                        #       xm < 0 and sin <= 0.839 and sin >= 0.839
+                        cos = math.cos(angle)
+
+                        # top
+                        if(sin >= 0.545):
                             haptic |= _keypressed(tmode, tev)
                         else:
                             haptic |= _keyreleased(tmode, tev)
 
-                        if xm < -dzone: # LEFT
+                        # left
+                        if(cos <= -0.545):
                             haptic |= _keypressed(lmode, lev)
                         else:
                             haptic |= _keyreleased(lmode, lev)
 
-                        if ym < -dzone: # BOTTOM
+                        # bottom
+                        if(sin <= -0.545):
                             haptic |= _keypressed(bmode, bev)
                         else:
                             haptic |= _keyreleased(bmode, bev)
 
-                        if xm > dzone: # RIGHT
+                        # right
+                        if(cos >= 0.545):
                             haptic |= _keypressed(rmode, rev)
                         else:
                             haptic |= _keyreleased(rmode, rev)
