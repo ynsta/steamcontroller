@@ -1,6 +1,6 @@
 # Standalone Steam Controller Driver
 
-This project is a standalone userland driver for the steam controller to be used where steam client can't be installed.
+This project is a standalone userland driver for the steam controller to be used where the steam client can't be installed.
 
 Two modes are already working with haptic feedback:
  - xbox360: gamepad emulator
@@ -22,27 +22,27 @@ This project is licensed under MIT.
      - Install python enum backport `sudo pip install enum34`
 
  2. Get the project [tarbal](https://github.com/ynsta/steamcontroller/archive/master.tar.gz) or clone it from github:
-    ```shell
+ 
 # Get from tarbal:
-wget https://github.com/ynsta/steamcontroller/archive/master.tar.gz
-tar xf master.tar.gz
-cd steamcontroller-master
+
+ 1. `wget https://github.com/ynsta/steamcontroller/archive/master.tar.gz`
+ 2. `tar xf master.tar.gz`
+ 3. `cd steamcontroller-master`
+ 
+ 
 # or clone it:
-git clone https://github.com/ynsta/steamcontroller.git
-cd steamcontroller
-```
-
+ 1. `git clone https://github.com/ynsta/steamcontroller.git`
+ 2. `cd steamcontroller`
  3. Install python modules and scripts with `sudo python setup.py install`
-
  4. Install udev rules (if not already done for steam) in `/etc/udev/rules.d/99-steam-controller.rules`:
-    ```shell
-# replace game group by a valid group on your system
-# Steam controller keyboard/mouse mode
-SUBSYSTEM=="usb", ATTRS{idVendor}=="28de", GROUP="games", MODE="0660"
+ ```shell
+ # replace game group by a valid group on your system
+ # Steam controller keyboard/mouse mode
+ SUBSYSTEM=="usb", ATTRS{idVendor}=="28de", GROUP="games", MODE="0660"
 
-# Steam controller gamepad mode
-KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
-```
+ # Steam controller gamepad mode
+ KERNEL=="uinput", MODE="0660", GROUP="games", OPTIONS+="static_node=uinput"
+ ```
 
  5. Reload udev `sudo udevadm control --reload`
 
