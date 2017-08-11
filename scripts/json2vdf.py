@@ -24,40 +24,13 @@
 
 import json
 
-def json2vdf(stream):
-
-    """
-    Read a json file and return a string in Steam vdf format
-    """
-
-    def _istr(ident, string):
-        return (ident * '\t') + string
-
-    data = json.loads(stream.read(), object_pairs_hook=list)
-
-    def _json2vdf(data, indent):
-        out = ''
-        for k, val in data:
-            if isinstance(val, list):
-                if indent:
-                    out += '\n'
-                out += _istr(indent, '"{}"\n'.format(k))
-                out += _istr(indent, '{\n')
-                out += _json2vdf(val, indent + 1)
-                out += _istr(indent, '}\n')
-            else:
-                out += _istr(indent, '"{}" "{}"\n'.format(k, val))
-        return out
-
-    return  _json2vdf(data, 0)
-
-
 def main():
     """
     Read json and write Steam vdf conversion
     """
     import sys
     import argparse
+    import steamcontroller.config
     parser = argparse.ArgumentParser(prog='json2vdf', description=main.__doc__)
     parser.add_argument('-i', '--input',
                         default=sys.stdin,
@@ -69,7 +42,7 @@ def main():
                         help='output vdf file (stdout if not specified)')
 
     args = parser.parse_args()
-    args.output.write(json2vdf(args.input))
+    args.output.write(steamcontroller.config.json2vdf(args.input))
 
 if __name__ == '__main__':
     main()
