@@ -339,53 +339,35 @@ class EventMapper(object):
                         bmode, bev = self._pad_evts[pos][2]
                         rmode, rev = self._pad_evts[pos][3]
 
-                        distance = math.hypot(xm, ym)
-                        if(distance >= dzone):
-                            # For whatever reason, the "extremes" on the pads (in
-                            #    radians), are approximately:
-                            #       up:     0.6pi
-                            #       left:  -0.9pi
-                            #       down:  -0.4pi
-                            #       right:  0.1pi
-                            #    Because of this, we subtract 0.1 from them to
-                            #    normalize.
-                            angle = math.atan2(float(ym), float(xm)) - (0.1 * math.pi)
-                            sin = math.sin(angle)
+                        # correct weird rotational offset of d-touch-pad
+                        angle = -0.35877  # roughly 20.556 degrees
+                        cos = math.cos(angle)
+                        sin = math.sin(angle)
+                        xm_cor = cos * x - sin * y
+                        ym_cor = sin * x + cos * y
 
-                            # TODO:  Figure out whether it's faster to calculate
-                            #    both sine and cosine here and have simple
-                            #    conditionals, or to only figure out one and have
-                            #    half the conditionals look like (e.g.) this:
-                            #       xm < 0 and sin <= 0.839 and sin >= 0.839
-                            cos = math.cos(angle)
-
-                            # top
-                            if(sin >= 0.383):
-                                haptic |= _keypressed(tmode, tev)
-                            else:
-                                haptic |= _keyreleased(tmode, tev)
-
-                            # left
-                            if(cos <= -0.383):
-                                haptic |= _keypressed(lmode, lev)
-                            else:
-                                haptic |= _keyreleased(lmode, lev)
-
-                            # bottom
-                            if(sin <= -0.383):
-                                haptic |= _keypressed(bmode, bev)
-                            else:
-                                haptic |= _keyreleased(bmode, bev)
-
-                            # right
-                            if(cos >= 0.383):
-                                haptic |= _keypressed(rmode, rev)
-                            else:
-                                haptic |= _keyreleased(rmode, rev)
+                        # top
+                        if(ym_cor >= dzone):
+                            haptic |= _keypressed(tmode, tev)
                         else:
                             haptic |= _keyreleased(tmode, tev)
+
+                        # left
+                        if(xm_cor <= -dzone):
+                            haptic |= _keypressed(lmode, lev)
+                        else:
                             haptic |= _keyreleased(lmode, lev)
+
+                        # bottom
+                        if(ym_cor <= -dzone):
+                            haptic |= _keypressed(bmode, bev)
+                        else:
                             haptic |= _keyreleased(bmode, bev)
+
+                        # right
+                        if(xm_cor >= dzone):
+                            haptic |= _keypressed(rmode, rev)
+                        else:
                             haptic |= _keyreleased(rmode, rev)
 
                     elif len(self._pad_evts[pos]) == 2:
@@ -393,16 +375,23 @@ class EventMapper(object):
                         _, yev = self._pad_evts[pos][1]
                         rev = self._pad_revs[pos]
 
-                        if ym > dzone:    # TOP
+                        # correct weird rotational offset of d-touch-pad
+                        angle = -0.35877  # roughly 20.556 degrees
+                        cos = math.cos(angle)
+                        sin = math.sin(angle)
+                        xm_cor = cos * x - sin * y
+                        ym_cor = sin * x + cos * y
+
+                        if ym_cor > dzone:    # TOP
                             haptic |= _abspressed(yev, -1 if rev else 1)
-                        elif ym < -dzone: # BOTTOM
+                        elif ym_cor < -dzone: # BOTTOM
                             haptic |= _abspressed(yev, 1 if rev else -1)
                         else:
                             haptic |= _absreleased(yev)
 
-                        if xm < -dzone:  # LEFT
+                        if xm_cor < -dzone:  # LEFT
                             haptic |= _abspressed(xev, -1)
-                        elif xm > dzone: # RIGHT
+                        elif xm_cor > dzone: # RIGHT
                             haptic |= _abspressed(xev, 1)
                         else:
                             haptic |= _absreleased(xev)
