@@ -24,7 +24,7 @@ import struct
 from enum import IntEnum
 
 from threading import Timer
-from time import time
+from time import time, sleep
 
 
 VENDOR_ID = 0x28de
@@ -105,7 +105,7 @@ class HapticPos(IntEnum):
 
 class SteamController(object):
 
-    def __init__(self, callback, callback_args=None):
+    def __init__(self, callback, callback_args=None, keep_alive=False):
         """
         Constructor
 
@@ -120,7 +120,15 @@ class SteamController(object):
         self._cb_args = callback_args
         self._cmsg = []
         self._ctx = usb1.USBContext()
+        self._transfer_list = []
+        self.keep_alive = keep_alive
+        try:
+            self._open()
+        except (usb1.USBError, ValueError):
+            if not keep_alive:
+                raise
 
+    def _open(self):
         handle = []
         pid = []
         endpoint = []
@@ -134,7 +142,7 @@ class SteamController(object):
                 VENDOR_ID, _pid,
                 skip_on_error=True,
             )
-            if _handle != None:
+            if _handle is not None:
                 handle.append(_handle)
                 pid.append(_pid)
                 endpoint.append(_endpoint)
@@ -301,15 +309,27 @@ class SteamController(object):
 
     def run(self):
         """Fucntion to run in order to process usb events"""
-        if self._handle:
+        if self._handle or self.keep_alive:
             try:
-                while any(x.isSubmitted() for x in self._transfer_list):
-                    self._ctx.handleEvents()
-                    if len(self._cmsg) > 0:
-                        cmsg = self._cmsg.pop()
-                        self._sendControl(cmsg)
-                        if cmsg == EXITCMD:
-                            break
+                while True:
+                    while any(x.isSubmitted() for x in self._transfer_list):
+                        self._ctx.handleEvents()
+                        if len(self._cmsg) > 0:
+                            cmsg = self._cmsg.pop()
+                            if cmsg == EXITCMD and not self.keep_alive:
+                                return
+                            self._sendControl(cmsg)
+                    try:
+                        self._close()
+                    except usb1.USBError:
+                        pass
+                    if not self.keep_alive:
+                        return
+                    sleep(2)
+                    try:
+                        self._open()
+                    except (usb1.USBError, ValueError):
+                        pass
             except usb1.USBErrorInterrupted:
                 pass
 
