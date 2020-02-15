@@ -2,7 +2,7 @@
 
 # The MIT License (MIT)
 #
-# Copyright (c) 2015 Stany MARCEL <stanypub@gmail.com>
+# Copyright (c) 2020 Robsdedude
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-"""Steam Controller XBOX360 Gamepad Emulator"""
+"""Steam Controller Gamepad"""
 
 from steamcontroller import (
     SteamController,
@@ -34,51 +34,14 @@ from steamcontroller.events import (
 )
 from steamcontroller.uinput import (
     Keys,
-    Axes,
-    UInput
+    Axes
 )
-
 from steamcontroller.daemon import Daemon
 
 import gc
 
-
-class XBoxGamepad(UInput):
-    """
-    Gamepad uinput class, create a Xbox360 gamepad device
-    """
-
-    def __init__(self):
-        super(XBoxGamepad, self).__init__(
-            vendor=0x045e,
-            product=0x028e,
-            version=0x110,
-            name=b"Microsoft X-Box 360 pad",
-            keys=[Keys.BTN_START,
-                  Keys.BTN_MODE,
-                  Keys.BTN_SELECT,
-                  Keys.BTN_A,
-                  Keys.BTN_B,
-                  Keys.BTN_X,
-                  Keys.BTN_Y,
-                  Keys.BTN_TL,
-                  Keys.BTN_TR,
-                  Keys.BTN_THUMBL,
-                  Keys.BTN_THUMBR],
-            axes=[(Axes.ABS_X, -32768, 32767, 16, 128),
-                  (Axes.ABS_Y, -32768, 32767, 16, 128),
-                  (Axes.ABS_RX, -32768, 32767, 16, 128),
-                  (Axes.ABS_RY, -32768, 32767, 16, 128),
-                  (Axes.ABS_Z, 0, 255, 0, 0),
-                  (Axes.ABS_RZ, 0, 255, 0, 0),
-                  (Axes.ABS_HAT0X, -1, 1, 0, 0),
-                  (Axes.ABS_HAT0Y, -1, 1, 0, 0)],
-            rels=[]
-        )
-
-
 def evminit():
-    evm = EventMapper(uinput_devices=(XBoxGamepad(),))
+    evm = EventMapper()
 
     evm.setStickAxes(Axes.ABS_X, Axes.ABS_Y)
     evm.setPadAxes(Pos.RIGHT, Axes.ABS_RX, Axes.ABS_RY)
@@ -95,13 +58,15 @@ def evminit():
     evm.setButtonAction(SCButtons.Y, Keys.BTN_Y)
     evm.setButtonAction(SCButtons.LB, Keys.BTN_TL)
     evm.setButtonAction(SCButtons.RB, Keys.BTN_TR)
+    evm.setButtonAction(SCButtons.LT, Keys.BTN_TL2)
+    evm.setButtonAction(SCButtons.RT, Keys.BTN_TR2)
     evm.setButtonAction(SCButtons.BACK, Keys.BTN_SELECT)
     evm.setButtonAction(SCButtons.START, Keys.BTN_START)
     evm.setButtonAction(SCButtons.STEAM, Keys.BTN_MODE)
     evm.setButtonAction(SCButtons.LPAD, Keys.BTN_THUMBL)
     evm.setButtonAction(SCButtons.RPAD, Keys.BTN_THUMBR)
-    evm.setButtonAction(SCButtons.LGRIP, Keys.BTN_A)
-    evm.setButtonAction(SCButtons.RGRIP, Keys.BTN_B)
+    evm.setButtonAction(SCButtons.LGRIP, Keys.BTN_BACK)
+    evm.setButtonAction(SCButtons.RGRIP, Keys.BTN_FORWARD)
 
     return evm
 
@@ -109,7 +74,7 @@ class SCDaemon(Daemon):
     def run(self):
         evm = evminit()
         sc = SteamController(callback=evm.process)
-        sc.run()
+        sc.run(keep_alive=True)
         del sc
         del evm
         gc.collect()
@@ -137,7 +102,7 @@ if __name__ == '__main__':
             try:
                 evm = evminit()
                 sc = SteamController(callback=evm.process)
-                sc.run()
+                sc.run(keep_alive=True)
 
             except KeyboardInterrupt:
                 pass
