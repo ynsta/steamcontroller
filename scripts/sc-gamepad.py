@@ -73,8 +73,8 @@ def evminit():
 class SCDaemon(Daemon):
     def run(self):
         evm = evminit()
-        sc = SteamController(callback=evm.process)
-        sc.run(keep_alive=True)
+        sc = SteamController(callback=evm.process, keep_alive=True)
+        sc.run()
         del sc
         del evm
         gc.collect()
@@ -101,8 +101,8 @@ if __name__ == '__main__':
         elif 'debug' == args.command:
             try:
                 evm = evminit()
-                sc = SteamController(callback=evm.process)
-                sc.run(keep_alive=True)
+                sc = SteamController(callback=evm.process, keep_alive=True)
+                sc.run()
 
             except KeyboardInterrupt:
                 pass
