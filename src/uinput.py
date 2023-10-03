@@ -200,7 +200,9 @@ class UInput(object):
         self.keyboard = keyboard
         self._fd = None
 
-    def createDevice(self):
+    def _get_lib(self):
+        if self._lib:
+            return self._lib
         possible_paths = []
         for extension in get_so_extensions():
             possible_paths.append(
@@ -227,6 +229,11 @@ class UInput(object):
 
         self._lib = ctypes.CDLL(lib)
 
+        return self._lib
+
+    def createDevice(self):
+        lib = self._get_lib()
+
         c_k        = (ctypes.c_uint16 * len(self._k))(*self._k)
         c_a        = (ctypes.c_uint16 * len(self._a))(*self._a)
         c_amin     = (ctypes.c_int32  * len(self._amin ))(*self._amin )
@@ -240,22 +247,27 @@ class UInput(object):
         c_keyboard = ctypes.c_int(self.keyboard)
 
         c_name = ctypes.c_char_p(self.name)
-        self._fd = self._lib.uinput_init(ctypes.c_int(len(self._k)),
-                                         c_k,
-                                         ctypes.c_int(len(self._a)),
-                                         c_a,
-                                         c_amin,
-                                         c_amax,
-                                         c_afuzz,
-                                         c_aflat,
-                                         ctypes.c_int(len(self._r)),
-                                         c_r,
-                                         c_keyboard,
-                                         c_vendor,
-                                         c_product,
-                                         c_version,
-                                         c_name)
+        self._fd = lib.uinput_init(ctypes.c_int(len(self._k)),
+                                   c_k,
+                                   ctypes.c_int(len(self._a)),
+                                   c_a,
+                                   c_amin,
+                                   c_amax,
+                                   c_afuzz,
+                                   c_aflat,
+                                   ctypes.c_int(len(self._r)),
+                                   c_r,
+                                   c_keyboard,
+                                   c_vendor,
+                                   c_product,
+                                   c_version,
+                                   c_name)
 
+    def destroyDevice(self):
+        if self._fd is not None:
+            lib = self._get_lib()
+            lib.uinput_destroy(self._fd)
+            self._fd = None
 
     def keyEvent(self, key, val):
         """
@@ -363,14 +375,14 @@ class UInput(object):
 
 class Gamepad(UInput):
     """
-    Gamepad uinput class, create a Xbox360 gamepad device
+    Gamepad uinput class, create a gamepad device
     """
 
     def __init__(self):
-        super(Gamepad, self).__init__(vendor=0x045e,
-                                      product=0x028e,
-                                      version=0x110,
-                                      name=b"Microsoft X-Box 360 pad",
+        super(Gamepad, self).__init__(vendor=0x28de,
+                                      product=0xffff,
+                                      version=0x001,
+                                      name=b"Steam Controller Gamepad",
                                       keys=[Keys.BTN_START,
                                             Keys.BTN_MODE,
                                             Keys.BTN_SELECT,
@@ -380,8 +392,13 @@ class Gamepad(UInput):
                                             Keys.BTN_Y,
                                             Keys.BTN_TL,
                                             Keys.BTN_TR,
+                                            Keys.BTN_TL2,
+                                            Keys.BTN_TR2,
+                                            Keys.BTN_TR2,
                                             Keys.BTN_THUMBL,
-                                            Keys.BTN_THUMBR],
+                                            Keys.BTN_THUMBR,
+                                            Keys.BTN_BACK,
+                                            Keys.BTN_FORWARD],
                                       axes=[(Axes.ABS_X, -32768, 32767, 16, 128),
                                             (Axes.ABS_Y, -32768, 32767, 16, 128),
                                             (Axes.ABS_RX, -32768, 32767, 16, 128),
@@ -706,8 +723,22 @@ class Keyboard(UInput):
         self.setDelayPeriod(250, 33)
         self._dx = 0.0
         self._pressed = set()
+        self._to_press = []
+        self._to_release = []
 
-    def pressEvent(self, keys):
+    def keyEvent(self, key, val):
+        """
+        Queue up key presses and releases to be handled in syn callback
+
+        @param int axis         key or btn event (KEY_* or BTN_*)
+        @param int val          event value
+        """
+        if val:
+            self._to_press.append(key)
+        else:
+            self._to_release.append(key)
+
+    def _pressEvent(self, keys):
         """
         Generate key press event with corresponding scan codes.
         Events are generated only for new keys.
@@ -720,10 +751,10 @@ class Keyboard(UInput):
             self.scanEvent(Scans[i])
             self.keyEvent(i, 1)
         if len(new):
-            self.synEvent()
+            super(Keyboard, self).synEvent()
             self._pressed |= set(new)
 
-    def releaseEvent(self, keys=None):
+    def _releaseEvent(self, keys=None):
         """
         Generate key release event with corresponding scan codes.
         Events are generated only for keys that was pressed
@@ -732,7 +763,7 @@ class Keyboard(UInput):
         @param list of Keys keys        keys to release, give None or empty list
                                         to release all
         """
-        if keys and len(keys):
+        if keys:
             rem = [k for k in keys if k in self._pressed]
         else:
             rem = list(self._pressed)
@@ -740,5 +771,13 @@ class Keyboard(UInput):
             self.scanEvent(Scans[i])
             self.keyEvent(i, 0)
         if len(rem):
-            self.synEvent()
+            super(Keyboard, self).synEvent()
             self._pressed -= set(rem)
+
+    def synEvent(self):
+        if self._to_press:
+            self._pressEvent(self._to_press)
+        if self._to_release:
+            self._releaseEvent(self._to_release)
+        self._to_press = []
+        self._to_release = []
