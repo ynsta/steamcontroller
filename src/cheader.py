@@ -22,11 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import ast
 import os
+import ast
+import sys
 import shlex
-from collections import OrderedDict
 import operator as op
+from collections import OrderedDict
+
 
 OPERATORS = {
     ast.Add    : op.add,
@@ -53,35 +55,31 @@ OPERATORS = {
     ast.GtE    : op.ge,
 }
 
+
 def eval_expr(expr):
-
-    """ Eval and expression inside a #define using a suppart of python grammar """
-
+    """Eval and expression inside a #define using a support of Python grammar"""
     def _eval(node):
         if isinstance(node, ast.Num):
             return node.n
-        elif isinstance(node, ast.BinOp):
+        if isinstance(node, ast.BinOp):
             return OPERATORS[type(node.op)](_eval(node.left), _eval(node.right))
-        elif isinstance(node, ast.UnaryOp):
+        if isinstance(node, ast.UnaryOp):
             return OPERATORS[type(node.op)](_eval(node.operand))
-        elif isinstance(node, ast.BoolOp):
+        if isinstance(node, ast.BoolOp):
             values = [_eval(x) for x in node.values]
             return OPERATORS[type(node.op)](**values)
-        else:
-            raise TypeError(node)
+        raise TypeError(node)
 
     return _eval(ast.parse(expr, mode='eval').body)
 
 
 def defines(base, include):
-
-    """ Extract #define from base/include following #includes """
-
+    """Extract #define from base/include following #includes"""
     parsed = set()
-    fname = os.path.normpath(os.path.abspath(os.path.join(base, include)))
-    parsed.add(fname)
+    filename = os.path.normpath(os.path.abspath(os.path.join(base, include)))
+    parsed.add(filename)
 
-    lexer = shlex.shlex(open(fname), posix=True)
+    lexer = shlex.shlex(open(filename), posix=True)
 
     lexer.whitespace = ' \t\r'
     lexer.commenters = ''
@@ -100,8 +98,7 @@ def defines(base, include):
             if tok == '*' and ntok == '/':
                 lexer.quotes = quotes
                 break
-            else:
-                lexer.push_token(ntok)
+            lexer.push_token(ntok)
         return True
 
     def parse_cpp_comments(lexer, tok, ntok):
@@ -119,7 +116,7 @@ def defines(base, include):
 
     while True:
         tok = lexer.get_token()
-        if not tok or tok == '':
+        if not tok:
             break
         ntok = lexer.get_token()
 
@@ -137,7 +134,6 @@ def defines(base, include):
             name = lexer.get_token()
             expr = ''
             while True:
-
                 tok = lexer.get_token()
                 ntok = lexer.get_token()
 
@@ -147,7 +143,7 @@ def defines(base, include):
                     continue
                 lexer.push_token(ntok)
 
-                if not tok or tok == '':
+                if not tok:
                     break
                 if tok == '\n':
                     lexer.push_token(tok)
@@ -163,7 +159,6 @@ def defines(base, include):
             except (SyntaxError, TypeError):
                 pass
         elif tok == 'include':
-
             tok = lexer.get_token()
             if tok == '<':
                 name = ''
@@ -174,19 +169,17 @@ def defines(base, include):
                     name = name + tok
             else:
                 name = tok
-            fname = os.path.normpath(os.path.abspath(os.path.join(base, name)))
-            if os.path.isfile(fname) and not fname in parsed:
-                parsed.add(fname)
-                lexer.push_source(open(fname))
+            filename = os.path.normpath(os.path.abspath(os.path.join(base, name)))
+            if os.path.isfile(filename) and filename not in parsed:
+                parsed.add(filename)
+                lexer.push_source(open(filename))
         else:
             lexer.push_token(tok)
-
 
     return out
 
 
 if __name__ == '__main__':
-    import sys
     definesDict = defines(sys.argv[1], sys.argv[2])
     for k, v in definesDict.items():
-        print("{}:\t{}".format(k, v))
+        print('{}:\t{}'.format(k, v))
