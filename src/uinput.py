@@ -24,18 +24,19 @@
 
 
 import os
-import ctypes
-import _ctypes
 import time
-from math import pi, copysign, sqrt
+import math
+import ctypes
 from enum import IntEnum
-from steamcontroller.cheader import defines
-
-from steamcontroller.tools import get_so_extensions
-
 from collections import deque
 
-# Get All defines from linux headers
+import _ctypes
+
+from steamcontroller.cheader import defines
+from steamcontroller.tools import get_so_extensions
+
+
+# Get all defines from Linux headers
 if os.path.exists('/usr/include/linux/input-event-codes.h'):
     CHEAD = defines('/usr/include', 'linux/input-event-codes.h')
 else:
@@ -43,7 +44,7 @@ else:
 
 # Keys enum contains all keys and button from linux/uinput.h (KEY_* BTN_*)
 Keys = IntEnum('Keys', {i: CHEAD[i] for i in CHEAD.keys() if (i.startswith('KEY_') or
-                                                            i.startswith('BTN_'))})
+                                                              i.startswith('BTN_'))})
 # Keys enum contains all keys and button from linux/uinput.h (KEY_* BTN_*)
 KeysOnly = IntEnum('KeysOnly', {i: CHEAD[i] for i in CHEAD.keys() if i.startswith('KEY_')})
 
@@ -53,8 +54,8 @@ Axes = IntEnum('Axes', {i: CHEAD[i] for i in CHEAD.keys() if i.startswith('ABS_'
 # Rels enum contains all rels from linux/uinput.h (REL_*)
 Rels = IntEnum('Rels', {i: CHEAD[i] for i in CHEAD.keys() if i.startswith('REL_')})
 
-# Scan codes for each keys (taken from a logitech keyboard)
-Scans = {
+# Scan codes for each key (taken from a logitech keyboard)
+scans = {
     Keys.KEY_ESC: 0x70029,
     Keys.KEY_F1: 0x7003a,
     Keys.KEY_F2: 0x7003b,
@@ -175,19 +176,16 @@ Scans = {
 }
 
 
-
 class UInput(object):
     """
-    UInput class permits to create a uinput device.
+    UInput class permits to create an uinput device.
 
     See Gamepad, Mouse, Keyboard for examples
     """
-
-
     def __init__(self, vendor, product, version, name, keys, axes, rels, keyboard=False):
         self._lib = None
         self._k = keys
-        if not axes or len(axes) == 0:
+        if not axes:
             self._a, self._amin, self._amax, self._afuzz, self._aflat = [[]] * 5
         else:
             self._a, self._amin, self._amax, self._afuzz, self._aflat = zip(*axes)
@@ -222,31 +220,30 @@ class UInput(object):
                 lib = path
                 break
         if not lib:
-            raise OSError('Cant find libuinput. searched at:\n {}'.format(
+            raise OSError("Can't find libuinput. searched at:\n {}".format(
                 '\n'.join(possible_paths)
             )
-        )
+            )
 
         self._lib = ctypes.CDLL(lib)
-
         return self._lib
 
     def createDevice(self):
         lib = self._get_lib()
 
-        c_k        = (ctypes.c_uint16 * len(self._k))(*self._k)
-        c_a        = (ctypes.c_uint16 * len(self._a))(*self._a)
-        c_amin     = (ctypes.c_int32  * len(self._amin ))(*self._amin )
-        c_amax     = (ctypes.c_int32  * len(self._amax ))(*self._amax )
-        c_afuzz    = (ctypes.c_int32  * len(self._afuzz))(*self._afuzz)
-        c_aflat    = (ctypes.c_int32  * len(self._aflat))(*self._aflat)
-        c_r        = (ctypes.c_uint16 * len(self._r))(*self._r)
-        c_vendor   = ctypes.c_uint16(self.vendor)
-        c_product  = ctypes.c_uint16(self.product)
-        c_version  = ctypes.c_uint16(self.version)
+        c_k = (ctypes.c_uint16 * len(self._k))(*self._k)
+        c_a = (ctypes.c_uint16 * len(self._a))(*self._a)
+        c_amin = (ctypes.c_int32 * len(self._amin))(*self._amin)
+        c_amax = (ctypes.c_int32 * len(self._amax))(*self._amax)
+        c_afuzz = (ctypes.c_int32 * len(self._afuzz))(*self._afuzz)
+        c_aflat = (ctypes.c_int32 * len(self._aflat))(*self._aflat)
+        c_r = (ctypes.c_uint16 * len(self._r))(*self._r)
+        c_vendor = ctypes.c_uint16(self.vendor)
+        c_product = ctypes.c_uint16(self.product)
+        c_version = ctypes.c_uint16(self.version)
         c_keyboard = ctypes.c_int(self.keyboard)
-
         c_name = ctypes.c_char_p(self.name)
+
         self._fd = lib.uinput_init(ctypes.c_int(len(self._k)),
                                    c_k,
                                    ctypes.c_int(len(self._a)),
@@ -276,14 +273,12 @@ class UInput(object):
         @param int axis         key or btn event (KEY_* or BTN_*)
         @param int val          event value
         """
-
-        if self._fd == None:
+        if self._fd is None:
             self.createDevice()
 
         self._lib.uinput_key(self._fd,
                              ctypes.c_uint16(key),
                              ctypes.c_int32(val))
-
 
     def axisEvent(self, axis, val):
         """
@@ -292,8 +287,7 @@ class UInput(object):
         @param int axis         abs event (ABS_*)
         @param int val          event value
         """
-
-        if self._fd == None:
+        if self._fd is None:
             self.createDevice()
 
         self._lib.uinput_abs(self._fd,
@@ -307,8 +301,7 @@ class UInput(object):
         @param int rel          rel event (REL_*)
         @param int val          event value
         """
-
-        if self._fd == None:
+        if self._fd is None:
             self.createDevice()
 
         self._lib.uinput_rel(self._fd,
@@ -321,23 +314,18 @@ class UInput(object):
 
         @param int val          scan event value (scancode)
         """
-
-        if self._fd == None:
+        if self._fd is None:
             self.createDevice()
 
         self._lib.uinput_scan(self._fd,
                               ctypes.c_int32(val))
 
     def synEvent(self):
-        """
-        Generate a syn event
-        """
-
-        if self._fd == None:
+        """Generate a syn event"""
+        if self._fd is None:
             self.createDevice()
 
         self._lib.uinput_syn(self._fd)
-
 
     def setDelayPeriod(self, delay, period):
         """
@@ -346,8 +334,7 @@ class UInput(object):
         @param int delay        delay in ms
         @param int period       period is ms
         """
-
-        if self._fd == None:
+        if self._fd is None:
             self.createDevice()
 
         self._lib.uinput_set_delay_period(self._fd,
@@ -363,9 +350,7 @@ class UInput(object):
     def relManaged(self, ev):
         return ev in self._r
 
-
     def __del__(self):
-
         if self._lib and self._fd:
             self._lib.uinput_destroy(self._fd)
             self._fd = None
@@ -374,10 +359,7 @@ class UInput(object):
 
 
 class Gamepad(UInput):
-    """
-    Gamepad uinput class, create a gamepad device
-    """
-
+    """Gamepad uinput class, create a gamepad device"""
     def __init__(self):
         super(Gamepad, self).__init__(vendor=0x28de,
                                       product=0xffff,
@@ -411,14 +393,12 @@ class Gamepad(UInput):
 
 
 class Mouse(UInput):
-
     """
     Mouse uinput class, create a mouse device
 
     moveEvent can emulate free ball rotation of a track ball
     updateParams permit to upgrade ball model and move scale
     """
-
     DEFAULT_FRICTION = 10.0
     DEFAULT_XSCALE = 0.006
     DEFAULT_YSCALE = 0.006
@@ -460,7 +440,6 @@ class Mouse(UInput):
         self._scr_lastTime = time.time()
         self.updateScrollParams()
 
-
     def updateParams(self,
                      mass=80.0,
                      r=0.02,
@@ -475,22 +454,22 @@ class Mouse(UInput):
 
         @param float mass       mass in g of the ball
         @param float r          radius in m of the ball
-        @param float friction   constat friction force applied to the ball
+        @param float friction   constant friction force applied to the ball
         @param int ampli        integer amplitude for move from border to border
         @param float degree     degree of rotation of the ball for move from border to border
-        @param float xscale     scale applied on move param to input event on x axis
-        @param float yscale     scale applied on move param to input event on y axis
+        @param float xscale     scale applied on move param to input event on-x axis
+        @param float yscale     scale applied on move param to input event on-y axis
         """
         self._xscale = xscale
         self._yscale = yscale
 
-        self._ampli  = ampli
+        self._ampli = ampli
         self._degree = degree
-        self._radscale = (degree * pi / 180) / ampli
+        self._radscale = (degree * math.pi / 180) / ampli
         self._mass = mass
         self._friction = friction
         self._rad = r
-        self._I = (2 * self._mass * self._rad**2) / 5.0
+        self._I = (2 * self._mass * self._rad ** 2) / 5.0
         self._acc = self._rad * self._friction / self._I
 
         self._xvel_dq = deque(maxlen=mean_len)
@@ -513,34 +492,32 @@ class Mouse(UInput):
         @param float friction   constat friction force applied to the ball
         @param int ampli        integer amplitude for move from border to border
         @param float degree     degree of rotation of the ball for move from border to border
-        @param float xscale     scale applied on move param to input event on x axis
-        @param float yscale     scale applied on move param to input event on y axis
+        @param float xscale     scale applied on move param to input event on x-axis
+        @param float yscale     scale applied on move param to input event on y-axis
         """
         self._scr_xscale = xscale
         self._scr_yscale = yscale
-        self._scr_ampli  = ampli
+        self._scr_ampli = ampli
         self._scr_degree = degree
-        self._scr_radscale = (degree * pi / 180) / ampli
+        self._scr_radscale = (degree * math.pi / 180) / ampli
         self._scr_mass = mass
         self._scr_friction = friction
         self._scr_r = r
-        self._scr_I = (2 * self._mass * self._rad**2) / 5.0
+        self._scr_I = (2 * self._mass * self._rad ** 2) / 5.0
         self._scr_a = self._rad * self._friction / self._I
 
         self._scr_xvel_dq = deque(maxlen=mean_len)
         self._scr_yvel_dq = deque(maxlen=mean_len)
 
-
     def moveEvent(self, dx=0, dy=0, free=False):
         """
-        Generate move events from parametters and displacement
+        Generate move events from parameters and displacement
 
-        @param int dx           delta movement from last call on x axis
-        @param int dy           delta movement from last call on y axis
+        @param int dx           delta movement from last call on x-axis
+        @param int dy           delta movement from last call on y-axis
         @param bool free        set to true for free ball move
 
         @return float           absolute distance moved this tick
-
         """
         # Compute time step
         _tmp = time.time()
@@ -561,7 +538,7 @@ class Mouse(UInput):
                 self.synEvent()
 
         if not free:
-            # Compute mouse mouvement from interger part of d * scale
+            # Compute mouse movement from integer part of d * scale
             self._dx += dx * self._xscale
             self._dy += dy * self._yscale
 
@@ -579,29 +556,27 @@ class Mouse(UInput):
             self._yvel_dq.append(dy * self._radscale / dt)
 
         else:
-
-
             # Free movement update velocity and compute movement
             self._xvel_dq.clear()
             self._yvel_dq.clear()
 
-            _hyp = sqrt((self._xvel**2) + (self._yvel**2))
-            if _hyp != 0.0:
+            _hyp = math.sqrt((self._xvel ** 2) + (self._yvel ** 2))
+            if _hyp:
                 _ax = self._acc * (abs(self._xvel) / _hyp)
                 _ay = self._acc * (abs(self._yvel) / _hyp)
             else:
                 _ax = self._acc
                 _ay = self._acc
 
-            # Cap friction desceleration
+            # Cap friction deceleration
             _dvx = min(abs(self._xvel), _ax * dt)
             _dvy = min(abs(self._yvel), _ay * dt)
 
-            # compute new velocity
-            _xvel = self._xvel - copysign(_dvx, self._xvel)
-            _yvel = self._yvel - copysign(_dvy, self._yvel)
+            # Compute new velocity
+            _xvel = self._xvel - math.copysign(_dvx, self._xvel)
+            _yvel = self._yvel - math.copysign(_dvy, self._yvel)
 
-            # compute displacement
+            # Compute displacement
             dx = (((_xvel + self._xvel) / 2) * dt) / self._radscale
             dy = (((_yvel + self._yvel) / 2) * dt) / self._radscale
 
@@ -613,18 +588,17 @@ class Mouse(UInput):
 
             _genevt()
 
-        return sqrt((dx**2) + (dy**2))
+        return math.sqrt((dx ** 2) + (dy ** 2))
 
     def scrollEvent(self, dx=0, dy=0, free=False):
         """
-        Generate scroll events from parametters and displacement
+        Generate scroll events from parameters and displacement
 
-        @param int dx           delta movement from last call on x axis
-        @param int dy           delta movement from last call on y axis
+        @param int dx           delta movement from last call on x-axis
+        @param int dy           delta movement from last call on y-axis
         @param bool free        set to true for free ball move
 
         @return float           absolute distance moved this tick
-
         """
         # Compute time step
         _tmp = time.time()
@@ -634,11 +608,11 @@ class Mouse(UInput):
         def _genevt():
             _syn = False
             if int(self._scr_dx):
-                self.relEvent(rel=Rels.REL_HWHEEL, val=int(copysign(1, self._scr_dx)))
+                self.relEvent(rel=Rels.REL_HWHEEL, val=int(math.copysign(1, self._scr_dx)))
                 self._scr_dx -= int(self._scr_dx)
                 _syn = True
             if int(self._scr_dy):
-                self.relEvent(rel=Rels.REL_WHEEL,  val=int(copysign(1, self._scr_dy)))
+                self.relEvent(rel=Rels.REL_WHEEL, val=int(math.copysign(1, self._scr_dy)))
                 self._scr_dy -= int(self._scr_dy)
                 _syn = True
             if _syn:
@@ -646,7 +620,7 @@ class Mouse(UInput):
             return _syn
 
         if not free:
-            # Compute mouse mouvement from interger part of d * scale
+            # Compute mouse movement from integer part of d * scale
             self._scr_dx += dx * self._scr_xscale
             self._scr_dy += dy * self._scr_yscale
 
@@ -665,27 +639,26 @@ class Mouse(UInput):
 
         else:
             # Free movement update velocity and compute movement
-
             self._scr_xvel_dq.clear()
             self._scr_yvel_dq.clear()
 
-            _hyp = sqrt((self._scr_xvel**2) + (self._scr_yvel**2))
-            if _hyp != 0.0:
+            _hyp = math.sqrt((self._scr_xvel ** 2) + (self._scr_yvel ** 2))
+            if _hyp:
                 _ax = self._scr_a * (abs(self._scr_xvel) / _hyp)
                 _ay = self._scr_a * (abs(self._scr_yvel) / _hyp)
             else:
                 _ax = self._scr_a
                 _ay = self._scr_a
 
-            # Cap friction desceleration
+            # Cap friction deceleration
             _dvx = min(abs(self._scr_xvel), _ax * dt)
             _dvy = min(abs(self._scr_yvel), _ay * dt)
 
-            # compute new velocity
-            _xvel = self._scr_xvel - copysign(_dvx, self._scr_xvel)
-            _yvel = self._scr_yvel - copysign(_dvy, self._scr_yvel)
+            # Compute new velocity
+            _xvel = self._scr_xvel - math.copysign(_dvx, self._scr_xvel)
+            _yvel = self._scr_yvel - math.copysign(_dvy, self._scr_yvel)
 
-            # compute displacement
+            # Cfompute displacement
             dx = (((_xvel + self._scr_xvel) / 2) * dt) / self._scr_radscale
             dy = (((_yvel + self._scr_yvel) / 2) * dt) / self._scr_radscale
 
@@ -707,16 +680,15 @@ class Keyboard(UInput):
     pressEvent permit to generate a key pressed and with scan events
     releaseEvent permit to generate a key released and with scan events
 
-    autorepead delay and period are preset respectively to 250ms and 33ms
+    auto-repeat delay and period are preset respectively to 250ms and 33ms
     setDelayPeriod permits to update these values
     """
-
     def __init__(self):
         super(Keyboard, self).__init__(vendor=0x28de,
                                        product=0x1142,
                                        version=1,
                                        name=b"Steam Controller Keyboard",
-                                       keys=Scans.keys(),
+                                       keys=scans.keys(),
                                        axes=[],
                                        rels=[],
                                        keyboard=True)
@@ -745,12 +717,11 @@ class Keyboard(UInput):
 
         @param list of Keys keys        keys to press
         """
-
         new = [k for k in keys if k not in self._pressed]
         for i in new:
-            self.scanEvent(Scans[i])
+            self.scanEvent(scans[i])
             self.keyEvent(i, 1)
-        if len(new):
+        if new:
             super(Keyboard, self).synEvent()
             self._pressed |= set(new)
 
@@ -758,7 +729,6 @@ class Keyboard(UInput):
         """
         Generate key release event with corresponding scan codes.
         Events are generated only for keys that was pressed
-
 
         @param list of Keys keys        keys to release, give None or empty list
                                         to release all
@@ -768,9 +738,9 @@ class Keyboard(UInput):
         else:
             rem = list(self._pressed)
         for i in rem:
-            self.scanEvent(Scans[i])
+            self.scanEvent(scans[i])
             self.keyEvent(i, 0)
-        if len(rem):
+        if rem:
             super(Keyboard, self).synEvent()
             self._pressed -= set(rem)
 

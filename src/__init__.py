@@ -18,13 +18,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import usb1
-from collections import namedtuple
-import struct
 from enum import IntEnum
-
 from threading import Timer
 from time import time, sleep
+from struct import pack, unpack
+from collections import namedtuple
+
+import usb1
 
 
 VENDOR_ID = 0x28de
@@ -36,7 +36,7 @@ HPERIOD  = 0.02
 LPERIOD  = 0.5
 DURATION = 1.0
 
-STEAM_CONTROLER_FORMAT = [
+STEAM_CONTROLLER_FORMAT = [
     ('x',   'ukn_00'),
     ('x',   'ukn_01'),
     ('B',   'status'),
@@ -64,26 +64,28 @@ STEAM_CONTROLER_FORMAT = [
     ('16x', 'ukn_08'),
 ]
 
-_FORMATS, _NAMES = zip(*STEAM_CONTROLER_FORMAT)
+_FORMATS, _NAMES = zip(*STEAM_CONTROLLER_FORMAT)
 
-EXITCMD = struct.pack('>' + 'I' * 2,
-                      0x9f046f66,
-                      0x66210000)
+EXITCMD = pack('>' + 'I' * 2,
+               0x9f046f66,
+               0x66210000)
 
 SteamControllerInput = namedtuple('SteamControllerInput', ' '.join([x for x in _NAMES if not x.startswith('ukn_')]))
 
-SCI_NULL = SteamControllerInput._make(struct.unpack('<' + ''.join(_FORMATS), b'\x00' * 64))
+SCI_NULL = SteamControllerInput._make(unpack('<' + ''.join(_FORMATS), b'\x00' * 64))
+
 
 class SCStatus(IntEnum):
     INPUT = 0x01
     HOTPLUG = 0x03
-    IDLE  = 0x04
+    IDLE = 0x04
+
 
 class SCButtons(IntEnum):
     RPADTOUCH = 0b00010000000000000000000000000000
     LPADTOUCH = 0b00001000000000000000000000000000
     RPAD      = 0b00000100000000000000000000000000
-    LPAD      = 0b00000010000000000000000000000000 # Same for stick but without LPadTouch
+    LPAD      = 0b00000010000000000000000000000000  # Same for stick but without LPadTouch
     RGRIP     = 0b00000001000000000000000000000000
     LGRIP     = 0b00000000100000000000000000000000
     START     = 0b00000000010000000000000000000000
@@ -98,10 +100,12 @@ class SCButtons(IntEnum):
     LT        = 0b00000000000000000000001000000000
     RT        = 0b00000000000000000000000100000000
 
+
 class HapticPos(IntEnum):
-    """Specify witch pad or trig is used"""
+    """Specify which pad or trig is used"""
     RIGHT = 0
     LEFT = 1
+
 
 class SteamController(object):
 
@@ -148,12 +152,11 @@ class SteamController(object):
                 endpoint.append(_endpoint)
                 ccidx.append(_ccidx)
 
-        if len(handle) == 0:
-            raise ValueError('No SteamControler Device found')
+        if not handle:
+            raise ValueError('No SteamController Device found')
 
         claimed = False
         for i in range(len(handle)):
-
             self._ccidx = ccidx[i]
             self._handle = handle[i]
             self._pid = pid[i]
@@ -181,7 +184,7 @@ class SteamController(object):
                 break
 
         if not claimed:
-            raise ValueError('All SteamControler are busy')
+            raise ValueError('All SteamController are busy')
 
         self._transfer_list = []
         transfer = self._handle.getTransfer()
@@ -207,16 +210,16 @@ class SteamController(object):
         # Disable Haptic auto feedback
 
         self._ctx.handleEvents()
-        self._sendControl(struct.pack('>' + 'I' * 1,
-                                      0x81000000))
+        self._sendControl(pack('>' + 'I' * 1,
+                               0x81000000))
         self._ctx.handleEvents()
-        self._sendControl(struct.pack('>' + 'I' * 6,
-                                      0x87153284,
-                                      0x03180000,
-                                      0x31020008,
-                                      0x07000707,
-                                      0x00300000,
-                                      0x2f010000))
+        self._sendControl(pack('>' + 'I' * 6,
+                               0x87153284,
+                               0x03180000,
+                               0x31020008,
+                               0x07000707,
+                               0x00300000,
+                               0x2f010000))
         self._ctx.handleEvents()
 
     def _close(self):
@@ -231,7 +234,6 @@ class SteamController(object):
         self._close()
 
     def _sendControl(self, data, timeout=0):
-
         zeros = b'\x00' * (64 - len(data))
 
         self._handle.controlWrite(request_type=0x21,
@@ -246,24 +248,23 @@ class SteamController(object):
 
     def addFeedback(self, position, amplitude=128, period=0, count=1):
         """
-        Add haptic feedback to be send on next usb tick
+        Add haptic feedback to be sent on next usb tick
 
         @param int position     haptic to use 1 for left 0 for right
         @param int amplitude    signal amplitude from 0 to 65535
         @param int period       signal period from 0 to 65535
         @param int count        number of period to play
         """
-        self._cmsg.insert(0, struct.pack('<BBBHHH', 0x8f, 0x07, position, amplitude, period, count))
+        self._cmsg.insert(0, pack('<BBBHHH', 0x8f, 0x07, position, amplitude, period, count))
 
     def _processReceivedData(self, transfer):
         """Private USB async Rx function"""
-
         if (transfer.getStatus() != usb1.TRANSFER_COMPLETED or
             transfer.getActualLength() != 64):
             return
 
         data = transfer.getBuffer()
-        tup = SteamControllerInput._make(struct.unpack('<' + ''.join(_FORMATS), data))
+        tup = SteamControllerInput._make(unpack('<' + ''.join(_FORMATS), data))
         if tup.status == SCStatus.INPUT:
             self._tup = tup
 
@@ -271,7 +272,6 @@ class SteamController(object):
         transfer.submit()
 
     def _callback(self):
-
         if self._tup is None:
             return
 
@@ -285,7 +285,6 @@ class SteamController(object):
         self._period = HPERIOD
 
     def _callbackTimer(self):
-
         d = time() - self._lastusb
         self._timer.cancel()
 
@@ -306,15 +305,14 @@ class SteamController(object):
         else:
             self._cb(self, self._tup)
 
-
     def run(self):
-        """Fucntion to run in order to process usb events"""
+        """Function to run in order to process USB events"""
         if self._handle or self.keep_alive:
             try:
                 while True:
                     while any(x.isSubmitted() for x in self._transfer_list):
                         self._ctx.handleEvents()
-                        if len(self._cmsg) > 0:
+                        if self._cmsg:
                             cmsg = self._cmsg.pop()
                             if cmsg == EXITCMD and not self.keep_alive:
                                 return
@@ -333,8 +331,7 @@ class SteamController(object):
             except usb1.USBErrorInterrupted:
                 pass
 
-
     def handleEvents(self):
-        """Fucntion to run in order to process usb events"""
+        """Function to run in order to handle USB events"""
         if self._handle and self._ctx:
             self._ctx.handleEvents()
